@@ -1,0 +1,24 @@
+{
+  "name": "hdr-browser",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "HDR",
+  "license": "ISC",
+  "dependencies": {
+    "chrome-paths": "^1.0.1",
+    "debug": "^4.3.4",
+    "llm-api": "github:AlephNotation/llm-api",
+    "puppeteer": "^22.0.0",
+    "puppeteer-extra": "^3.3.6",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.12"
+  }
+}
