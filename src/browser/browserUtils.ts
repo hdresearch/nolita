@@ -1,8 +1,8 @@
-const chromePaths = require("chrome-paths");
+import * as chromePaths from "chrome-paths";
 import PuppeteerExtra from "puppeteer-extra";
 import puppeteer, { Browser as PuppeteerBrowser } from "puppeteer";
 
-export const getChromePath = () => {
+export const getChromePath = (): string | undefined => {
   let chromePath;
   if (process.env.CHROME_PATH) {
     chromePath = process.env.CHROME_PATH;
@@ -14,7 +14,7 @@ export const getChromePath = () => {
 
 export const browserContext = async (
   headless: boolean,
-  browserWSEndpoint: string
+  browserWSEndpoint?: string
 ) => {
   let browser: PuppeteerBrowser;
   if (browserWSEndpoint) {
