@@ -73,10 +73,11 @@ export class Browser {
   }
 
   async captureScreenshot(fullPage: boolean = false) {
-    return await this.page.screenshot({
+    const buffer = await this.page.screenshot({
       fullPage: fullPage,
-      path: `${this.userDataDir}/screenshot_${Date.now()}.png`,
+      type: "png",
     });
+    return buffer.toString("base64");
   }
 
   getMap() {
