@@ -132,6 +132,23 @@ describe("Browser interaction tests", () => {
       "https://www.google.com/search?q=High+Dimensional+Research"
     );
   });
+
+  test("Scroll up", async () => {
+    await browser.goTo("https://hdr.is");
+    const initialOffset = await browser.page.evaluate(() => window.pageYOffset);
+    await browser.performAction({ kind: "Scroll", direction: "down" });
+    const newOffset = await browser.page.evaluate(() => window.pageYOffset);
+    expect(newOffset).toBeGreaterThan(initialOffset);
+  });
+
+  test("Scroll down", async () => {
+    await browser.goTo("https://hdr.is");
+    await browser.performAction({ kind: "Scroll", direction: "down" });
+    const initialOffset = await browser.page.evaluate(() => window.pageYOffset);
+    await browser.performAction({ kind: "Scroll", direction: "up" });
+    const newOffset = await browser.page.evaluate(() => window.pageYOffset);
+    expect(newOffset).toBeLessThan(initialOffset);
+  });
 });
 
 describe("Vision Browser", () => {
