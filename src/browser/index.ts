@@ -14,19 +14,18 @@ import { BrowserAction } from "../types/actions.types";
 import { ObjectiveState } from "../types/objectiveState.types";
 
 export class Browser {
+  // @ts-ignore
   private browser: PuppeteerBrowser;
-  private page: Page;
+  //@ts-ignore
+  page: Page;
+  // @ts-ignore
   private mode: BrowserMode;
   private userDataDir = "/tmp"; // TODO: make this configurable
   private idMapping: Map<number, any> = new Map();
   private error: string | undefined;
   private telemetry: boolean = true;
 
-  constructor(browser: PuppeteerBrowser, page: Page, mode: BrowserMode) {
-    this.browser = browser;
-    this.page = page;
-    this.mode = mode;
-  }
+  constructor() {}
 
   private async init(browser: PuppeteerBrowser, mode: BrowserMode) {
     this.browser = browser;
@@ -39,23 +38,17 @@ export class Browser {
       if (page) {
         self.page = page;
       }
-      if (mode === "vision") {
-        // self.injectBoundingBoxes();
-      }
     });
   }
 
   static async create(
     headless: boolean,
-    browserWSEndpoint: string,
-    mode: BrowserMode
+    browserWSEndpoint?: string,
+    mode: BrowserMode = BrowserMode.text
   ): Promise<Browser> {
-    const _browser = await browserContext(headless, browserWSEndpoint);
-    const page = await _browser.newPage();
-    const browser = new Browser(_browser, page, mode);
-    // const browser = new Browser();
+    const browser = new Browser();
 
-    browser.init(await browserContext(headless, browserWSEndpoint), mode);
+    await browser.init(await browserContext(headless, browserWSEndpoint), mode);
 
     return browser;
   }
@@ -72,147 +65,6 @@ export class Browser {
 
   async content(): Promise<string> {
     return await this.page.evaluate(() => document.body.innerText);
-  }
-
-  async injectBoundingBoxes() {
-    await this.page.evaluateOnNewDocument(() => {
-      //@ts-ignore
-      var labels = [];
-
-      const unmarkPage = () => {
-        // @ts-ignore
-        for (const label of labels) {
-          document.body.removeChild(label);
-        }
-        labels = [];
-      };
-
-      // Function to generate random colors
-      // @ts-ignore
-      function getColor(elementType) {
-        const colorMapping = {
-          INPUT: "#FF0000", // Red for input fields
-          TEXTAREA: "#00FF00", // Green for textareas
-          SELECT: "#0000FF", // Blue for select dropdowns
-          BUTTON: "#FFFF00", // Yellow for buttons
-          A: "#FF00FF", // Magenta for links
-          DEFAULT: "#CCCCCC", // Grey for any other elements
-        };
-        // @ts-ignore
-        return colorMapping[elementType] || colorMapping.DEFAULT;
-      }
-
-      const markPage = () => {
-        unmarkPage();
-
-        var bodyRect = document.body.getBoundingClientRect();
-
-        var items = Array.prototype.slice
-          .call(document.querySelectorAll("*"))
-          .map(function (element) {
-            var vw = Math.max(
-              document.documentElement.clientWidth || 0,
-              window.innerWidth || 0
-            );
-            var vh = Math.max(
-              document.documentElement.clientHeight || 0,
-              window.innerHeight || 0
-            );
-
-            var rects = [...element.getClientRects()]
-              .filter((bb) => {
-                var center_x = bb.left + bb.width / 2;
-                var center_y = bb.top + bb.height / 2;
-                var elAtCenter = document.elementFromPoint(center_x, center_y);
-
-                return elAtCenter === element || element.contains(elAtCenter);
-              })
-              .map((bb) => {
-                const rect = {
-                  left: Math.max(0, bb.left),
-                  top: Math.max(0, bb.top),
-                  right: Math.min(vw, bb.right),
-                  bottom: Math.min(vh, bb.bottom),
-                  //   left: bb.left + window.pageXOffset,
-                  //   top: bb.top + window.pageYOffset,
-                  //   right: bb.right + window.pageXOffset,
-                  //   bottom: bb.bottom + window.pageYOffset,
-                };
-                return {
-                  ...rect,
-                  width: rect.right - rect.left,
-                  height: rect.bottom - rect.top,
-                };
-              });
-            var area = rects.reduce(
-              (acc, rect) => acc + rect.width * rect.height,
-              0
-            );
-
-            return {
-              element: element,
-              include:
-                element.tagName === "INPUT" ||
-                element.tagName === "TEXTAREA" ||
-                element.tagName === "SELECT" ||
-                element.tagName === "BUTTON" ||
-                element.tagName === "A" ||
-                element.onclick != null ||
-                window.getComputedStyle(element).cursor == "pointer" ||
-                element.tagName === "IFRAME" ||
-                element.tagName === "VIDEO",
-              area,
-              rects,
-              text: element.textContent.trim().replace(/\s{2,}/g, " "),
-            };
-          })
-          .filter((item) => item.include && item.area >= 20);
-        // Only keep inner clickable items
-        items = items.filter(
-          (x) => !items.some((y) => x.element.contains(y.element) && !(x == y))
-        );
-
-        items.forEach(function (item, index) {
-          item.rects.forEach((bbox) => {
-            var newElement = document.createElement("div");
-            var borderColor = getColor(item.element.tagName);
-            newElement.style.outline = `2px dashed ${borderColor}`;
-            newElement.style.position = "absolute";
-            newElement.style.left = bbox.left + window.scrollX + "px";
-            newElement.style.top = bbox.top + window.scrollY + "px";
-            newElement.style.width = bbox.width + "px";
-            newElement.style.height = bbox.height + "px";
-            newElement.style.pointerEvents = "none";
-            newElement.style.boxSizing = "border-box";
-            newElement.style.zIndex = "2147483647";
-            // newElement.style.background = `${borderColor}80`;
-
-            // Add floating label at the corner
-            var label = document.createElement("span");
-            label.textContent = `${index}`;
-            label.style.position = "absolute";
-            label.style.top = "-19px";
-            label.style.left = "0px";
-            label.style.background = borderColor;
-            label.style.color = "white";
-            label.style.padding = "2px 4px";
-            label.style.fontSize = "12px";
-            label.style.borderRadius = "2px";
-            newElement.appendChild(label);
-
-            document.body.appendChild(newElement);
-            //@ts-ignore
-            labels.push(newElement);
-            // item.element.setAttribute("-ai-label", label.textContent);
-          });
-        });
-      };
-
-      addEventListener("mouseover", markPage);
-      addEventListener("click", markPage);
-      addEventListener("scroll", unmarkPage);
-      addEventListener("load", markPage);
-    });
   }
 
   async captureScreenshot(fullPage: boolean = false) {
@@ -244,6 +96,12 @@ export class Browser {
       objective: objective,
     };
     return content;
+  }
+
+  async scroll(direction: "up" | "down") {
+    await this.page.evaluate((direction: "up" | "down") => {
+      window.scrollBy(0, direction === "up" ? -100 : 100);
+    }, direction);
   }
 
   async performAction(command: BrowserAction) {
@@ -384,5 +242,143 @@ export class Browser {
       e.push(children);
     }
     return e;
+  }
+
+  async injectBoundingBoxes() {
+    await this.page.evaluate(() => {
+      // @ts-ignore
+      var labels = [];
+
+      const unmarkPage = () => {
+        // @ts-ignore
+        for (const label of labels) {
+          document.body.removeChild(label);
+        }
+        labels = [];
+      };
+
+      // Function to generate random colors
+      // @ts-ignore
+      function getColor(elementType) {
+        const colorMapping = {
+          INPUT: "#FF0000", // Red for input fields
+          TEXTAREA: "#00FF00", // Green for textareas
+          SELECT: "#0000FF", // Blue for select dropdowns
+          BUTTON: "#FFFF00", // Yellow for buttons
+          A: "#FF00FF", // Magenta for links
+          DEFAULT: "#CCCCCC", // Grey for any other elements
+        };
+        // @ts-ignore
+        return colorMapping[elementType] || colorMapping.DEFAULT;
+      }
+
+      const markPage = () => {
+        unmarkPage();
+
+        var bodyRect = document.body.getBoundingClientRect();
+
+        var items = Array.prototype.slice
+          .call(document.querySelectorAll("*"))
+          .map(function (element) {
+            var vw = Math.max(
+              document.documentElement.clientWidth || 0,
+              window.innerWidth || 0
+            );
+            var vh = Math.max(
+              document.documentElement.clientHeight || 0,
+              window.innerHeight || 0
+            );
+
+            var rects = [...element.getClientRects()]
+              .filter((bb) => {
+                var center_x = bb.left + bb.width / 2;
+                var center_y = bb.top + bb.height / 2;
+                var elAtCenter = document.elementFromPoint(center_x, center_y);
+
+                return elAtCenter === element || element.contains(elAtCenter);
+              })
+              .map((bb) => {
+                const rect = {
+                  left: Math.max(0, bb.left),
+                  top: Math.max(0, bb.top),
+                  right: Math.min(vw, bb.right),
+                  bottom: Math.min(vh, bb.bottom),
+                };
+                return {
+                  ...rect,
+                  width: rect.right - rect.left,
+                  height: rect.bottom - rect.top,
+                };
+              });
+            var area = rects.reduce(
+              (acc, rect) => acc + rect.width * rect.height,
+              0
+            );
+
+            return {
+              element: element,
+              include:
+                element.tagName === "INPUT" ||
+                element.tagName === "TEXTAREA" ||
+                element.tagName === "SELECT" ||
+                element.tagName === "BUTTON" ||
+                element.tagName === "A" ||
+                element.onclick != null ||
+                window.getComputedStyle(element).cursor == "pointer" ||
+                element.tagName === "IFRAME" ||
+                element.tagName === "VIDEO",
+              area,
+              rects,
+              text: element.textContent.trim().replace(/\s{2,}/g, " "),
+            };
+          })
+          .filter((item) => item.include && item.area >= 20);
+
+        // Only keep inner clickable items
+        items = items.filter(
+          (x) => !items.some((y) => x.element.contains(y.element) && !(x == y))
+        );
+
+        items.forEach(function (item, index) {
+          item.rects.forEach((bbox) => {
+            var newElement = document.createElement("div");
+            newElement.id = `ai-label-${index}`;
+            var borderColor = getColor(item.element.tagName);
+            newElement.style.outline = `2px dashed ${borderColor}`;
+            newElement.style.position = "absolute";
+            newElement.style.left = bbox.left + window.scrollX + "px";
+            newElement.style.top = bbox.top + window.scrollY + "px";
+            newElement.style.width = bbox.width + "px";
+            newElement.style.height = bbox.height + "px";
+            newElement.style.pointerEvents = "none";
+            newElement.style.boxSizing = "border-box";
+            newElement.style.zIndex = "2147483647";
+
+            // Add floating label at the corner
+            var label = document.createElement("span");
+            label.textContent = index.toString();
+            label.style.position = "absolute";
+            label.style.top = "-19px";
+            label.style.left = "0px";
+            label.style.background = borderColor;
+            label.style.color = "white";
+            label.style.padding = "2px 4px";
+            label.style.fontSize = "12px";
+            label.style.borderRadius = "2px";
+            newElement.appendChild(label);
+
+            document.body.appendChild(newElement);
+            //@ts-ignore
+            labels.push(newElement);
+          });
+        });
+      };
+
+      addEventListener("mouseover", markPage);
+      addEventListener("click", markPage);
+      addEventListener("scroll", unmarkPage);
+      addEventListener("load", markPage);
+    });
+    await this.page.hover("body");
   }
 }
