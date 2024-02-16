@@ -58,9 +58,9 @@ export class Browser {
     await this.browser.close();
   }
 
-  async goTo(url: string) {
+  async goTo(url: string, delay: number = 1000) {
     await this.page.goto(url);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, delay));
   }
 
   async content(): Promise<string> {
