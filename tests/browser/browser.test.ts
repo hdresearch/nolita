@@ -77,6 +77,31 @@ describe("Base browser functionality", () => {
   });
 });
 
+describe("Browser interaction tests", () => {
+  let browser: Browser;
+
+  beforeAll(async () => {
+    browser = await Browser.create(true, "", BrowserMode.text);
+  });
+
+  beforeEach(async () => {
+    await browser.goTo("https://google.com");
+    await browser.parseContent();
+  });
+
+  afterAll(async () => {
+    await browser.close();
+  });
+
+  test("Click Link", async () => {
+    await browser.performAction({ kind: "Click", index: 1 });
+    // sleep for a bit to let the page load
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const url = await browser.url();
+    expect(url.split("?")[0]).toBe("https://about.google/");
+  });
+});
+
 describe("Vision Browser", () => {
   let browser: Browser;
 
