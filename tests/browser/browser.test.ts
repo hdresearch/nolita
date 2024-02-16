@@ -75,6 +75,24 @@ describe("Base browser functionality", () => {
     const map = await browser.getMap();
     expect(map.get(2)).toStrictEqual([2, "link", "More information..."]);
   });
+
+  test("screenshot", async () => {
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <body>
+        <h1>Hello, World!</h1>
+      </body>
+      </html>
+    `;
+    const dataUrl = `data:text/html,${encodeURIComponent(htmlContent)}`;
+    await browser.goTo(dataUrl);
+    const screenshot = await browser.captureScreenshot();
+    const expectedStringPartial = "iVBORw0KGgoAAAANSUhEUgAAAy";
+    expect(screenshot.slice(0, expectedStringPartial.length)).toBe(
+      expectedStringPartial
+    );
+  });
 });
 
 describe("Browser interaction tests", () => {
