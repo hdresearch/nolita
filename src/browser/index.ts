@@ -12,6 +12,11 @@ import { browserContext } from "./browserUtils";
 import { AccessibilityTree, BrowserMode } from "../types/browser.types";
 import { BrowserAction } from "../types/actions.types";
 import { ObjectiveState } from "../types/objectiveState.types";
+import debug from "debug";
+
+// IDK what this black magic is
+// @ts-ignore
+import { MAIN_WORLD } from "puppeteer";
 
 export class Browser {
   // @ts-ignore
@@ -58,9 +63,9 @@ export class Browser {
     await this.browser.close();
   }
 
-  async goTo(url: string) {
+  async goTo(url: string, delay: number = 1000) {
     await this.page.goto(url);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, delay));
   }
 
   async content(): Promise<string> {
@@ -68,10 +73,11 @@ export class Browser {
   }
 
   async captureScreenshot(fullPage: boolean = false) {
-    return await this.page.screenshot({
+    const buffer = await this.page.screenshot({
       fullPage: fullPage,
-      path: `${this.userDataDir}/screenshot_${Date.now()}.png`,
+      type: "png",
     });
+    return buffer.toString("base64");
   }
 
   getMap() {
@@ -140,9 +146,8 @@ export class Browser {
           throw new Error("Unknown command:" + JSON.stringify(command));
       }
     } catch (e) {
-      console.log(`Error in performAction: ${command}`);
       this.error = (e as Error).toString();
-      console.error(this.error);
+      debug(` Error ${this.error} on command: ${JSON.stringify(command)}`);
     }
   }
 
@@ -212,6 +217,7 @@ export class Browser {
     let ret = JSON.stringify(tree_ret);
     return ret;
   }
+
   private async getAccessibilityTree(
     page: Page
   ): Promise<SerializedAXNode | null> {
