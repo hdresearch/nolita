@@ -12,6 +12,11 @@ import { browserContext } from "./browserUtils";
 import { AccessibilityTree, BrowserMode } from "../types/browser.types";
 import { BrowserAction } from "../types/actions.types";
 import { ObjectiveState } from "../types/objectiveState.types";
+import debug from "debug";
+
+// IDK what this black magic is
+// @ts-ignore
+import { MAIN_WORLD } from "puppeteer";
 
 export class Browser {
   // @ts-ignore
@@ -140,7 +145,7 @@ export class Browser {
           throw new Error("Unknown command:" + JSON.stringify(command));
       }
     } catch (e) {
-      console.log(`Error in performAction: ${command}`);
+      debug(`Error in performAction: ${command}`);
       this.error = (e as Error).toString();
       console.error(this.error);
     }
@@ -212,6 +217,7 @@ export class Browser {
     let ret = JSON.stringify(tree_ret);
     return ret;
   }
+
   private async getAccessibilityTree(
     page: Page
   ): Promise<SerializedAXNode | null> {
