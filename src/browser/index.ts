@@ -145,9 +145,8 @@ export class Browser {
           throw new Error("Unknown command:" + JSON.stringify(command));
       }
     } catch (e) {
-      debug(`Error in performAction: ${command}`);
       this.error = (e as Error).toString();
-      console.error(this.error);
+      debug(` Error ${this.error} on command: ${JSON.stringify(command)}`);
     }
   }
 

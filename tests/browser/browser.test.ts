@@ -93,12 +93,44 @@ describe("Browser interaction tests", () => {
     await browser.close();
   });
 
-  test("Click Link", async () => {
+  test("Click", async () => {
     await browser.performAction({ kind: "Click", index: 1 });
     // sleep for a bit to let the page load
     await new Promise((resolve) => setTimeout(resolve, 1000));
     const url = await browser.url();
     expect(url.split("?")[0]).toBe("https://about.google/");
+  });
+
+  test("Click link as array", async () => {
+    await browser.performManyActions([{ kind: "Click", index: 1 }]);
+    // sleep for a bit to let the page load
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const url = await browser.url();
+    expect(url.split("?")[0]).toBe("https://about.google/");
+  });
+
+  test("Type", async () => {
+    console.log("MAP:", await browser.getMap());
+    await browser.performManyActions([
+      {
+        kind: "Type",
+        index: 8,
+        text: "High Dimensional Research",
+      },
+    ]);
+    console.log("MAP:", await browser.getMap());
+
+    await browser.performManyActions([
+      {
+        kind: "Click",
+        index: 11,
+      },
+    ]);
+
+    const url = await browser.url();
+    expect(url).toContain(
+      "https://www.google.com/search?q=High+Dimensional+Research"
+    );
   });
 });
 
