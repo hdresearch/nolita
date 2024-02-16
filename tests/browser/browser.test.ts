@@ -1,4 +1,11 @@
-import { describe, expect, test, beforeAll, afterAll } from "@jest/globals";
+import {
+  describe,
+  expect,
+  test,
+  beforeAll,
+  afterAll,
+  beforeEach,
+} from "@jest/globals";
 import { Browser } from "../../src/browser/index";
 import { BrowserMode, ObjectiveState } from "../../src/types/browser.types";
 
@@ -7,6 +14,7 @@ describe("Base browser functionality", () => {
 
   beforeAll(async () => {
     browser = await Browser.create(true, "", BrowserMode.text);
+    await browser.goTo("https://example.com");
   });
 
   afterAll(async () => {
@@ -14,19 +22,20 @@ describe("Base browser functionality", () => {
   });
 
   test("Can navigate to a page", async () => {
-    await browser.goTo("https://example.com");
-    const url = await browser.page.url();
+    // creating a new browser to test the goTo function
+    const _browser = await Browser.create(true, "", BrowserMode.text);
+    await _browser.goTo("https://example.com");
+    const url = await _browser.page.url();
     expect(url).toBe("https://example.com/");
+    await _browser.close();
   });
 
   test(".url returns page url", async () => {
-    await browser.goTo("https://example.com");
     const url = await browser.url();
     expect(url).toBe("https://example.com/");
   });
 
   test("State returns correctly", async () => {
-    await browser.goTo("https://example.com");
     const state = await browser.state("Describe the page content", []);
     const expectedState: ObjectiveState = {
       ariaTree:
@@ -42,6 +51,29 @@ describe("Base browser functionality", () => {
     expect(state.progress).toStrictEqual(expectedState.progress);
     expect(state.kind).toBe(expectedState.kind);
     expect(state.objective).toBe(expectedState.objective);
+  });
+
+  test("Content should return correctly", async () => {
+    const content = await browser.content();
+    // multiple calls so we dont have to mess with the base string
+    expect(content).toContain("Example Domain");
+    expect(content).toContain(
+      "This domain is for use in illustrative examples in documents. You may use this domain in literature without prior coordination or asking for permission"
+    );
+    expect(content).toContain("More information...");
+  });
+
+  test("parseContent", async () => {
+    const content = await browser.parseContent();
+    const want =
+      '[0,"RootWebArea","Example Domain",[[1,"heading","Example Domain"],"This domain is for use in illustrative examples in documents. You may use this domain in literature without prior coordination or asking for permission.",[2,"link","More information..."]]]';
+    expect(content).toBe(want);
+  });
+
+  test("idMapping", async () => {
+    await browser.parseContent();
+    const map = await browser.getMap();
+    expect(map.get(2)).toStrictEqual([2, "link", "More information..."]);
   });
 });
 
@@ -60,7 +92,6 @@ describe("Vision Browser", () => {
     await browser.goTo("https://example.com");
 
     await browser.injectBoundingBoxes();
-    console.log("HELLO");
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     const markersCount = await browser.page.evaluate(() => {
