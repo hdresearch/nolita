@@ -1,6 +1,7 @@
 import * as chromePaths from "chrome-paths";
 import PuppeteerExtra from "puppeteer-extra";
 import puppeteer, { Browser as PuppeteerBrowser } from "puppeteer";
+import { BROWSER_LAUNCH_ARGS } from "./browserDefaults";
 
 export const getChromePath = (): string | undefined => {
   let chromePath;
@@ -14,7 +15,8 @@ export const getChromePath = (): string | undefined => {
 
 export const browserContext = async (
   headless: boolean,
-  browserWSEndpoint?: string
+  browserWSEndpoint?: string,
+  browserLaunchArgs: string[] = BROWSER_LAUNCH_ARGS
 ) => {
   let browser: PuppeteerBrowser;
   if (browserWSEndpoint) {
@@ -25,7 +27,7 @@ export const browserContext = async (
     browser = await PuppeteerExtra.launch({
       headless: headless,
       executablePath: getChromePath(),
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: browserLaunchArgs,
     });
   }
   return browser;
