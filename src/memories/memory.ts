@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ObjectiveState } from "../types/browser.types";
+import { ObjectiveState } from "../types/browser/browser.types";
 
 export const HDRConfig = z.object({
   apiKey: z.string().length(1),

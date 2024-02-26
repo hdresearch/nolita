@@ -15,13 +15,16 @@
     "chrome-paths": "^1.0.1",
     "debug": "^4.3.4",
     "dotenv": "^16.4.4",
-    "llm-api": "github:AlephNotation/llm-api",
+    "exponential-backoff": "^3.1.1",
+    "js-tiktoken": "^1.0.10",
+    "llm-api": "^1.2.0",
     "lodash": "^4.17.21",
     "openai": "^4.28.0",
     "puppeteer": "^22.0.0",
     "puppeteer-extra": "^3.3.6",
     "type-fest": "^4.10.2",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "zod-gpt": "^0.12.1"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",

@@ -3,7 +3,10 @@ import { z } from "zod";
 import { AgentInterface } from "./agent/interface";
 import { Browser } from "./browser";
 import { Logger } from "./utils";
-import { BrowserObjective, ObjectiveState } from "./types/browser.types";
+import {
+  BrowserObjective,
+  ObjectiveState,
+} from "./types/browser/browser.types";
 
 export const BrowserBehaviorConfig = z.object({
   goToDelay: z.number().int().default(1000),
@@ -17,6 +20,7 @@ export class AgentBrowser {
   browser: Browser;
   logger: Logger;
   config: BrowserBehaviorConfig;
+  plugins: any;
 
   private objectiveProgress: string[];
 
@@ -24,7 +28,8 @@ export class AgentBrowser {
     agent: AgentInterface,
     browser: Browser,
     logger: Logger,
-    behaviorConfig: BrowserBehaviorConfig
+    behaviorConfig: BrowserBehaviorConfig,
+    plugins: any
   ) {
     this.agent = agent;
     this.browser = browser;
@@ -33,6 +38,7 @@ export class AgentBrowser {
     this.config = behaviorConfig;
 
     this.objectiveProgress = [];
+    this.plugins = plugins;
   }
 
   async create(
@@ -42,10 +48,14 @@ export class AgentBrowser {
     behaviorConfig: BrowserBehaviorConfig
   ) {}
 
-  async browse<T>(
+  // returns {action: ActionStep, state: ObjectiveState}
+  async remember(state: ObjectiveState) {
+    // this.objectiveProgress.push(state.objective);
+  }
+
+  async browse<T extends z.ZodTypeAny>(
     browserObjective: BrowserObjective,
-    responseType: T,
-    delay: number = 1000
+    responseType: T
   ) {
     const { startUrl, objective, maxIterations } =
       BrowserObjective.parse(browserObjective);

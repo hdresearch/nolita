@@ -9,9 +9,9 @@ import puppeteer, {
 
 import { browserContext } from "./browserUtils";
 
-import { AccessibilityTree, BrowserMode } from "../types/browser.types";
-import { BrowserAction } from "../types/actions.types";
-import { ObjectiveState } from "../types/objectiveState.types";
+import { AccessibilityTree, BrowserMode } from "../types/browser/browser.types";
+import { BrowserAction } from "../types/browser/actions.types";
+import { ObjectiveState } from "../types/browser/objectiveState.types";
 import debug from "debug";
 
 // IDK what this black magic is
