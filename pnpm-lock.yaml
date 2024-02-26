@@ -17,9 +17,15 @@ dependencies:
   dotenv:
     specifier: ^16.4.4
     version: 16.4.4
+  exponential-backoff:
+    specifier: ^3.1.1
+    version: 3.1.1
+  js-tiktoken:
+    specifier: ^1.0.10
+    version: 1.0.10
   llm-api:
-    specifier: github:AlephNotation/llm-api
-    version: github.com/AlephNotation/llm-api/7b7969f25bdae3ee8aa0f4cbe7ec873529a6756d
+    specifier: ^1.2.0
+    version: 1.2.0
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
@@ -38,6 +44,9 @@ dependencies:
   zod:
     specifier: ^3.22.4
     version: 3.22.4
+  zod-gpt:
+    specifier: ^0.12.1
+    version: 0.12.1(llm-api@1.2.0)(zod@3.22.4)
 
 devDependencies:
   '@jest/globals':
@@ -2401,6 +2410,10 @@ packages:
       jest-util: 29.7.0
     dev: true
 
+  /exponential-backoff@3.1.1:
+    resolution: {integrity: sha512-dX7e/LHVJ6W3DE1MHWi9S1EYzDESENfLrYohG2G++ovZrYOkm4Knwa0mc1cn84xJOR4KEU0WSchhLbd0UklbHw==}
+    dev: false
+
   /extract-zip@2.0.1:
     resolution: {integrity: sha512-GDhU9ntwuKyGXdZBUgTIe+vXnWj0fppUEtMDL0+idd5Sta8TGpHssn/eusA9mrPr9qNDym6SxAYZjNvCn/9RBg==}
     engines: {node: '>= 10.17.0'}
@@ -3366,6 +3379,24 @@ packages:
   /lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
 
+  /llm-api@1.2.0:
+    resolution: {integrity: sha512-+n6/w+GpxUvGBF5cc/pPbgV2kT6v6MHVY4jtebLNCSW+AmL0oPtm7Kdv5czyMp68Jzqr0YfpzTW5BB5PC+rIAA==}
+    dependencies:
+      '@anthropic-ai/sdk': 0.8.1
+      '@aws-sdk/client-bedrock-runtime': 3.511.0
+      debug: 4.3.4
+      js-tiktoken: 1.0.10
+      jsonic: 1.0.1
+      jsonrepair: 3.5.1
+      lodash: 4.17.21
+      openai: 4.28.0
+      type-fest: 4.10.2
+    transitivePeerDependencies:
+      - aws-crt
+      - encoding
+      - supports-color
+    dev: false
+
   /locate-path@5.0.0:
     resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}
     engines: {node: '>=8'}
@@ -4313,26 +4344,32 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /zod@3.22.4:
-    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
-    dev: false
-
-  github.com/AlephNotation/llm-api/7b7969f25bdae3ee8aa0f4cbe7ec873529a6756d:
-    resolution: {tarball: https://codeload.github.com/AlephNotation/llm-api/tar.gz/7b7969f25bdae3ee8aa0f4cbe7ec873529a6756d}
-    name: llm-api
-    version: 1.2.0
+  /zod-gpt@0.12.1(llm-api@1.2.0)(zod@3.22.4):
+    resolution: {integrity: sha512-9iEwqaOnFXTDrmZ9XUlY+IfaLuZ4jYJDU+qncvzxF6T19x8pIKE/G/8EFJqf5WYnFd0gIn6fVJ1gaaTDHvH/xw==}
+    peerDependencies:
+      llm-api: ^1.2.0
+      zod: ^3.22.4
     dependencies:
-      '@anthropic-ai/sdk': 0.8.1
-      '@aws-sdk/client-bedrock-runtime': 3.511.0
       debug: 4.3.4
-      js-tiktoken: 1.0.10
       jsonic: 1.0.1
       jsonrepair: 3.5.1
+      llm-api: 1.2.0
       lodash: 4.17.21
-      openai: 4.28.0
       type-fest: 4.10.2
+      zod: 3.22.4
+      zod-to-json-schema: 3.22.4(zod@3.22.4)
     transitivePeerDependencies:
-      - aws-crt
-      - encoding
       - supports-color
+    dev: false
+
+  /zod-to-json-schema@3.22.4(zod@3.22.4):
+    resolution: {integrity: sha512-2Ed5dJ+n/O3cU383xSY28cuVi0BCQhF8nYqWU5paEpl7fVdqdAmiLdqLyfblbNdfOFwFfi/mqU4O1pwc60iBhQ==}
+    peerDependencies:
+      zod: ^3.22.4
+    dependencies:
+      zod: 3.22.4
+    dev: false
+
+  /zod@3.22.4:
+    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
     dev: false

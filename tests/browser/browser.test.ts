@@ -7,7 +7,10 @@ import {
   beforeEach,
 } from "@jest/globals";
 import { Browser } from "../../src/browser/index";
-import { BrowserMode, ObjectiveState } from "../../src/types/browser.types";
+import {
+  BrowserMode,
+  ObjectiveState,
+} from "../../src/types/browser/browser.types";
 
 describe("Base browser functionality", () => {
   let browser: Browser;

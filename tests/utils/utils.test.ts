@@ -1,4 +1,4 @@
-import { describe, test, expect } from "@jest/globals";
+import { test, expect } from "@jest/globals";
 import { generateUUID } from "../../src/utils/uuid";
 
 test("generateUUID", () => {
