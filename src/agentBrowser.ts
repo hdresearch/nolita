@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-import { AgentInterface } from "./agent/interface";
 import { Browser } from "./browser";
 import { Logger } from "./utils";
 import {
   BrowserObjective,
   ObjectiveState,
 } from "./types/browser/browser.types";
+import { Agent } from "./agent/baseAgent";
 
 export const BrowserBehaviorConfig = z.object({
   goToDelay: z.number().int().default(1000),
@@ -16,7 +16,7 @@ export const BrowserBehaviorConfig = z.object({
 export type BrowserBehaviorConfig = z.infer<typeof BrowserBehaviorConfig>;
 
 export class AgentBrowser {
-  agent: AgentInterface;
+  agent: Agent;
   browser: Browser;
   logger: Logger;
   config: BrowserBehaviorConfig;
@@ -25,7 +25,7 @@ export class AgentBrowser {
   private objectiveProgress: string[];
 
   constructor(
-    agent: AgentInterface,
+    agent: Agent,
     browser: Browser,
     logger: Logger,
     behaviorConfig: BrowserBehaviorConfig,
@@ -38,11 +38,10 @@ export class AgentBrowser {
     this.config = behaviorConfig;
 
     this.objectiveProgress = [];
-    this.plugins = plugins;
   }
 
   async create(
-    agent: AgentInterface,
+    agent: Agent,
     browser: Browser,
     logger: Logger,
     behaviorConfig: BrowserBehaviorConfig
@@ -84,7 +83,7 @@ export class AgentBrowser {
             );
           }
 
-          this.agent.getCommand(state, responseType);
+          this.agent.askCommand(state, responseType);
         }
 
         iterationCount++; // Increment the current iteration counter
