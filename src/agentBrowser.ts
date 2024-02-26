@@ -82,8 +82,8 @@ export class AgentBrowser {
               "Maximum number of iterations exceeded"
             );
           }
-
-          this.agent.askCommand(state, responseType);
+          const prompt = this.agent.prompt(state, [], {});
+          this.agent.askCommand(prompt, responseType);
         }
 
         iterationCount++; // Increment the current iteration counter
