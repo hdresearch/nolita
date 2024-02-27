@@ -7,6 +7,9 @@ import {
   ObjectiveState,
 } from "./types/browser/browser.types";
 import { Agent } from "./agent/baseAgent";
+import { remember } from "./memories/memory";
+import { ModelResponse } from "./types/browser/actionStep.types";
+import { BrowserAction } from "./types/browser/actions.types";
 
 export const BrowserBehaviorConfig = z.object({
   goToDelay: z.number().int().default(1000),
@@ -20,7 +23,7 @@ export class AgentBrowser {
   browser: Browser;
   logger: Logger;
   config: BrowserBehaviorConfig;
-  plugins: any;
+  plugins: any; // to be done later
 
   private objectiveProgress: string[];
 
@@ -28,8 +31,9 @@ export class AgentBrowser {
     agent: Agent,
     browser: Browser,
     logger: Logger,
-    behaviorConfig: BrowserBehaviorConfig,
-    plugins: any
+    behaviorConfig: BrowserBehaviorConfig = BrowserBehaviorConfig.parse(
+      {} as any
+    )
   ) {
     this.agent = agent;
     this.browser = browser;
@@ -49,7 +53,28 @@ export class AgentBrowser {
 
   // returns {action: ActionStep, state: ObjectiveState}
   async remember(state: ObjectiveState) {
-    // this.objectiveProgress.push(state.objective);
+    const memories = await remember(state);
+  }
+
+  async step<T extends z.ZodTypeAny>(
+    currentObjective: string,
+    responseType: T
+  ) {
+    const state: ObjectiveState = await this.browser.state(
+      currentObjective,
+      this.objectiveProgress
+    );
+    const memories = await remember(state);
+    const prompt = this.agent.prompt(state, memories, {});
+    const response = await this.agent.askCommand(prompt, responseType);
+
+    if (response === undefined) {
+      return this.returnErrorState("Agent failed to respond");
+    }
+
+    this.objectiveProgress.push(response.description);
+
+    return response;
   }
 
   async browse<T extends z.ZodTypeAny>(
@@ -67,12 +92,6 @@ export class AgentBrowser {
       do {
         // loop through all objectives
         for (const currentObjective of objective) {
-          // grab the current world state first in case we are in a failure state
-          const state: ObjectiveState = await this.browser.state(
-            currentObjective,
-            this.objectiveProgress
-          );
-
           // check if we have exceeded maxIterations and return the failure state if so
           if (iterationCount > maxIterations) {
             console.error(
@@ -82,8 +101,29 @@ export class AgentBrowser {
               "Maximum number of iterations exceeded"
             );
           }
-          const prompt = this.agent.prompt(state, [], {});
-          this.agent.askCommand(prompt, responseType);
+          const stepResponse = (await this.step(
+            currentObjective,
+            responseType
+          )) as ModelResponse; // TODO: fix this type
+
+          console.log("Step response:", stepResponse);
+
+          if (stepResponse.objectiveComplete) {
+            return {
+              result: { kind: "ObjectiveComplete", result: stepResponse },
+              url: this.browser.url(),
+              content: this.browser.content(),
+            };
+          } else if (stepResponse.command) {
+            console.log(
+              "Performing action:" + JSON.stringify(stepResponse.command)
+            );
+            this.browser.performManyActions(
+              stepResponse.command as BrowserAction[]
+            );
+          }
+
+          iterationCount++;
         }
 
         iterationCount++; // Increment the current iteration counter

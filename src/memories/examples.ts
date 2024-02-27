@@ -39,11 +39,11 @@ export const actionStepExample2: ModelResponse = {
 };
 
 export const stateActionPair1 = {
-  objectivestate: objectiveStateExample1,
+  objectiveState: objectiveStateExample1,
   actionStep: actionStepExample1,
 };
 
 export const stateActionPair2 = {
-  objectivestate: objectiveStateExample2,
+  objectiveState: objectiveStateExample2,
   actionStep: actionStepExample2,
 };

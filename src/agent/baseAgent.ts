@@ -15,7 +15,7 @@ export function stringifyObjects<T>(obj: T[]): string {
 export class Agent {
   private modelApi: CompletionApi;
 
-  constructor(modelApi: any) {
+  constructor(modelApi: CompletionApi) {
     this.modelApi = modelApi;
   }
 
