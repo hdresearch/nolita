@@ -23,6 +23,7 @@
     "puppeteer": "^22.0.0",
     "puppeteer-extra": "^3.3.6",
     "type-fest": "^4.10.2",
+    "typescript": "^5.3.3",
     "zod": "^3.22.4",
     "zod-gpt": "^0.12.1"
   },

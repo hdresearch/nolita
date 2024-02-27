@@ -41,6 +41,9 @@ dependencies:
   type-fest:
     specifier: ^4.10.2
     version: 4.10.2
+  typescript:
+    specifier: ^5.3.3
+    version: 5.3.3
   zod:
     specifier: ^3.22.4
     version: 3.22.4
