@@ -5,6 +5,23 @@ export enum BrowserMode {
   text = "text",
 }
 
+export const BrowserArgs = z.object({
+  mode: z.nativeEnum(BrowserMode),
+  headless: z.boolean().default(true),
+  userAgent: z.string().optional(),
+  browserWSEndpoint: z.string().optional(),
+});
+
+export type BrowserArgs = z.infer<typeof BrowserArgs>;
+
+export const BrowserObjective = z.object({
+  startUrl: z.string().default("https://google.com/?hl=en"),
+  objective: z.array(z.string()),
+  maxIterations: z.number().default(10),
+});
+
+export type BrowserObjective = z.infer<typeof BrowserObjective>;
+
 // ax tree
 export type Generic = [number, string, string, AccessibilityTree[]?];
 export type Content = string | number;
@@ -23,5 +40,10 @@ export type ObjectiveState = z.infer<typeof ObjectiveState>;
 
 export type ObjectiveComplete = {
   kind: "ObjectiveComplete";
+  result: string;
+};
+
+export type ObjectiveFailed = {
+  kind: "ObjectiveFailed";
   result: string;
 };

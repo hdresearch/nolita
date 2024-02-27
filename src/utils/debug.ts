@@ -1,4 +1,6 @@
 import { debug as mDebug } from "debug";
+import { promises as fs } from "fs";
+import { EventEmitter } from "events";
 
 const error = mDebug("hdr-browser:error");
 const log = mDebug("hdr-browser:log");
@@ -13,3 +15,23 @@ export const debug = {
     (process.env.DEBUG === "*" || "hdr-browser:log".match(process.env.DEBUG)) &&
     process.stdout.write(t),
 };
+
+export class Logger {
+  logStream: string[];
+  events: EventEmitter;
+
+  constructor(logLevel: string) {
+    this.logStream = [];
+    this.events = new EventEmitter();
+  }
+
+  log(input: string) {
+    this.logStream.push(input);
+    this.events.emit("logAdded", input);
+    debug.log(input);
+  }
+
+  streamHandler() {
+    this.events.on("logAdded", (input) => {});
+  }
+}
