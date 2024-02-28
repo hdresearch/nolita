@@ -38,7 +38,15 @@ const Scroll = z.object({
   direction: z.enum(["up", "down"]).describe("The direction to scroll"),
 });
 
-export const BrowserAction = z.union([Type, Click, Wait, Back, Hover, Scroll]);
+export const BrowserAction = z.union([
+  Type,
+  Click,
+  Wait,
+  Back,
+  Enter,
+  Hover,
+  Scroll,
+]);
 
 export type BrowserAction = z.infer<typeof BrowserAction>;
 

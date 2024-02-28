@@ -1,11 +1,13 @@
 import { z } from "zod";
 import { ObjectiveState } from "../types/browser/objectiveState.types";
 import { backOff } from "exponential-backoff";
-import { ModelResponse } from "../types/browser/actionStep.types";
+import {
+  ModelResponseSchema,
+  ModelResponseType,
+} from "../types/browser/actionStep.types";
 import { chat, completion } from "zod-gpt";
 import { Memory } from "../types/memory.types";
 import { ChatRequestMessage, CompletionApi } from "llm-api";
-// import { CompletionApi } from "./interface";
 
 export function stringifyObjects<T>(obj: T[]): string {
   const strings = obj.map((o) => JSON.stringify(o));
@@ -15,7 +17,7 @@ export function stringifyObjects<T>(obj: T[]): string {
 export class Agent {
   private modelApi: CompletionApi;
 
-  constructor(modelApi: any) {
+  constructor(modelApi: CompletionApi) {
     this.modelApi = modelApi;
   }
 
@@ -43,31 +45,34 @@ export class Agent {
     return messages;
   }
 
-  async call<T extends z.ZodTypeAny>(
+  async call<T extends z.ZodType<ModelResponseType>>(
     prompt: ChatRequestMessage[],
-    opts: { schema: T; autoSlice?: boolean }
-  ): Promise<T> {
-    const response = await chat(this.modelApi, prompt, opts);
+    responseSchema: T
+    // opts: { schema: ModelResponse; autoSlice?: boolean }
+  ) {
+    const response = await chat(this.modelApi, prompt, {
+      schema: responseSchema,
+    });
 
-    return response.data;
+    return response;
   }
 
-  async askCommand<T extends ModelResponse>(
+  async askCommand<T extends z.ZodType<ModelResponseType>>(
     prompt: ChatRequestMessage[],
-    outputSchema: z.ZodTypeAny,
+    outputSchema: T,
     backoffOptions = {
       numOfAttempts: 5, // Maximum number of retries
       startingDelay: 1000, // Initial delay in milliseconds
       timeMultiple: 2, // Multiplier for the delay
       maxDelay: 10000,
     }
-  ): Promise<T | undefined> {
-    const operation = () => this.call(prompt, { schema: outputSchema });
+  ) {
+    const operation = () => this.call(prompt, outputSchema);
 
     try {
       const response = await backOff(operation, backoffOptions);
 
-      return outputSchema.parse(response);
+      return response.data;
     } catch (error) {
       // Handle the error or rethrow it
       console.log(error);
