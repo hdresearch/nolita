@@ -1,11 +1,14 @@
 {
-  "name": "hdr-browser",
+  "name": "@hdr/browser",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
     "test": "jest"
+  },
+  "bin": {
+    "@hdr/browser": "dist/bin/index.js"
   },
   "keywords": [],
   "author": "HDR",
@@ -16,6 +19,7 @@
     "debug": "^4.3.4",
     "dotenv": "^16.4.4",
     "exponential-backoff": "^3.1.1",
+    "inquirer": "^9.2.15",
     "js-tiktoken": "^1.0.10",
     "llm-api": "^1.2.0",
     "lodash": "^4.17.21",
