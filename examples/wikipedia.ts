@@ -1,13 +1,13 @@
 import yargs from "yargs/yargs";
-// import { z } from "zod";
+import { z } from "zod";
 
 import { AgentBrowser } from "../src/agentBrowser";
 import { Logger } from "../src/utils";
 import { Browser } from "../src/browser";
-import { Agent } from "../src/agent/baseAgent";
+import { Agent } from "../src/agent/agent";
 import { OpenAIChatApi } from "llm-api";
 
-import { ObjectiveComplete } from "../src/types/browser/objectiveComplete.types";
+import { ModelResponseSchema } from "../src/types/browser/actionStep.types";
 
 const parser = yargs(process.argv.slice(2)).options({
   headless: { type: "boolean", default: true },
@@ -39,16 +39,26 @@ async function main() {
   const browser = await Browser.create(argv.headless);
 
   const agentBrowser = new AgentBrowser(agent, browser, logger);
+
+  const wikipediaAnswer = ModelResponseSchema.extend({
+    numberOfEditors: z
+      .number()
+      .int()
+      .optional()
+      .describe("The number of editors in int format"),
+  });
   const answer = await agentBrowser.browse(
     {
       startUrl: argv.startUrl,
       objective: [argv.objective],
       maxIterations: argv.maxIterations,
     },
-    ObjectiveComplete
+    wikipediaAnswer
   );
 
   console.log("Answer:", answer?.result);
+
+  await agentBrowser.close();
 }
 
 main();

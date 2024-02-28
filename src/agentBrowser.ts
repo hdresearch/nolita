@@ -6,9 +6,12 @@ import {
   BrowserObjective,
   ObjectiveState,
 } from "./types/browser/browser.types";
-import { Agent } from "./agent/baseAgent";
+import { Agent } from "./agent/agent";
 import { remember } from "./memories/memory";
-import { ModelResponse } from "./types/browser/actionStep.types";
+import {
+  ModelResponseSchema,
+  ModelResponseType,
+} from "./types/browser/actionStep.types";
 import { BrowserAction } from "./types/browser/actions.types";
 
 export const BrowserBehaviorConfig = z.object({
@@ -56,7 +59,7 @@ export class AgentBrowser {
     const memories = await remember(state);
   }
 
-  async step<T extends z.ZodTypeAny>(
+  async step<T extends z.ZodType<ModelResponseType>>(
     currentObjective: string,
     responseType: T
   ) {
@@ -66,7 +69,7 @@ export class AgentBrowser {
     );
     const memories = await remember(state);
     const prompt = this.agent.prompt(state, memories, {});
-    const response = await this.agent.askCommand(prompt, responseType);
+    const response = await this.agent.askCommand<T>(prompt, responseType);
 
     if (response === undefined) {
       return this.returnErrorState("Agent failed to respond");
@@ -77,7 +80,7 @@ export class AgentBrowser {
     return response;
   }
 
-  async browse<T extends z.ZodTypeAny>(
+  async browse<T extends z.ZodType<ModelResponseType>>(
     browserObjective: BrowserObjective,
     responseType: T
   ) {
@@ -101,11 +104,11 @@ export class AgentBrowser {
               "Maximum number of iterations exceeded"
             );
           }
-          const stepResponse = (await this.step(
-            currentObjective,
-            responseType
-          )) as ModelResponse; // TODO: fix this type
+          const stepResponse = responseType.parse(
+            await this.step(currentObjective, responseType)
+          ); // TODO: fix this type
 
+          // TODO: make this a configurable logging option
           console.log("Step response:", stepResponse);
 
           if (stepResponse.objectiveComplete) {
