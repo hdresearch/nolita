@@ -1,4 +1,5 @@
-import { AgentBrowser } from "./agent-browser";
+#! /usr/bin/env node
+import { AgentBrowser } from "../src/agentBrowser";
 import yargs from "yargs/yargs";
 import inquirer from "inquirer";
 
@@ -89,14 +90,14 @@ export async function main() {
     throw new Error("No agent model provided");
   }
   // if no HDR key, we already console.log about it in the agent browser
-  const browser = await AgentBrowser.create(
-    headless,
-    objective,
-    agentProvider,
-    agentModel,
-    agentApiKey,
-    agentEndpoint,
-    hdrApiKey,
-  );
-  await browser.goTo(startUrl);
+//   const browser = await AgentBrowser.create(
+//     headless,
+//     objective,
+//     agentProvider,
+//     agentModel,
+//     agentApiKey,
+//     agentEndpoint,
+//     hdrApiKey,
+//   );
+//   await browser.goTo(startUrl);
 }
