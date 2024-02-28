@@ -14,7 +14,8 @@
       ]
     },
     "include": [
-      "./src/**/*.ts"                           // Include all files within the src directory
+      "./src/**/*.ts",                           // Include all files within the src directory
+      "./bin/**/*.ts"                            // Include all files within the bin directory
     ],
     "exclude": [
       "node_modules",                        // Exclude the node_modules directory
