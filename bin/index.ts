@@ -3,6 +3,7 @@ import { AgentBrowser } from "../src/agentBrowser";
 import yargs from "yargs/yargs";
 import inquirer from "inquirer";
 
+
 const parser = yargs(process.argv.slice(2)).options({
   startUrl: { type: "string" },
   objective: { type: "string" },
@@ -35,7 +36,7 @@ export async function main() {
 
   // no URL or objective? remind the user
   if (!startUrl) {
-    inquirer
+    await inquirer
       .prompt([
         {
           type: "input",
@@ -49,7 +50,7 @@ export async function main() {
   }
 
   if (!objective) {
-    inquirer
+    await inquirer
       .prompt([
         {
           type: "input",
@@ -101,3 +102,5 @@ export async function main() {
 //   );
 //   await browser.goTo(startUrl);
 }
+
+main()
