@@ -117,7 +117,7 @@ export async function main() {
   );
 process.stdout.write(JSON.stringify(answer));
 await browser.close();
-return answer;
+return process.exit(0);
 }
 
 main()
