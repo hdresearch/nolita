@@ -1,10 +1,10 @@
 #! /usr/bin/env node
-import { AgentBrowser } from "../src/agentBrowser";
-import { Browser } from "../src/browser";
-import { Agent } from "../src/agent/agent";
+import { AgentBrowser } from "../agentBrowser";
+import { Browser } from "../browser";
+import { Agent } from "../agent/agent";
 import { OpenAIChatApi } from "llm-api";
-import { Logger } from "../src/utils";
-import { ModelResponseSchema } from "../src/types/browser/actionStep.types";
+import { Logger } from "../utils";
+import { ModelResponseSchema } from "../types/browser/actionStep.types";
 import yargs from "yargs/yargs";
 import inquirer from "inquirer";
 
