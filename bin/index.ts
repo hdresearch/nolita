@@ -1,5 +1,10 @@
 #! /usr/bin/env node
 import { AgentBrowser } from "../src/agentBrowser";
+import { Browser } from "../src/browser";
+import { Agent } from "../src/agent/agent";
+import { OpenAIChatApi } from "llm-api";
+import { Logger } from "../src/utils";
+import { ModelResponseSchema } from "../src/types/browser/actionStep.types";
 import yargs from "yargs/yargs";
 import inquirer from "inquirer";
 
@@ -12,14 +17,14 @@ const parser = yargs(process.argv.slice(2)).options({
   agentApiKey: { type: "string" },
   agentEndpoint: { type: "string" },
   hdrApiKey: { type: "string" },
-  headless: { type: "boolean", default: true },
+  headless: { type: "boolean", default: false },
 });
 
 export async function main() {
   const argv = await parser.parse();
   let {
-    startUrl,
-    objective,
+    startUrl = "",
+    objective = "",
     agentProvider,
     agentModel,
     agentApiKey,
@@ -32,7 +37,7 @@ export async function main() {
   agentApiKey = agentApiKey || process.env.HDR_AGENT_API_KEY;
   agentEndpoint = agentEndpoint || process.env.HDR_AGENT_ENDPOINT;
   hdrApiKey = hdrApiKey || process.env.HDR_API_KEY;
-  headless = headless || process.env.HDR_HEADLESS === "true";
+  headless = headless !== undefined ? headless : process.env.HDR_HEADLESS === "true" || true;
 
   // no URL or objective? remind the user
   if (!startUrl) {
@@ -58,7 +63,7 @@ export async function main() {
           message: "What is the objective of this session?",
         },
       ])
-      .then((answers) => {
+      .then((answers: { objective: string }) => {
         objective = answers.objective;
       });
   }
@@ -76,12 +81,13 @@ export async function main() {
   }
 
   if (!agentEndpoint) {
-    if (agentProvider === "custom") {
+    // come back when ollama is ready
+    if (agentProvider !== "openai" && agentProvider !== "anthropic") {
       throw new Error("No agent endpoint provided");
     }
-    if (agentProvider === "ollama") {
-      agentEndpoint = "http://localhost:11434/api/generate";
-    }
+    // if (agentProvider === "ollama") {
+    //   agentEndpoint = "http://localhost:11434/api/generate";
+    // }
   }
 
   if (!agentModel) {
@@ -91,16 +97,27 @@ export async function main() {
     throw new Error("No agent model provided");
   }
   // if no HDR key, we already console.log about it in the agent browser
-//   const browser = await AgentBrowser.create(
-//     headless,
-//     objective,
-//     agentProvider,
-//     agentModel,
-//     agentApiKey,
-//     agentEndpoint,
-//     hdrApiKey,
-//   );
-//   await browser.goTo(startUrl);
+  const logger = new Logger("info");
+  const openAiChatApi = new OpenAIChatApi(
+    {
+      apiKey: agentApiKey
+    },
+    { model: agentModel }
+  )
+  const agent = new Agent(openAiChatApi);
+  const browser = await Browser.create(headless);
+  const agentBrowser = new AgentBrowser(agent, browser, logger);
+  const answer = await agentBrowser.browse(
+    {
+      startUrl,
+      objective: [objective],
+      maxIterations: 10,
+    },
+    ModelResponseSchema
+  );
+process.stdout.write(JSON.stringify(answer));
+await browser.close();
+return process.exit(0);
 }
 
 main()
