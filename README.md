@@ -25,7 +25,7 @@ Usage will vary depending on whether you employ this package as an executable or
 The basic usage is based around the `AgentBrowser` class. It requires the `Agent` class (which requires an instantiated chat completion API class), `Browser` class, as well as a `Logger` class.
 
 ```ts
-import { Logger, Browser, Agent, AgentBrowser } from "@hdr/browser";
+const { Logger, Browser, Agent, AgentBrowser } = require("@hdr/browser");
 
 // Logger takes a `logLevel` string
 const logger = new Logger("info");
