@@ -6,7 +6,7 @@ describe("chromePaths", () => {
     const chromePath = getChromePath();
     console.log("ChromePath", chromePath);
 
-    if (process.env.NODE_ENV !== "ci") {
+    if (!(process.env.CI === "true")) {
       expect(chromePath).toBe(
         "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
       );
@@ -14,8 +14,8 @@ describe("chromePaths", () => {
       expect(chromePath!.toLocaleLowerCase()).toContain("chrome");
     }
 
-    if (process.env.NODE_ENV === "ci") {
-      expect(chromePath).not.toBeDefined();
+    if (process.env.CI === "true") {
+      expect(chromePath).toBe("google-chrome");
     }
   });
 });
