@@ -3,12 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "jest"
   },
   "bin": {
-    "@hdr/browser": "dist/bin/index.js"
+    "browser": "dist/bin/index.js"
   },
   "keywords": [],
   "author": "HDR",
