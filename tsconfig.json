@@ -2,6 +2,7 @@
     "compilerOptions": {
       "target": "ESNext",                    // Set the JavaScript version for emitted JavaScript and include compatible lib types
       "module": "CommonJS",                  // Use CommonJS module system, as used by Node.js
+      "declaration": true,                    
       "strict": true,                        // Enable all strict type-checking options
       "esModuleInterop": true,               // Enables compatibility with Babel-generated ES modules
       "skipLibCheck": true,                  // Skip type checking of default library declaration files
@@ -15,7 +16,6 @@
     },
     "include": [
       "./src/**/*.ts",                           // Include all files within the src directory
-      "./bin/**/*.ts"                            // Include all files within the bin directory
     ],
     "exclude": [
       "node_modules",                        // Exclude the node_modules directory
