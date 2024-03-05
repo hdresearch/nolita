@@ -1,13 +1,11 @@
 import { z } from "zod";
-import { ObjectiveState } from "../types/browser/objectiveState.types";
 import { backOff } from "exponential-backoff";
-import {
-  ModelResponseSchema,
-  ModelResponseType,
-} from "../types/browser/actionStep.types";
-import { chat, completion } from "zod-gpt";
-import { Memory } from "../types/memory.types";
+import { chat } from "zod-gpt";
 import { ChatRequestMessage, CompletionApi } from "llm-api";
+
+import { ModelResponseType } from "../types/browser/actionStep.types";
+import { Memory } from "../types/memory.types";
+import { ObjectiveState } from "../types/browser/objectiveState.types";
 
 export function stringifyObjects<T>(obj: T[]): string {
   const strings = obj.map((o) => JSON.stringify(o));
@@ -47,11 +45,12 @@ export class Agent {
 
   async call<T extends z.ZodType<ModelResponseType>>(
     prompt: ChatRequestMessage[],
-    responseSchema: T
-    // opts: { schema: ModelResponse; autoSlice?: boolean }
+    responseSchema: T,
+    opts?: { autoSlice?: boolean }
   ) {
     const response = await chat(this.modelApi, prompt, {
       schema: responseSchema,
+      autoSlice: opts?.autoSlice ?? true,
     });
 
     return response;
@@ -64,7 +63,7 @@ export class Agent {
       numOfAttempts: 5, // Maximum number of retries
       startingDelay: 1000, // Initial delay in milliseconds
       timeMultiple: 2, // Multiplier for the delay
-      maxDelay: 10000,
+      maxDelay: 10000, // Maximum delay
     }
   ) {
     const operation = () => this.call(prompt, outputSchema);
@@ -74,7 +73,6 @@ export class Agent {
 
       return response.data;
     } catch (error) {
-      // Handle the error or rethrow it
       console.log(error);
     }
   }

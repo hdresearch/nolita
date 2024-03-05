@@ -12,7 +12,7 @@ export const debug = {
   log,
   write: (t: string) =>
     process.env.DEBUG &&
-    (process.env.DEBUG === "*" || "hdr-browser:log".match(process.env.DEBUG)) &&
+    (process.env.DEBUG === "*" || "browser:log".match(process.env.DEBUG)) &&
     process.stdout.write(t),
 };
 
