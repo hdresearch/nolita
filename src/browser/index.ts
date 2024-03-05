@@ -12,7 +12,7 @@ import { browserContext } from "./browserUtils";
 import { AccessibilityTree, BrowserMode } from "../types/browser/browser.types";
 import { BrowserAction } from "../types/browser/actions.types";
 import { ObjectiveState } from "../types/browser/objectiveState.types";
-import debug from "debug";
+import { debug } from "../utils";
 
 // IDK what this black magic is
 // @ts-ignore
@@ -147,7 +147,9 @@ export class Browser {
       }
     } catch (e) {
       this.error = (e as Error).toString();
-      debug(` Error ${this.error} on command: ${JSON.stringify(command)}`);
+      debug.error(
+        ` Error ${this.error} on command: ${JSON.stringify(command)}`
+      );
     }
   }
 
@@ -209,9 +211,8 @@ export class Browser {
 
   async parseContent(): Promise<string> {
     const tree = await this.getAccessibilityTree(this.page);
-    if (process.env.NODE_ENV !== "production") {
-      console.log(tree);
-    }
+    debug.write(`Aria tree: ${JSON.stringify(tree)}`);
+
     this.idMapping = new Map<number, any>();
     let tree_ret = this.simplifyTree(tree!);
     let ret = JSON.stringify(tree_ret);

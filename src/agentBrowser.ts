@@ -8,11 +8,10 @@ import {
 } from "./types/browser/browser.types";
 import { Agent } from "./agent/agent";
 import { remember } from "./memories/memory";
-import {
-  ModelResponseSchema,
-  ModelResponseType,
-} from "./types/browser/actionStep.types";
+import { ModelResponseType } from "./types/browser/actionStep.types";
 import { BrowserAction } from "./types/browser/actions.types";
+
+import { debug } from "./utils";
 
 export const BrowserBehaviorConfig = z.object({
   goToDelay: z.number().int().default(1000),
@@ -109,7 +108,7 @@ export class AgentBrowser {
           ); // TODO: fix this type
 
           // TODO: make this a configurable logging option
-          console.log("Step response:", stepResponse);
+          debug.write(`Step response: ${stepResponse}`);
 
           if (stepResponse.objectiveComplete) {
             return {
@@ -118,7 +117,7 @@ export class AgentBrowser {
               content: this.browser.content(),
             };
           } else if (stepResponse.command) {
-            console.log(
+            debug.write(
               "Performing action:" + JSON.stringify(stepResponse.command)
             );
             this.browser.performManyActions(
