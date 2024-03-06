@@ -76,3 +76,6 @@ Taken together, an example would be:
 npx @hdr/browser --agentProvider openai --agentModel gpt-4 --agentApiKey [key] --objective "how many editors are on wikipedia?" --startUrl "https://google.com"
 ```
 
+## Contributing
+
+Before contributing to this project, please review [CONTRIBUTING](/CONTRIBUTING).
