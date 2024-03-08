@@ -35,10 +35,10 @@ export class AgentBrowser {
     agent: Agent,
     browser: Browser,
     logger: Logger,
+    inventory?: Inventory,
     behaviorConfig: BrowserBehaviorConfig = BrowserBehaviorConfig.parse(
-      {} as any
-    ),
-    inventory?: Inventory
+      {} as any // for zod optionals
+    )
   ) {
     this.agent = agent;
     this.browser = browser;
@@ -49,14 +49,8 @@ export class AgentBrowser {
     this.objectiveProgress = [];
   }
 
-  async create(
-    agent: Agent,
-    browser: Browser,
-    logger: Logger,
-    behaviorConfig: BrowserBehaviorConfig
-  ) {}
-
   // returns {action: ActionStep, state: ObjectiveState}
+  // currently not implemented
   async remember(state: ObjectiveState) {
     const memories = await remember(state);
   }
