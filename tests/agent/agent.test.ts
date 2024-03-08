@@ -1,11 +1,4 @@
-import {
-  describe,
-  expect,
-  test,
-  beforeAll,
-  afterAll,
-  beforeEach,
-} from "@jest/globals";
+import { describe, expect, test, beforeAll } from "@jest/globals";
 
 import { Agent } from "../../src/agent/agent";
 import { OpenAIChatApi } from "llm-api";
@@ -13,10 +6,9 @@ import {
   objectiveStateExample1,
   stateActionPair1,
 } from "../../src/memories/examples";
-import {
-  ModelResponseSchema,
-  ModelResponseType,
-} from "../../src/types/browser/actionStep.types";
+import { ModelResponseSchema } from "../../src/types/browser/actionStep.types";
+
+import { Inventory } from "../../src/inventory";
 
 import { z } from "zod";
 
@@ -40,7 +32,35 @@ describe("Agent", () => {
       {}
     );
     expect(prompt[0].role).toBe("user");
-    // TODO: add test content
+    expect(prompt[0].content).toContain(
+      `{"objectiveState":{"kind":"ObjectiveState","objective":"how much is an gadget 11 pro","progress":[]`
+    );
+  });
+
+  test("that configs are handled", async () => {
+    const prompt = await agent.prompt(
+      stateActionPair1.objectiveState,
+      [stateActionPair1],
+      {
+        inventory: new Inventory([
+          { value: "test", name: "test", type: "string" },
+        ]),
+      }
+    );
+    console.log(prompt);
+    expect(prompt[0].role).toBe("user");
+    expect(prompt[0].content).toContain("Use the following information");
+  });
+
+  test("that empty configs are handled", async () => {
+    const prompt = await agent.prompt(
+      stateActionPair1.objectiveState,
+      [stateActionPair1],
+      {}
+    );
+    console.log(prompt);
+    expect(prompt[0].role).toBe("user");
+    expect(prompt[0].content).toContain("Here are examples of a request");
   });
 
   test("ask command", async () => {
