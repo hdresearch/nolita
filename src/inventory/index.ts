@@ -21,10 +21,12 @@ export class Inventory {
     });
   }
 
-  toString() {
-    return this.maskedInventory.map((item) => {
+  toString(): string {
+    const inventoryArray = this.maskedInventory.map((item) => {
       return `${item.name}: ${item.value}`;
     });
+
+    return inventoryArray.join(", ");
   }
 
   private maskValue(value: any, type: number | string) {
