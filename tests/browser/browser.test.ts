@@ -163,7 +163,6 @@ describe("Browser interaction tests", () => {
     ]);
 
     const inventoryMaskValue = inventory.maskedInventory[0].value;
-    console.log("inventory", inventory.toString());
 
     const spy = jest.spyOn(inventory, "replaceMask");
     await browser.performManyActions(
@@ -185,7 +184,6 @@ describe("Browser interaction tests", () => {
     ]);
 
     const inventoryMaskValue = inventory.maskedInventory[0].value;
-    console.log("inventory", inventory.toString());
 
     const spy = jest.spyOn(inventory, "replaceMask");
     await browser.performManyActions(
