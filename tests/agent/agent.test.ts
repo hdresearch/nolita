@@ -1,7 +1,7 @@
 import { describe, expect, test, beforeAll } from "@jest/globals";
+import { OpenAIChatApi } from "llm-api";
 
 import { Agent } from "../../src/agent/agent";
-import { OpenAIChatApi } from "llm-api";
 import {
   objectiveStateExample1,
   stateActionPair1,
