@@ -49,6 +49,7 @@ async function main() {
   );
 
   console.log("Answer:", answer?.result);
+  await agentBrowser.close();
 }
 
 main();
