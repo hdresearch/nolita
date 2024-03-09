@@ -40,10 +40,11 @@ export class Inventory {
   replaceMask(value: string): string {
     // TODO: maybe look for substrings instead of exact matches
     const found = this.maskedInventory.find(
-      (item) => `${item.value}` === value
+      (item) => `${item.value}` === `${value}`
     );
     if (found) {
-      return this.inventory.find((item) => item.name === found.name)?.value;
+      return this.inventory.find((item) => item.name === found.name)
+        ?.value as string;
     }
     return `${value}`;
   }
