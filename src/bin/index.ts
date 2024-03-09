@@ -7,7 +7,9 @@ import { Logger } from "../utils";
 import { ModelResponseSchema } from "../types/browser/actionStep.types";
 import yargs from "yargs/yargs";
 import inquirer from "inquirer";
-
+import { Inventory } from "../inventory";
+import process from "process";
+import path from "path";
 
 const parser = yargs(process.argv.slice(2)).options({
   startUrl: { type: "string" },
@@ -18,6 +20,7 @@ const parser = yargs(process.argv.slice(2)).options({
   agentEndpoint: { type: "string" },
   hdrApiKey: { type: "string" },
   headless: { type: "boolean", default: false },
+  config: { type: "string" },
 });
 
 export async function main() {
@@ -32,12 +35,30 @@ export async function main() {
     hdrApiKey,
     headless,
   } = argv;
+  let inventory: { value: string; name: string; type: string }[] = [];
+
   agentProvider = agentProvider || process.env.HDR_AGENT_PROVIDER;
   agentModel = agentModel || process.env.HDR_AGENT_MODEL;
   agentApiKey = agentApiKey || process.env.HDR_AGENT_API_KEY;
   agentEndpoint = agentEndpoint || process.env.HDR_AGENT_ENDPOINT;
   hdrApiKey = hdrApiKey || process.env.HDR_API_KEY;
-  headless = headless !== undefined ? headless : process.env.HDR_HEADLESS === "true" || true;
+
+    // if a config file is provided, parse it
+    if (argv.config) {
+      const config = require(path.resolve(process.cwd(), argv.config));
+      startUrl = startUrl || config.startUrl;
+      objective = objective || config.objective;
+      agentProvider = agentProvider || config.agentProvider;
+      agentModel = agentModel || config.agentModel;
+      agentApiKey = agentApiKey || config.agentApiKey;
+      agentEndpoint = agentEndpoint || config.agentEndpoint;
+      hdrApiKey = hdrApiKey || config.hdrApiKey;
+      headless = headless !== undefined ? headless : config?.headless ? config.headless : process.env.HDR_HEADLESS === "true" || true;
+      inventory = config.inventory || [];
+    }
+
+    headless = headless !== undefined ? headless : process.env.HDR_HEADLESS === "true" || true;
+
 
   // no URL or objective? remind the user
   if (!startUrl) {
@@ -104,9 +125,11 @@ export async function main() {
     },
     { model: agentModel }
   )
+
+  const inventoryObject = new Inventory(inventory);
   const agent = new Agent(openAiChatApi);
   const browser = await Browser.create(headless);
-  const agentBrowser = new AgentBrowser(agent, browser, logger);
+  const agentBrowser = new AgentBrowser(agent, browser, logger, inventory.length > 0 ? inventoryObject : undefined);
   const answer = await agentBrowser.browse(
     {
       startUrl,
