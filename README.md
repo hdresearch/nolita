@@ -131,3 +131,7 @@ You can also set all flags as environment variables. We check for the following:
 - `HDR_HEADLESS`
 
 Objective, start URL and inventory cannot be set with environment variables.
+
+## Contributing
+
+Before contributing to this project, please review [CONTRIBUTING](/CONTRIBUTING).
