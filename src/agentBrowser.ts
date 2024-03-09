@@ -12,6 +12,7 @@ import { ModelResponseType } from "./types/browser/actionStep.types";
 import { BrowserAction } from "./types/browser/actions.types";
 
 import { debug } from "./utils";
+import { Inventory } from "./inventory";
 
 export const BrowserBehaviorConfig = z.object({
   goToDelay: z.number().int().default(1000),
@@ -25,6 +26,7 @@ export class AgentBrowser {
   browser: Browser;
   logger: Logger;
   config: BrowserBehaviorConfig;
+  inventory?: Inventory;
   plugins: any; // to be done later
 
   private objectiveProgress: string[];
@@ -33,27 +35,22 @@ export class AgentBrowser {
     agent: Agent,
     browser: Browser,
     logger: Logger,
+    inventory?: Inventory,
     behaviorConfig: BrowserBehaviorConfig = BrowserBehaviorConfig.parse(
-      {} as any
+      {} as any // for zod optionals
     )
   ) {
     this.agent = agent;
     this.browser = browser;
     this.logger = logger;
-
     this.config = behaviorConfig;
+    this.inventory = inventory;
 
     this.objectiveProgress = [];
   }
 
-  async create(
-    agent: Agent,
-    browser: Browser,
-    logger: Logger,
-    behaviorConfig: BrowserBehaviorConfig
-  ) {}
-
   // returns {action: ActionStep, state: ObjectiveState}
+  // currently not implemented
   async remember(state: ObjectiveState) {
     const memories = await remember(state);
   }
@@ -121,7 +118,8 @@ export class AgentBrowser {
               "Performing action:" + JSON.stringify(stepResponse.command)
             );
             this.browser.performManyActions(
-              stepResponse.command as BrowserAction[]
+              stepResponse.command as BrowserAction[],
+              this.inventory
             );
           }
 

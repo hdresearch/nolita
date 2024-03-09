@@ -6,6 +6,7 @@ import { ChatRequestMessage, CompletionApi } from "llm-api";
 import { ModelResponseType } from "../types/browser/actionStep.types";
 import { Memory } from "../types/memory.types";
 import { ObjectiveState } from "../types/browser/objectiveState.types";
+import { Inventory } from "../inventory";
 
 export function stringifyObjects<T>(obj: T[]): string {
   const strings = obj.map((o) => JSON.stringify(o));
@@ -22,7 +23,7 @@ export class Agent {
   prompt(
     currentState: ObjectiveState,
     memories: Memory[],
-    config: any
+    config?: { inventory?: Inventory }
   ): ChatRequestMessage[] {
     const userPrompt = `Here are examples of a request: 
     ${stringifyObjects(memories)}
@@ -35,10 +36,30 @@ export class Agent {
 
     let messages: ChatRequestMessage[] = [];
 
+    const configMessages = this.handleConfig(config || {});
+
+    if (configMessages.length > 0) {
+      messages = configMessages;
+    }
     messages.push({
       role: "user",
       content: userPrompt,
     });
+
+    return messages;
+  }
+
+  private handleConfig(config: {
+    inventory?: Inventory;
+  }): ChatRequestMessage[] {
+    let messages: ChatRequestMessage[] = [];
+
+    if (config.inventory) {
+      messages.push({
+        role: "user",
+        content: `Use the following information to achieve your objective as needed: ${config.inventory.toString()}`,
+      });
+    }
 
     return messages;
   }

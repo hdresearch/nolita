@@ -17,6 +17,7 @@ import { debug } from "../utils";
 // IDK what this black magic is
 // @ts-ignore
 import { MAIN_WORLD } from "puppeteer";
+import { Inventory } from "../inventory";
 
 export class Browser {
   // @ts-ignore
@@ -110,7 +111,7 @@ export class Browser {
     }, direction);
   }
 
-  async performAction(command: BrowserAction) {
+  async performAction(command: BrowserAction, inventory?: Inventory) {
     this.error = undefined;
     try {
       switch (command.kind) {
@@ -120,9 +121,16 @@ export class Browser {
           await new Promise((resolve) => setTimeout(resolve, 100));
           break;
         case "Type":
+          let text = command.text;
+
+          // repalce masked inventory values with real values
+          if (inventory) {
+            text = inventory.replaceMask(text);
+          }
+
           let eType = await this.findElement(command.index);
           await eType.click({ clickCount: 3 });
-          await eType.type(command.text + "\n");
+          await eType.type(text + "\n");
           await new Promise((resolve) => setTimeout(resolve, 100));
           break;
         case "Wait":
@@ -153,9 +161,9 @@ export class Browser {
     }
   }
 
-  async performManyActions(commands: BrowserAction[]) {
+  async performManyActions(commands: BrowserAction[], inventory?: Inventory) {
     for (const command of commands) {
-      await this.performAction(command);
+      await this.performAction(command, inventory);
     }
   }
 

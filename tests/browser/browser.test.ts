@@ -5,12 +5,15 @@ import {
   beforeAll,
   afterAll,
   beforeEach,
+  jest,
 } from "@jest/globals";
+
 import { Browser } from "../../src/browser/index";
 import {
   BrowserMode,
   ObjectiveState,
 } from "../../src/types/browser/browser.types";
+import { Inventory } from "../../src/inventory";
 
 describe("Base browser functionality", () => {
   let browser: Browser;
@@ -152,6 +155,48 @@ describe("Browser interaction tests", () => {
     expect(url).toContain(
       "https://www.google.com/search?q=High+Dimensional+Research"
     );
+  });
+
+  test("that inventory substitution works", async () => {
+    const inventory = new Inventory([
+      { value: "test", name: "test", type: "string" },
+    ]);
+
+    const inventoryMaskValue = inventory.maskedInventory[0].value;
+
+    const spy = jest.spyOn(inventory, "replaceMask");
+    await browser.performManyActions(
+      [
+        {
+          kind: "Type",
+          index: 8,
+          text: inventoryMaskValue,
+        },
+      ],
+      inventory
+    );
+    expect(spy).toHaveBeenCalled();
+  });
+
+  test("that inventory substitution works for numbers", async () => {
+    const inventory = new Inventory([
+      { value: 111, name: "test", type: "number" },
+    ]);
+
+    const inventoryMaskValue = inventory.maskedInventory[0].value;
+
+    const spy = jest.spyOn(inventory, "replaceMask");
+    await browser.performManyActions(
+      [
+        {
+          kind: "Type",
+          index: 8,
+          text: inventoryMaskValue,
+        },
+      ],
+      inventory
+    );
+    expect(spy).toHaveBeenCalled();
   });
 
   test("Scroll up", async () => {
