@@ -135,3 +135,5 @@ Objective, start URL and inventory cannot be set with environment variables.
 ## Contributing
 
 Before contributing to this project, please review [CONTRIBUTING](/CONTRIBUTING).
+
+To connect with others building with `@hdr/browser`, feel free to join our [Discord community](https://discord.gg/SpE7urUEmH).
