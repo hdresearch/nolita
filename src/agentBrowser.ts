@@ -64,7 +64,11 @@ export class AgentBrowser {
       this.objectiveProgress
     );
     const memories = await remember(state);
-    const prompt = this.agent.prompt(state, memories, {});
+    let config = {};
+    if (this.inventory) {
+      config = { inventory: this.inventory };
+    }
+    const prompt = this.agent.prompt(state, memories, config);
     const response = await this.agent.askCommand<T>(prompt, responseType);
 
     if (response === undefined) {
