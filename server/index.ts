@@ -4,7 +4,7 @@ import { swaggerUI } from "@hono/swagger-ui";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { OpenAIChatApi } from "llm-api";
-import { jsonSchemaToZod, JsonSchema } from "json-schema-to-zod";
+import { JsonSchema } from "json-schema-to-zod";
 
 import { AgentBrowser } from "../src/agentBrowser";
 import { Logger } from "../src/utils";
