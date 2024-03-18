@@ -1,67 +1,66 @@
 import { serve } from "@hono/node-server";
-import { Hono } from "hono";
-import { swaggerUI } from "@hono/swagger-ui";
-import { zValidator } from "@hono/zod-validator";
+import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 import { OpenAIChatApi } from "llm-api";
 import { JsonSchema } from "json-schema-to-zod";
+import { swaggerUI } from "@hono/swagger-ui";
 
 import { AgentBrowser } from "../src/agentBrowser";
 import { Logger } from "../src/utils";
 import { Browser } from "../src/browser";
 import { Agent } from "../src/agent/agent";
 import { Inventory, InventoryValue } from "../src/inventory";
-import { jsonToZod } from "./utils";
-
 import { ModelResponseSchema } from "../src/types/browser/actionStep.types";
 
-const browseSchema = z.object({
-  startUrl: z.string().url(),
-  objective: z.array(z.string()),
-  maxIterations: z.number().int().default(20),
+import { jsonToZod } from "./utils";
+import { ErrorSchema, apiSchema } from "./schema";
+
+const app = new OpenAPIHono();
+
+const route = createRoute({
+  method: "post",
+  path: "/browse",
+  request: {
+    body: {
+      content: {
+        "application/json": { schema: apiSchema.openapi("RequestBody") },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: ModelResponseSchema.extend({
+            response_type: z.any().optional(),
+          }).openapi("ModelResponse"),
+        },
+      },
+      description: "The response from the agent",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: ErrorSchema,
+        },
+      },
+      description: "Returns an error",
+    },
+  },
 });
 
-const agentSchema = z.object({
-  apiKey: z.string().default(process.env.OPENAI_API_KEY!),
-  model: z.string().default("gpt-4"),
-});
-
-const InventorySchema = z.array(
-  z.object({
-    name: z.string(),
-    value: z.string(),
-    type: z.union([z.literal("string"), z.literal("number")]),
-  })
-);
-
-// types to handle arbitrary json output
-const literalSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
-type Literal = z.infer<typeof literalSchema>;
-type Json = Literal | { [key: string]: Json } | Json[];
-const jsonSchema: z.ZodType<Json> = z.lazy(() =>
-  z.union([literalSchema, z.array(jsonSchema), z.record(jsonSchema)])
-);
-
-const apiSchema = z.object({
-  browse_config: browseSchema,
-  agent_confg: agentSchema,
-  response_type: jsonSchema.optional(),
-  inventory: InventorySchema.optional(),
-  headless: z.boolean().default(true),
-});
-
-const app = new Hono();
-
-app.post("/api", zValidator("json", apiSchema), async (c) => {
-  const { browse_config, agent_confg, response_type, headless, inventory } =
+// TODO: fix the type
+// @ts-ignore
+app.openapi(route, async (c) => {
+  const { browse_config, agent_config, response_type, headless, inventory } =
     c.req.valid("json");
 
   const logger = new Logger("info");
   const openAIChatApi = new OpenAIChatApi(
     {
-      apiKey: agent_confg.apiKey,
+      apiKey: agent_config.apiKey,
     },
-    { model: agent_confg.model }
+    { model: agent_config.model }
   );
   const agent = new Agent(openAIChatApi);
   const browser = await Browser.create(headless);
@@ -76,11 +75,10 @@ app.post("/api", zValidator("json", apiSchema), async (c) => {
   let responseType = ModelResponseSchema;
 
   // NOTE THIS IS EXTREMELY DANGEROUS AND ONLY FOR DEMONSTRATION PURPOSES
+  // we put some safeguard in place to prevent arbitrary code execution
   if (response_type) {
     responseType = ModelResponseSchema.extend({
-      answer: (
-        (await jsonToZod(response_type as JsonSchema)) as z.ZodAny
-      ).optional(),
+      response_type: (await jsonToZod(response_type as JsonSchema)).optional(),
     });
   }
 
@@ -97,12 +95,33 @@ app.post("/api", zValidator("json", apiSchema), async (c) => {
 
   await agentBrowser.close();
 
-  return c.json(answer?.result);
+  if (answer) {
+    return c.json(answer.result, 200);
+  }
+
+  return c.json(
+    {
+      code: 400,
+      message: "No response from the agent",
+    },
+    400
+  );
 });
 
+app.doc("/doc", {
+  openapi: "3.0.0",
+  info: {
+    version: "1.0.0",
+    title: "HDR Browser API",
+  },
+});
+
+app.get("/", swaggerUI({ url: "/doc" }));
 const port = 3000;
 
 serve({
   fetch: app.fetch,
   port: port,
 });
+
+console.log(`Server running on port http://localhost:${port}`);

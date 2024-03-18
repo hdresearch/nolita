@@ -8,7 +8,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "server": "node --loader tsx server/index.ts --watch ./server"
   },
   "bin": {
     "browser": "dist/bin/index.js"
@@ -17,14 +18,21 @@
   "author": "HDR",
   "license": "MIT",
   "dependencies": {
+    "@hono/node-server": "^1.8.2",
+    "@hono/swagger-ui": "^0.2.1",
+    "@hono/zod-openapi": "^0.9.8",
+    "@hono/zod-validator": "^0.2.0",
     "@types/inquirer": "^9.0.7",
     "@types/lodash": "^4.14.202",
     "chrome-paths": "^1.0.1",
     "debug": "^4.3.4",
     "dotenv": "^16.4.4",
     "exponential-backoff": "^3.1.1",
+    "hono": "^4.1.1",
     "inquirer": "^8.0.0",
     "js-tiktoken": "^1.0.10",
+    "json-schema-to-zod": "^2.0.14",
+    "json-to-zod": "^1.1.2",
     "llm-api": "^1.2.0",
     "lodash": "^4.17.21",
     "openai": "^4.28.0",
