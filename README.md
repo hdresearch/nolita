@@ -138,12 +138,14 @@ Objective, start URL and inventory cannot be set with environment variables.
 
 ## Running as a server
 
-If you are using another language, like python, we recommend running the browser in server mode. To start the webserver, you can run `npm run serve` or you can run the server from a container using
+If you are using `@hdr/browser` in another language stack, like Python, we recommend running the browser in server mode. To start the webserver, you can run `npm run serve` or you can run the server from a container using:
 
 ```sh
 docker build . -t hdr/browser
 docker run -p 3000:3000 -t hdr/browser
 ```
+
+You can access documentation for using the server at `localhost:3000/doc`.
 
 ## Contributing
 
