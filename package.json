@@ -9,10 +9,11 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "server": "node --loader tsx server/index.ts --watch ./server"
+    "server": "node --loader tsx server/index.ts"
   },
   "bin": {
-    "browser": "dist/bin/index.js"
+    "browser": "dist/bin/index.js",
+    "serve": "dist/bin/server.js"
   },
   "keywords": [],
   "author": "HDR",
