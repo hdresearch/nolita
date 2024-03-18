@@ -12,8 +12,7 @@
     "server": "node --loader tsx server/index.ts"
   },
   "bin": {
-    "browser": "dist/bin/index.js",
-    "serve": "dist/bin/server.js"
+    "browser": "dist/bin/index.js"
   },
   "keywords": [],
   "author": "HDR",
