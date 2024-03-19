@@ -7,6 +7,7 @@ import { Logger } from "../src/utils";
 import { Browser } from "../src/browser";
 import { Agent } from "../src/agent/agent";
 import { Inventory } from "../src/inventory";
+import { completionApiBuilder } from "../src/agent/config";
 
 import { ModelResponseSchema } from "../src/types/browser/actionStep.types";
 
@@ -23,14 +24,19 @@ async function main() {
     "please login into the website then tell me the order total for the five most recent orders";
   const maxIterations = 10;
 
+  const providerOptions = {
+    apiKey: process.env.OPENAI_API_KEY!,
+    provider: "openai",
+  };
   const logger = new Logger("info");
-  const openAIChatApi = new OpenAIChatApi(
-    {
-      apiKey: process.env.OPENAI_API_KEY,
-    },
-    { model: "gpt-4" }
-  );
-  const agent = new Agent(openAIChatApi);
+  const chatApi = completionApiBuilder(providerOptions, { model: "gpt-4" });
+
+  if (!chatApi) {
+    throw new Error(
+      `Failed to create chat api for ${providerOptions.provider}`
+    );
+  }
+  const agent = new Agent(chatApi);
   const browser = await Browser.create(argv.headless);
 
   // here we define the inventory
