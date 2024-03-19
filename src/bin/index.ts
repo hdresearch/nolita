@@ -129,7 +129,7 @@ export async function main() {
   const logger = new Logger("info");
 
   const providerOptions = {
-    apiKey: hdrApiKey!,
+    apiKey: agentApiKey!,
     provider: agentProvider,
     endpoint: agentEndpoint,
   };
