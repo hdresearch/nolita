@@ -5,6 +5,18 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@hono/node-server':
+    specifier: ^1.8.2
+    version: 1.8.2
+  '@hono/swagger-ui':
+    specifier: ^0.2.1
+    version: 0.2.1(hono@4.1.1)
+  '@hono/zod-openapi':
+    specifier: ^0.9.8
+    version: 0.9.8(hono@4.1.1)(zod@3.22.4)
+  '@hono/zod-validator':
+    specifier: ^0.2.0
+    version: 0.2.0(hono@4.1.1)(zod@3.22.4)
   '@types/inquirer':
     specifier: ^9.0.7
     version: 9.0.7
@@ -23,12 +35,21 @@ dependencies:
   exponential-backoff:
     specifier: ^3.1.1
     version: 3.1.1
+  hono:
+    specifier: ^4.1.1
+    version: 4.1.1
   inquirer:
     specifier: ^8.0.0
     version: 8.2.6
   js-tiktoken:
     specifier: ^1.0.10
     version: 1.0.10
+  json-schema-to-zod:
+    specifier: ^2.0.14
+    version: 2.0.14
+  json-to-zod:
+    specifier: ^1.1.2
+    version: 1.1.2
   llm-api:
     specifier: ^1.2.0
     version: 1.2.0
@@ -110,6 +131,15 @@ packages:
       web-streams-polyfill: 3.3.3
     transitivePeerDependencies:
       - encoding
+    dev: false
+
+  /@asteasolutions/zod-to-openapi@5.5.0(zod@3.22.4):
+    resolution: {integrity: sha512-d5HwrvM6dOKr3XdeF+DmashGvfEc+1oiEfbscugsiwSTrFtuMa7ETpW9sTNnVgn+hJaz+PRxPQUYD7q9/5dUig==}
+    peerDependencies:
+      zod: ^3.20.2
+    dependencies:
+      openapi3-ts: 4.2.2
+      zod: 3.22.4
     dev: false
 
   /@aws-crypto/crc32@3.0.0:
@@ -1148,6 +1178,52 @@ packages:
     dependencies:
       '@hapi/hoek': 9.3.0
     dev: true
+
+  /@hono/node-server@1.8.2:
+    resolution: {integrity: sha512-h8l2TBLCPHZBUrrkosZ6L5CpBLj6zdESyF4B+zngiCDF7aZFQJ0alVbLx7jn8PCVi9EyoFf8a4hOZFi1tD95EA==}
+    engines: {node: '>=18.14.1'}
+    dev: false
+
+  /@hono/swagger-ui@0.2.1(hono@4.1.1):
+    resolution: {integrity: sha512-wBxVMRe3/v8xH4o6icmwztiIq0DG0s7+jHVMHVUAoFFCWEQNL2iskMmQtrhSDtsFmBZUeUFQUaaJ6Ir6DOmHLA==}
+    peerDependencies:
+      hono: '*'
+    dependencies:
+      hono: 4.1.1
+    dev: false
+
+  /@hono/zod-openapi@0.9.8(hono@4.1.1)(zod@3.22.4):
+    resolution: {integrity: sha512-NS6lvQEGnsjyQkp+aQjMARREz3WGf19y0+RiiJMVrihWlmKbGaJkPuOWpfFQG6FU9q+FVUyUCryXK+3J07GPAw==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      hono: '>=3.11.3'
+      zod: 3.*
+    dependencies:
+      '@asteasolutions/zod-to-openapi': 5.5.0(zod@3.22.4)
+      '@hono/zod-validator': 0.1.11(hono@4.1.1)(zod@3.22.4)
+      hono: 4.1.1
+      zod: 3.22.4
+    dev: false
+
+  /@hono/zod-validator@0.1.11(hono@4.1.1)(zod@3.22.4):
+    resolution: {integrity: sha512-PQXeHUP0+36qpRt8yfeD7N2jbK3ETlGvSN6dMof/HwUC/APRokQRjpXZm4rrlG71Ft0aWE01+Bm4XejqPie5Uw==}
+    peerDependencies:
+      hono: '>=3.9.0'
+      zod: ^3.19.1
+    dependencies:
+      hono: 4.1.1
+      zod: 3.22.4
+    dev: false
+
+  /@hono/zod-validator@0.2.0(hono@4.1.1)(zod@3.22.4):
+    resolution: {integrity: sha512-PC7akbA/DCFY406BL3+ogjYb+7Fgfs/6XPvyURBYMczo0M7kYsTUMnF8hA9mez1RORNCWPqXuFGfKrkoUVPvrQ==}
+    peerDependencies:
+      hono: '>=3.9.0'
+      zod: ^3.19.1
+    dependencies:
+      hono: 4.1.1
+      zod: 3.22.4
+    dev: false
 
   /@istanbuljs/load-nyc-config@1.1.0:
     resolution: {integrity: sha512-VjeHSlIzpv/NyD3N0YuHfXOPDIixcA1q2ZV98wsMqcYlPmv2n3Yb2lYP9XMElnaFVXg5A7YLTeLu6V84uQDjmQ==}
@@ -2996,6 +3072,11 @@ packages:
       parse-passwd: 1.0.0
     dev: true
 
+  /hono@4.1.1:
+    resolution: {integrity: sha512-+ljwSwMby5vYaA1ZmP8iQSq/bF5wb8gGwFdybJk3A4yNwtn4X0zuyim49VNCYHBUi/jfY0bnzwntth4/eX6NHw==}
+    engines: {node: '>=16.0.0'}
+    dev: false
+
   /html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
     dev: true
@@ -3713,6 +3794,18 @@ packages:
   /json-parse-even-better-errors@2.3.1:
     resolution: {integrity: sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==}
 
+  /json-schema-to-zod@2.0.14:
+    resolution: {integrity: sha512-Pp9wg1/AcMw5KA1RA7t6ybUTIes1yX0vp8PeE48cPnddHb+ZZWbAKPaFXVf4Pif4XSbo9u9i/hIzBcS1UHK/TA==}
+    hasBin: true
+    dev: false
+
+  /json-to-zod@1.1.2:
+    resolution: {integrity: sha512-6YDvnY8oOS5v1H1CWUvfNJkCI3SGbmCwWMytndPHzwyrr1K9ayNXL4rvOSf7WCy3c3Pxu2brvt4idZCkKh9gfQ==}
+    hasBin: true
+    dependencies:
+      prettier: 2.8.8
+    dev: false
+
   /json5@2.2.3:
     resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
     engines: {node: '>=6'}
@@ -3963,6 +4056,12 @@ packages:
       - encoding
     dev: false
 
+  /openapi3-ts@4.2.2:
+    resolution: {integrity: sha512-+9g4actZKeb3czfi9gVQ4Br2Ju3KwhCAQJBNaKgye5KggqcBLIhFHH+nIkcm0BUX00TrAJl6dH4JWgM4G4JWrw==}
+    dependencies:
+      yaml: 2.4.1
+    dev: false
+
   /ora@5.4.1:
     resolution: {integrity: sha512-5b6Y85tPxZZ7QytO+BQzysW31HJku27cRIlkbAXaNx+BdcVi+LlRFmVXzeF6a7JCwJpyw5c4b+YSVImQIrBpuQ==}
     engines: {node: '>=10'}
@@ -4103,6 +4202,12 @@ packages:
     dependencies:
       find-up: 4.1.0
     dev: true
+
+  /prettier@2.8.8:
+    resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+    dev: false
 
   /pretty-format@29.7.0:
     resolution: {integrity: sha512-Pdlw/oPxN+aXdmM9R00JVC9WVFoCLTKJvDVLgmJ+qAffBMxsV85l/Lu7sNx4zSzPyoL2euImuEwHhOXdEgNFZQ==}
@@ -4790,6 +4895,12 @@ packages:
 
   /yallist@4.0.0:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
+
+  /yaml@2.4.1:
+    resolution: {integrity: sha512-pIXzoImaqmfOrL7teGUBt/T7ZDnyeGBWyXQBvOVhLkWLN37GXv8NMLK406UY6dS51JfcQHsmcW5cJ441bHg6Lg==}
+    engines: {node: '>= 14'}
+    hasBin: true
+    dev: false
 
   /yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}

@@ -25,13 +25,19 @@ Usage will vary depending on whether you employ this package as an executable or
 The basic usage is based around the `AgentBrowser` class. It requires the `Agent` class (which requires an instantiated chat completion API class), `Browser` class, as well as a `Logger` class.
 
 ```ts
-const { Logger, Browser, Agent, Inventory, AgentBrowser } = require("@hdr/browser");
+const {
+  Logger,
+  Browser,
+  Agent,
+  Inventory,
+  AgentBrowser,
+} = require("@hdr/browser");
 
 const openAIChatApi = new OpenAIChatApi(
-    {
-        apiKey: process.env.OPENAI_API_KEY,
-    },
-    { model: "gpt-4" }
+  {
+    apiKey: process.env.OPENAI_API_KEY,
+  },
+  { model: "gpt-4" }
 );
 const agent = new Agent(openAIChatApi);
 
@@ -43,23 +49,21 @@ const logger = new Logger("info");
 
 // Inventory is optional, but helps when you have data you want to use for the objective
 const inventory = new Inventory([
-    { value: "student", name: "Username", type: "string" },
-    { value: "Password123", name: "Password", type: "string" },
-  ]);
+  { value: "student", name: "Username", type: "string" },
+  { value: "Password123", name: "Password", type: "string" },
+]);
 const agentBrowser = new AgentBrowser(agent, browser, logger, inventory);
 ```
 
 Once instantiated, the `AgentBrowser` is used with the `browse` method.
 
 ```ts
-const response = await agentBrowser.browse(
-    {
-        startUrl: "https://duckduckgo.com",
-        objective: ["Your task here"],
-        // 10 is a good default for our navigation limit
-        maxIterations: 10
-    }
-) 
+const response = await agentBrowser.browse({
+  startUrl: "https://duckduckgo.com",
+  objective: ["Your task here"],
+  // 10 is a good default for our navigation limit
+  maxIterations: 10,
+});
 ```
 
 The `browse` method also allows you to extend the model response, constructing a typed response for your applications.
@@ -93,24 +97,24 @@ When running `@hdr/browser` under `npx`, we will check for both environment vari
 Here is an example `config.json`:
 
 ```json
- {
-     "agentProvider": "openai",
-     "agentModel": "gpt-4",
-     "agentApiKey": "a-key",
-     "inventory": [
-         {
-             "value": "student",
-             "name": "Username",
-             "type": "string"
-         },
-         {
-             "value": "Password123",
-             "name": "Password",
-             "type": "string"
-         }
-     ],
-     "headless": true
- }
+{
+  "agentProvider": "openai",
+  "agentModel": "gpt-4",
+  "agentApiKey": "a-key",
+  "inventory": [
+    {
+      "value": "student",
+      "name": "Username",
+      "type": "string"
+    },
+    {
+      "value": "Password123",
+      "name": "Password",
+      "type": "string"
+    }
+  ],
+  "headless": true
+}
 ```
 
 You can then call your browser by running
@@ -131,6 +135,17 @@ You can also set all flags as environment variables. We check for the following:
 - `HDR_HEADLESS`
 
 Objective, start URL and inventory cannot be set with environment variables.
+
+## Running as a server
+
+If you are using `@hdr/browser` in another language stack, like Python, we recommend running the browser in server mode. To start the webserver, you can run `npm run serve` or you can run the server from a container using:
+
+```sh
+docker build . -t hdr/browser # on arm64 macOS, you may need --platform linux/amd64
+docker run -p 3000:3000 -t hdr/browser # --platform linux/amd64
+```
+
+You can access documentation for using the server at `localhost:3000/doc`.
 
 ## Contributing
 
