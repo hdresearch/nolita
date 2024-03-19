@@ -1,6 +1,4 @@
 import yargs from "yargs/yargs";
-import { z } from "zod";
-import { OpenAIChatApi } from "llm-api";
 
 import { AgentBrowser } from "../src/agentBrowser";
 import { Logger } from "../src/utils";
