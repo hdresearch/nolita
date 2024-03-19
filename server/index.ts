@@ -1,7 +1,6 @@
 import { serve } from "@hono/node-server";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
-import { OpenAIChatApi } from "llm-api";
 import { JsonSchema } from "json-schema-to-zod";
 import { swaggerUI } from "@hono/swagger-ui";
 
@@ -16,7 +15,7 @@ import { jsonToZod } from "./utils";
 import { ErrorSchema, apiSchema } from "./schema";
 import { completionApiBuilder } from "../src/agent/config";
 
-const app = new OpenAPIHono();
+export const app = new OpenAPIHono();
 
 const route = createRoute({
   method: "post",
