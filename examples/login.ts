@@ -23,11 +23,13 @@ async function main() {
   const maxIterations = 10;
 
   const providerOptions = {
-    apiKey: process.env.OPENAI_API_KEY!,
-    provider: "openai",
+    apiKey: process.env.ANTHROPIC_API_KEY!,
+    provider: "anthropic",
   };
   const logger = new Logger("info");
-  const chatApi = completionApiBuilder(providerOptions, { model: "gpt-4" });
+  const chatApi = completionApiBuilder(providerOptions, {
+    model: "claude-2.1",
+  });
 
   if (!chatApi) {
     throw new Error(
