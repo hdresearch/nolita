@@ -5,7 +5,7 @@ import { AgentBrowser } from "../src/agentBrowser";
 import { Logger } from "../src/utils";
 import { Browser } from "../src/browser";
 import { Agent } from "../src/agent/agent";
-import { OpenAIChatApi } from "llm-api";
+import { completionApiBuilder } from "../src/agent/config";
 
 import { ModelResponseSchema } from "../src/types/browser/actionStep.types";
 
@@ -28,14 +28,19 @@ async function main() {
     throw new Error("objective is not provided");
   }
 
+  const providerOptions = {
+    apiKey: process.env.OPENAI_API_KEY!,
+    provider: "openai",
+  };
   const logger = new Logger("info");
-  const openAIChatApi = new OpenAIChatApi(
-    {
-      apiKey: process.env.OPENAI_API_KEY,
-    },
-    { model: "gpt-4" }
-  );
-  const agent = new Agent(openAIChatApi);
+  const chatApi = completionApiBuilder(providerOptions, { model: "gpt-4" });
+
+  if (!chatApi) {
+    throw new Error(
+      `Failed to create chat api for ${providerOptions.provider}`
+    );
+  }
+  const agent = new Agent(chatApi);
   const browser = await Browser.create(argv.headless);
 
   const agentBrowser = new AgentBrowser(agent, browser, logger);
