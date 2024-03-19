@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { ModelResponseSchema } from "../src/types/browser/actionStep.types";
-
 export const browseSchema = z.object({
   startUrl: z.string().url().openapi({ example: "https://google.com" }),
   objective: z
@@ -10,12 +8,17 @@ export const browseSchema = z.object({
   maxIterations: z.number().int().default(20).openapi({ example: 10 }),
 });
 
-export const agentSchema = z.object({
+export const providerSchema = z.object({
+  provider: z.string().openapi({ example: "openai" }),
   apiKey: z
     .string()
     .default(process.env.OPENAI_API_KEY!)
     .openapi({ example: "your-api-key" }),
-  model: z.string().default("gpt-4").openapi({ example: "gpt-4" }),
+});
+
+export const modelSchema = z.object({
+  model: z.string().openapi({ example: "gpt-4" }),
+  temperature: z.number().optional().openapi({ example: 0 }),
 });
 
 export const InventorySchema = z.array(
@@ -50,7 +53,8 @@ export const jsonSchema: z.ZodType<Json> = z
 export const apiSchema = z
   .object({
     browse_config: browseSchema,
-    agent_config: agentSchema,
+    provider_config: providerSchema,
+    model_config: modelSchema,
     response_type: z
       .any()
       .optional()

@@ -14,6 +14,7 @@ import { ModelResponseSchema } from "../src/types/browser/actionStep.types";
 
 import { jsonToZod } from "./utils";
 import { ErrorSchema, apiSchema } from "./schema";
+import { completionApiBuilder } from "../src/agent/config";
 
 const app = new OpenAPIHono();
 
@@ -52,17 +53,29 @@ const route = createRoute({
 // TODO: fix the type
 // @ts-ignore
 app.openapi(route, async (c) => {
-  const { browse_config, agent_config, response_type, headless, inventory } =
-    c.req.valid("json");
+  const {
+    browse_config,
+    provider_config,
+    model_config,
+    response_type,
+    headless,
+    inventory,
+  } = c.req.valid("json");
 
   const logger = new Logger("info");
-  const openAIChatApi = new OpenAIChatApi(
-    {
-      apiKey: agent_config.apiKey,
-    },
-    { model: agent_config.model }
-  );
-  const agent = new Agent(openAIChatApi);
+  const chatApi = completionApiBuilder(provider_config, model_config);
+
+  if (!chatApi) {
+    return c.json(
+      {
+        code: 400,
+        message: `Failed to create chat api for ${provider_config.provider}`,
+      },
+      400
+    );
+  }
+
+  const agent = new Agent(chatApi);
   const browser = await Browser.create(headless);
 
   // set inventory if it exists
