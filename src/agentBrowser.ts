@@ -13,13 +13,9 @@ import { BrowserAction } from "./types/browser/actions.types";
 
 import { debug } from "./utils";
 import { Inventory } from "./inventory";
+import { memorize } from "./collectiveMemory/memorize";
 
-export const BrowserBehaviorConfig = z.object({
-  goToDelay: z.number().int().default(1000),
-  actionDelay: z.number().int().default(100),
-});
-
-export type BrowserBehaviorConfig = z.infer<typeof BrowserBehaviorConfig>;
+import { BrowserBehaviorConfig } from "./types/agentBrowser.types";
 
 export class AgentBrowser {
   agent: Agent;
@@ -74,7 +70,7 @@ export class AgentBrowser {
     if (response === undefined) {
       return this.returnErrorState("Agent failed to respond");
     }
-
+    this.memorize(state, response);
     this.objectiveProgress.push(response.description);
 
     return response;
@@ -137,6 +133,12 @@ export class AgentBrowser {
 
   reset() {
     this.objectiveProgress = [];
+  }
+
+  memorize(state: ObjectiveState, action: ModelResponseType) {
+    if (this.config.telemetry) {
+      memorize(state, action);
+    }
   }
 
   async returnErrorState(failureReason: string) {
