@@ -58,7 +58,7 @@ const inventory = new Inventory([
 ]);
 ```
 
-The `AgentBrowser` uses [zod](https://github.com/colinhacks/zod) under the hood to control the types returned by your LLM. If you want to specify a custom return type, you can do so by extending the `ModelResponse` schema with the desired type
+The `AgentBrowser` uses [zod](https://github.com/colinhacks/zod) under the hood to control the types returned by your LLM. If you want to specify a custom return type, you can do so by extending the `ModelResponse` schema with the desired type.
 
 ```ts
 const extendedModelResponseSchema = ModelResponseSchema.extend({
