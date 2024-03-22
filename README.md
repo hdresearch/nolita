@@ -46,27 +46,45 @@ const browser = await Browser.create(true);
 
 // Logger takes a `logLevel` string
 const logger = new Logger("info");
+```
 
+If you need the agent to use sensitive data such as usernames and passwords, credit cards, addresses, etc. to do a task, you can place that information inside the agent's inventory. The inventory scrambles this data so that the underlying LLM api never sees the actual information. The browser monitors the values the agent enters into text fields and then intercepts and replaces the scrambled data with the real thing.
+
+```ts
 // Inventory is optional, but helps when you have data you want to use for the objective
 const inventory = new Inventory([
   { value: "student", name: "Username", type: "string" },
   { value: "Password123", name: "Password", type: "string" },
 ]);
+```
+
+The `AgentBrowser` uses [zod](https://github.com/colinhacks/zod) under the hood to control the types returned by your LLM. If you want to specify a custom return type, you can do so by extending the `ModelResponse` schema with the desired type.
+
+```ts
+const extendedModelResponseSchema = ModelResponseSchema.extend({
+  numberArray: z.array(
+    z.number().optional().describe("your description here") // Note: the description is important since it tells the LLM what kind of data is important
+  ),
+});
+```
+
+```ts
 const agentBrowser = new AgentBrowser(agent, browser, logger, inventory);
 ```
 
 Once instantiated, the `AgentBrowser` is used with the `browse` method.
 
 ```ts
-const response = await agentBrowser.browse({
-  startUrl: "https://duckduckgo.com",
-  objective: ["Your task here"],
-  // 10 is a good default for our navigation limit
-  maxIterations: 10,
-});
+const response = await agentBrowser.browse(
+  {
+    startUrl: "https://duckduckgo.com",
+    objective: ["Your task here"],
+    // 10 is a good default for our navigation limit
+    maxIterations: 10,
+  },
+  extendedModelResponseSchema
+);
 ```
-
-The `browse` method also allows you to extend the model response, constructing a typed response for your applications.
 
 A complete example of using the browser in your projects to produce typed and structured results is included in the [examples folder](/examples/).
 
