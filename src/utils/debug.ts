@@ -13,6 +13,7 @@ export const debug = {
   write: (t: string) =>
     process.env.DEBUG &&
     (process.env.DEBUG === "*" || "browser:log".match(process.env.DEBUG)) &&
+    process.stdout &&
     process.stdout.write(t),
 };
 

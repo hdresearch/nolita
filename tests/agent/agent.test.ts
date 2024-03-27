@@ -5,7 +5,7 @@ import { Agent } from "../../src/agent/agent";
 import {
   objectiveStateExample1,
   stateActionPair1,
-} from "../../src/memories/examples";
+} from "../../src/collectiveMemory/examples";
 import { ModelResponseSchema } from "../../src/types/browser/actionStep.types";
 
 import { Inventory } from "../../src/inventory";
