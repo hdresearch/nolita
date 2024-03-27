@@ -19,8 +19,6 @@ export async function memorize(
     ...(config.apiKey ? { Authorization: `Bearer ${config.apiKey}` } : {}),
   };
 
-  console.log("Memorize", endpoint, headers);
-
   const resp = await fetch(endpoint, {
     method: "POST",
     headers,
@@ -36,7 +34,7 @@ export async function memorize(
   debug.log("Memorize status", resp.status);
 
   if (resp.status !== 200) {
-    console.log("Memorize failed", await resp.text());
+    debug.log("Memorize failed", await resp.text());
     return false;
   }
 
