@@ -48,4 +48,16 @@ export class Inventory {
     }
     return `${value}`;
   }
+
+  // This function should look for all instances of the original value in the string and replace them with the masked value
+  censor(str: string): string {
+    let censoredStr = str;
+    this.inventory.forEach((item, idx) => {
+      censoredStr = censoredStr.replace(
+        new RegExp(`${item.value}`, "g"),
+        `${this.maskedInventory[idx].value}`
+      );
+    });
+    return censoredStr;
+  }
 }

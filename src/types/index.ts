@@ -3,14 +3,6 @@ import {
   ModelResponseType,
 } from "./browser/actionStep.types";
 
-import {
-  CollectiveMemoryConfigSchema,
-  CollectiveMemoryConfig,
-} from "./collectiveMemory/index";
+import { CollectiveMemoryConfig } from "./collectiveMemory/index";
 
-export {
-  ModelResponseSchema,
-  ModelResponseType,
-  CollectiveMemoryConfigSchema,
-  CollectiveMemoryConfig,
-};
+export { ModelResponseSchema, ModelResponseType, CollectiveMemoryConfig };

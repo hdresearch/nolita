@@ -23,4 +23,16 @@ describe("Inventory", () => {
     expect(inv.replaceMask(inv.maskedInventory[0].value)).toEqual("password");
     expect(inv.replaceMask(inv.maskedInventory[1].value)).toEqual(123);
   });
+
+  it("should censor", () => {
+    const inventory: InventoryValue[] = [
+      { name: "age", value: 123, type: "number" },
+      { name: "password", value: "aSuperStrongPassword", type: "string" },
+    ];
+    const inv = new Inventory(inventory);
+    const str = "the password is aSuperStrongPassword and the age is 123";
+    const got = inv.censor(str);
+    console.log(got);
+    expect(got).not.toEqual("the password is password and the age is 123");
+  });
 });

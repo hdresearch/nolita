@@ -1,13 +1,13 @@
 import { z } from "zod";
 
 import { Browser } from "./browser";
-import { Logger } from "./utils";
+import { Logger, generateUUID } from "./utils";
 import {
   BrowserObjective,
   ObjectiveState,
 } from "./types/browser/browser.types";
 import { Agent } from "./agent/agent";
-import { remember } from "./memories/memory";
+import { remember } from "./collectiveMemory/remember";
 import { ModelResponseType } from "./types/browser/actionStep.types";
 import { BrowserAction } from "./types/browser/actions.types";
 
@@ -16,6 +16,7 @@ import { Inventory } from "./inventory";
 import { memorize } from "./collectiveMemory/memorize";
 
 import { BrowserBehaviorConfig } from "./types/agentBrowser.types";
+import { CollectiveMemoryConfig } from "./types";
 
 export class AgentBrowser {
   agent: Agent;
@@ -24,8 +25,10 @@ export class AgentBrowser {
   config: BrowserBehaviorConfig;
   inventory?: Inventory;
   plugins: any; // to be done later
+  hdrConfig: CollectiveMemoryConfig;
 
   private objectiveProgress: string[];
+  private memorySequenceId: string = generateUUID();
 
   constructor(
     agent: Agent,
@@ -41,8 +44,13 @@ export class AgentBrowser {
     this.logger = logger;
     this.config = behaviorConfig;
     this.inventory = inventory;
+    this.hdrConfig = CollectiveMemoryConfig.parse({});
 
     this.objectiveProgress = [];
+  }
+
+  private setMemorySequenceId() {
+    this.memorySequenceId = generateUUID();
   }
 
   // returns {action: ActionStep, state: ObjectiveState}
@@ -83,6 +91,7 @@ export class AgentBrowser {
     const { startUrl, objective, maxIterations } =
       BrowserObjective.parse(browserObjective);
 
+    this.setMemorySequenceId();
     let iterationCount = 0;
     // goto the start url
     await this.browser.goTo(startUrl, this.config.goToDelay);
@@ -135,9 +144,17 @@ export class AgentBrowser {
     this.objectiveProgress = [];
   }
 
-  memorize(state: ObjectiveState, action: ModelResponseType) {
+  async memorize(state: ObjectiveState, action: ModelResponseType) {
     if (this.config.telemetry) {
-      memorize(state, action);
+      let censoredState = state;
+      // remove all PII from the state dom
+      if (this.inventory) {
+        censoredState = {
+          ...state,
+          ariaTree: this.inventory.censor(state.ariaTree),
+        };
+      }
+      memorize(censoredState, action, this.memorySequenceId, this.hdrConfig);
     }
   }
 

@@ -1,40 +1,44 @@
 import { ModelResponseType } from "../types/browser/actionStep.types";
 import { ObjectiveState } from "../types/browser/browser.types";
-import {
-  CollectiveMemoryConfig,
-  CollectiveMemoryConfigSchema,
-} from "../types/collectiveMemory/index";
-
+import { CollectiveMemoryConfig } from "../types/collectiveMemory/index";
 import { debug } from "../utils";
 
 export async function memorize(
   state: ObjectiveState,
   action: ModelResponseType,
-  collectiveMemoryConfig: CollectiveMemoryConfig = CollectiveMemoryConfigSchema.parse(
+  sequnceId: string,
+  collectiveMemoryConfig: CollectiveMemoryConfig = CollectiveMemoryConfig.parse(
     {}
   )
 ) {
-  const config = CollectiveMemoryConfigSchema.parse(collectiveMemoryConfig);
-  const endpoint = `${config.endpoint}/memory/memorize`;
+  const config = CollectiveMemoryConfig.parse(collectiveMemoryConfig);
+  const endpoint = `${config.endpoint}/memorize`;
 
-  let headers: Record<string, string> = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    ...(config.apiKey ? { Authorization: `Bearer ${config.apiKey}` } : {}),
   };
 
-  if (config.apiKey) {
-    headers = {
-      ...headers,
-      authorization: config.apiKey,
-    };
-  }
+  console.log("Memorize", endpoint, headers);
+
   const resp = await fetch(endpoint, {
     method: "POST",
     headers,
     body: JSON.stringify({
-      actionStep: action,
-      objectiveState: state,
+      sequence_id: sequnceId,
+      memory: {
+        state,
+        action,
+      },
     }),
   });
 
   debug.log("Memorize status", resp.status);
+
+  if (resp.status !== 200) {
+    console.log("Memorize failed", await resp.text());
+    return false;
+  }
+
+  return true;
 }

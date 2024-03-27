@@ -1,6 +1,3 @@
-import {
-  CollectiveMemoryConfigSchema,
-  type CollectiveMemoryConfig,
-} from "./config";
+import { CollectiveMemoryConfig } from "./config.types";
 
-export { CollectiveMemoryConfigSchema, CollectiveMemoryConfig };
+export { CollectiveMemoryConfig };
