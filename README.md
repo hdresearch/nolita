@@ -170,3 +170,7 @@ You can access documentation for using the server at `localhost:3000/doc`.
 Before contributing to this project, please review [CONTRIBUTING](/CONTRIBUTING).
 
 To connect with others building with `@hdr/browser`, feel free to join our [Discord community](https://discord.gg/SpE7urUEmH).
+
+## Other licenses
+
+By default, `@hdr/browser` sends anonymised, abstracted telemetry to our collective memory, which is governed [by its own license agreement](https://hdr.is/terms) and our [privacy policy](https://hdr.is/privacy).

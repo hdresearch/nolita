@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+- Added collective memory retention of browsing sessions.
+
 ## 0.3.0
 
 - Added the ability to serve the browser automation framework as a server. For example, by running `npm run server` you can then incorporate tasks from other codebases by running requests against your local machine. Documentation is located at `/doc` when the server is started.
