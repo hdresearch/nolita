@@ -120,7 +120,7 @@ export class AgentBrowser {
             return {
               result: { kind: "ObjectiveComplete", result: stepResponse },
               url: this.browser.url(),
-              content: this.browser.content(),
+              content: await this.browser.content(),
             };
           } else if (stepResponse.command) {
             debug.write(

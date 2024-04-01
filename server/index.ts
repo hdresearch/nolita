@@ -108,7 +108,7 @@ app.openapi(route, async (c) => {
   await agentBrowser.close();
 
   if (answer) {
-    return c.json(answer.result, 200);
+    return c.json(answer, 200);
   }
 
   return c.json(
