@@ -4,12 +4,13 @@
   "description": "",
   "main": "dist/index.js",
   "files": [
-    "dist/**/*"
+    "dist/**/*",
+    "server/**/*"
   ],
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "server": "npx tsx server/index.ts"
+    "server": "npx tsx ./src/server/index.ts"
   },
   "bin": {
     "browser": "dist/bin/index.js"
