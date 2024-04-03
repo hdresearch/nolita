@@ -12,12 +12,11 @@ export async function remember(
   limit: number = 2,
   endpoint: string = "https://api.hdr.is/"
 ) {
-  if (!process.env.HDR_API_KEY) {
+  const apiKey = config?.apiKey || process.env.HDR_API_KEY;
+
+  if (!apiKey) {
     return DEFAULT_STATE_ACTION_PAIRS;
   }
-
-  // const endpoint = config?.endpoint || "https://api.hdr.is/";
-  const apiKey = config?.apiKey || process.env.HDR_API_KEY;
 
   const res = await fetch(`${endpoint}/memories/remember`, {
     method: "POST",
@@ -32,7 +31,7 @@ export async function remember(
   });
 
   if (!res.ok) {
-    console.log("Error fetching memories", res.status, await res.text());
+    debug.error("Error fetching memories", res.status, await res.text());
     return DEFAULT_STATE_ACTION_PAIRS;
   }
 

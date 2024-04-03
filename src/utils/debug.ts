@@ -1,5 +1,4 @@
 import { debug as mDebug } from "debug";
-import { promises as fs } from "fs";
 import { EventEmitter } from "events";
 
 const error = mDebug("hdr-browser:error");

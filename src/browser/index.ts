@@ -1,4 +1,4 @@
-import puppeteer, {
+import {
   Browser as PuppeteerBrowser,
   ElementHandle,
   Page,
