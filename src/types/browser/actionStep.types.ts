@@ -76,3 +76,19 @@ export const ModelResponseSchema = z.object({
 });
 
 export type ModelResponseType = z.infer<typeof ModelResponseSchema>;
+
+// //
+// export function customModelResponseSchema<T extends z.ZodType<any>>(schema: T) {
+//   const customObjectiveComplete = ObjectiveComplete.extend({
+//     data: schema,
+//   }).describe("Only return description of result if objective is complete");
+
+//   return z.object({
+//     progressAssessment: z.string(),
+//     command: BrowserActionSchemaArray.optional().describe(
+//       "List of browser actions"
+//     ),
+//     objectiveComplete: customObjectiveComplete.optional(),
+//     description: z.string(),
+//   });
+// }

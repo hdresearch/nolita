@@ -29,7 +29,7 @@ export class Logger {
   log(input: string) {
     this.logStream.push(input);
     this.events.emit("logAdded", input);
-    debug.log(input);
+    debug.log(input + "\n");
   }
 
   streamHandler() {

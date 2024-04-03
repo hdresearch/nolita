@@ -84,7 +84,29 @@ export class AgentBrowser {
     return response;
   }
 
-  async browse<T extends z.ZodType<ModelResponseType>>(
+  private async handleStep<T extends z.ZodType<ModelResponseType>>(
+    response: T,
+    responseType: T
+  ) {
+    const stepResponse = responseType.parse(response);
+    debug.write(`Step response: ${JSON.stringify(stepResponse)}`);
+
+    if (stepResponse.objectiveComplete) {
+      return {
+        result: { kind: "ObjectiveComplete", result: stepResponse },
+        url: this.browser.url(),
+        content: this.browser.content(),
+      };
+    } else if (stepResponse.command) {
+      debug.write("Performing action:" + JSON.stringify(stepResponse.command));
+      this.browser.performManyActions(
+        stepResponse.command as BrowserAction[],
+        this.inventory
+      );
+    }
+  }
+
+  async browse<T extends z.ZodType<ModelResponseType | any>>(
     browserObjective: BrowserObjective,
     responseType: T
   ) {
@@ -109,28 +131,13 @@ export class AgentBrowser {
               "Maximum number of iterations exceeded"
             );
           }
-          const stepResponse = responseType.parse(
-            await this.step(currentObjective, responseType)
-          ); // TODO: fix this type
 
-          // TODO: make this a configurable logging option
-          debug.write(`Step response: ${stepResponse}`);
+          const response = await this.step(currentObjective, responseType);
+          // const stepResponse = responseType.parse(
+          //   await this.step(currentObjective, responseType)
+          // ); // TODO: fix this type
 
-          if (stepResponse.objectiveComplete) {
-            return {
-              result: { kind: "ObjectiveComplete", result: stepResponse },
-              url: this.browser.url(),
-              content: this.browser.content(),
-            };
-          } else if (stepResponse.command) {
-            debug.write(
-              "Performing action:" + JSON.stringify(stepResponse.command)
-            );
-            this.browser.performManyActions(
-              stepResponse.command as BrowserAction[],
-              this.inventory
-            );
-          }
+          await this.handleStep(responseType.parse(response), responseType);
 
           iterationCount++;
         }
