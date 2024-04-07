@@ -32,7 +32,7 @@ describe("Inventory", () => {
     const inv = new Inventory(inventory);
     const str = "the password is aSuperStrongPassword and the age is 123";
     const got = inv.censor(str);
-    console.log(got);
     expect(got).not.toEqual("the password is password and the age is 123");
+    expect(got).toContain("the password is PASSWORD and the age is AGE");
   });
 });

@@ -53,9 +53,12 @@ export class Inventory {
   censor(str: string): string {
     let censoredStr = str;
     this.inventory.forEach((item, idx) => {
+      const valueName = this.maskedInventory[idx].name;
+      const printName = valueName.toUpperCase().replace(/ /g, "_");
+
       censoredStr = censoredStr.replace(
         new RegExp(`${item.value}`, "g"),
-        `${this.maskedInventory[idx].value}`
+        `${printName}`
       );
     });
     return censoredStr;
