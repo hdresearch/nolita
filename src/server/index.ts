@@ -1,55 +1,55 @@
+import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 import { JsonSchema } from "json-schema-to-zod";
 import { swaggerUI } from "@hono/swagger-ui";
 
-import { AgentBrowser } from "../src/agentBrowser";
-import { Logger } from "../src/utils";
-import { Browser } from "../src/browser";
-import { Agent } from "../src/agent/agent";
-import { Inventory, InventoryValue } from "../src/inventory";
-import { ModelResponseSchema } from "../src/types/browser/actionStep.types";
+import { AgentBrowser } from "../agentBrowser";
+import { Logger } from "../utils";
+import { Browser } from "../browser";
+import { Agent } from "../agent/agent";
+import { Inventory, InventoryValue } from "../inventory";
+import { ModelResponseSchema } from "../types/browser/actionStep.types";
 
 import { jsonToZod } from "./utils";
 import { ErrorSchema, apiSchema } from "./schema";
-import { completionApiBuilder } from "../src/agent/config";
+import { completionApiBuilder } from "../agent/config";
 
-export const app = new OpenAPIHono();
-
-const route = createRoute({
-  method: "post",
-  path: "/browse",
-  request: {
-    body: {
-      content: {
-        "application/json": { schema: apiSchema.openapi("RequestBody") },
-      },
-    },
-  },
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: ModelResponseSchema.extend({
-            response_type: z.any().optional(),
-          }).openapi("ModelResponse"),
+export const setupServer = () => {
+  const app = new OpenAPIHono();
+  const route = createRoute({
+    method: "post",
+    path: "/browse",
+    request: {
+      body: {
+        content: {
+          "application/json": { schema: apiSchema.openapi("RequestBody") },
         },
       },
-      description: "The response from the agent",
     },
-    400: {
-      content: {
-        "application/json": {
-          schema: ErrorSchema,
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            schema: ModelResponseSchema.extend({
+              response_type: z.any().optional(),
+            }).openapi("ModelResponse"),
+          },
         },
+        description: "The response from the agent",
       },
-      description: "Returns an error",
+      400: {
+        content: {
+          "application/json": {
+            schema: ErrorSchema,
+          },
+        },
+        description: "Returns an error",
+      },
     },
-  },
-});
-
-// TODO: fix the type
+  });
+  // TODO: fix the type
 // @ts-ignore
 app.openapi(route, async (c) => {
   const {
@@ -129,11 +129,16 @@ app.doc("/doc", {
 });
 
 app.get("/", swaggerUI({ url: "/doc" }));
-const port = 3000;
+return app;
+}
 
-serve({
-  fetch: app.fetch,
-  port: port,
-});
 
-console.log(`Server running on port http://localhost:${port}`);
+if (require.main === module) {
+  const port = 3000;
+  const app = setupServer();
+  serve({
+    fetch: app.fetch,
+    port: port,
+  });
+  console.log(`Server running on port http://localhost:${port}`);
+}

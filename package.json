@@ -4,12 +4,13 @@
   "description": "",
   "main": "dist/index.js",
   "files": [
-    "dist/**/*"
+    "dist/**/*",
+    "server/**/*"
   ],
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "server": "npx tsx server/index.ts"
+    "server": "npx tsx ./src/server/index.ts"
   },
   "bin": {
     "browser": "dist/bin/index.js"
@@ -28,8 +29,8 @@
     "debug": "^4.3.4",
     "dotenv": "^16.4.4",
     "exponential-backoff": "^3.1.1",
+    "gluegun": "^5.1.6",
     "hono": "^4.1.1",
-    "inquirer": "^8.0.0",
     "js-tiktoken": "^1.0.10",
     "json-schema-to-zod": "^2.0.14",
     "json-to-zod": "^1.1.2",
