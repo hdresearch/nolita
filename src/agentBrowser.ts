@@ -114,6 +114,9 @@ export class AgentBrowser {
           ); // TODO: fix this type
 
           // TODO: make this a configurable logging option
+          if (this.logger) {
+            this.logger.log(JSON.stringify(stepResponse));
+          }
           debug.write(`Step response: ${stepResponse}`);
 
           if (stepResponse.objectiveComplete) {
