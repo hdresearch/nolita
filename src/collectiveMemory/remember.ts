@@ -24,7 +24,7 @@ export async function fetchStateActionPairs(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      state,
+      state: ObjectiveState.parse(state),
       limit,
     }),
   });
@@ -34,9 +34,7 @@ export async function fetchStateActionPairs(
       `HDR API request failed with status ${response.status} to url ${response.url}`
     );
   }
-
   const data = await response.json();
-  console.log("data", data);
 
   return data.map((m: any) =>
     Memory.parse({
