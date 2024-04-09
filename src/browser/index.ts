@@ -14,7 +14,7 @@ import { BrowserAction } from "../types/browser/actions.types";
 import { ObjectiveState } from "../types/browser/objectiveState.types";
 import { debug } from "../utils";
 
-// IDK what this black magic is
+// Do not touch this. We're using undocumented puppeteer APIs
 // @ts-ignore
 import { MAIN_WORLD } from "puppeteer";
 import { Inventory } from "../inventory";
@@ -29,7 +29,6 @@ export class Browser {
   private userDataDir = "/tmp"; // TODO: make this configurable
   private idMapping: Map<number, any> = new Map();
   private error: string | undefined;
-  private telemetry: boolean = true;
 
   constructor() {}
 

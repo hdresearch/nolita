@@ -44,7 +44,6 @@ export async function fetchStateActionPairs(
   ) as Memory[];
 }
 
-// TODO: fill out
 export async function remember(
   objectiveState: ObjectiveState,
   hdrConfig?: HDRConfig,

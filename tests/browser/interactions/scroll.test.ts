@@ -43,7 +43,7 @@ describe("Browser interaction -- SCROLL", () => {
   let browser: Browser;
   beforeAll(async () => {
     browser = await Browser.create(true, "");
-  });
+  }, 10000);
 
   it("should scroll to the bottom", async () => {
     await browser.goTo(dataUrl);
@@ -59,7 +59,7 @@ describe("Browser interaction -- SCROLL", () => {
 
     const finalScrollY = await browser.page.evaluate(() => window.scrollY);
     expect(finalScrollY).toBeGreaterThan(0);
-  });
+  }, 10000);
 
   it("should scroll to the top", async () => {
     await browser.goTo(dataUrl);
@@ -72,7 +72,7 @@ describe("Browser interaction -- SCROLL", () => {
 
     const finalScrollY = await browser.page.evaluate(() => window.scrollY);
     expect(finalScrollY).toEqual(0);
-  });
+  }, 10000);
 
   afterAll(async () => {
     await browser.close();

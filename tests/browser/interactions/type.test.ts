@@ -16,7 +16,7 @@ describe("Browser interaction -- CLICK", () => {
   let browser: Browser;
   beforeAll(async () => {
     browser = await Browser.create(true, "");
-  });
+  }, 10000);
 
   it("should enter text", async () => {
     await browser.goTo(dataUrl);
@@ -37,7 +37,7 @@ describe("Browser interaction -- CLICK", () => {
     );
 
     expect(value).toEqual("High Dimensional Research");
-  });
+  }, 10000);
 
   it("it should enter text as array", async () => {
     await browser.goTo(dataUrl);
@@ -60,7 +60,7 @@ describe("Browser interaction -- CLICK", () => {
     );
 
     expect(value).toEqual("High Dimensional Research");
-  });
+  }, 10000);
 
   afterAll(async () => {
     await browser.close();

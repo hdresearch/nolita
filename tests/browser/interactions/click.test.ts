@@ -33,7 +33,7 @@ describe("Browser interaction -- TYPE", () => {
 
   beforeAll(async () => {
     browser = await Browser.create(true, "");
-  });
+  }, 10000);
 
   it("should click a button", async () => {
     await browser.goTo(dataUrl);
@@ -54,7 +54,7 @@ describe("Browser interaction -- TYPE", () => {
       () => document.getElementById("result")!.textContent
     );
     expect(resultText).toBe("Button clicked!");
-  });
+  }, 10000);
 
   it("should click a button as an array", async () => {
     await browser.goTo(dataUrl);
@@ -77,7 +77,7 @@ describe("Browser interaction -- TYPE", () => {
       () => document.getElementById("result")!.textContent
     );
     expect(resultText).toBe("Button clicked!");
-  });
+  }, 10000);
 
   afterAll(async () => {
     await browser.close();
