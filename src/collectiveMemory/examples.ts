@@ -47,3 +47,5 @@ export const stateActionPair2 = {
   objectiveState: objectiveStateExample2,
   actionStep: actionStepExample2,
 };
+
+export const DEFAULT_STATE_ACTION_PAIRS = [stateActionPair1, stateActionPair2];
