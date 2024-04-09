@@ -102,9 +102,6 @@ export class AgentBrowser {
         for (const currentObjective of objective) {
           // check if we have exceeded maxIterations and return the failure state if so
           if (iterationCount > maxIterations) {
-            console.error(
-              "Maximum number of iterations exceeded. Halting browser."
-            );
             return await this.returnErrorState(
               "Maximum number of iterations exceeded"
             );
@@ -114,14 +111,21 @@ export class AgentBrowser {
           ); // TODO: fix this type
 
           // TODO: make this a configurable logging option
+          if (this.logger) {
+            this.logger.log(JSON.stringify(stepResponse));
+          }
           debug.write(`Step response: ${stepResponse}`);
 
           if (stepResponse.objectiveComplete) {
-            return {
+            const answer = {
               result: { kind: "ObjectiveComplete", result: stepResponse },
               url: this.browser.url(),
               content: this.browser.content(),
             };
+            if (this.logger) {
+              this.logger.log(JSON.stringify(answer));
+            }
+            return answer;
           } else if (stepResponse.command) {
             debug.write(
               "Performing action:" + JSON.stringify(stepResponse.command)
@@ -159,11 +163,15 @@ export class AgentBrowser {
   }
 
   async returnErrorState(failureReason: string) {
-    return {
+    const answer = {
       result: { kind: "ObjectiveFailed", result: failureReason },
       url: this.browser.url(),
       content: this.browser.content(),
-    };
+    }
+    if (this.logger) {
+      this.logger.log(JSON.stringify(answer));
+    }
+    return answer;
   }
 
   async close() {

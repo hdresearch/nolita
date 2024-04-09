@@ -20,16 +20,20 @@ export const debug = {
 export class Logger {
   logStream: string[];
   events: EventEmitter;
+  callback: ((input: string) => any) | undefined;
 
-  constructor(logLevel: string) {
+  constructor(logLevel: string, callback?: (input: string) => any | undefined) {
     this.logStream = [];
     this.events = new EventEmitter();
+    this.streamHandler();
+    this.callback = callback || undefined;
   }
 
   log(input: string) {
     this.logStream.push(input);
     this.events.emit("logAdded", input);
     debug.log(input);
+    this.callback && this.callback(input)
   }
 
   streamHandler() {
