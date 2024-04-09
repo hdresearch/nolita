@@ -61,3 +61,31 @@ export async function remember(
     return DEFAULT_STATE_ACTION_PAIRS;
   }
 }
+
+export async function fetchStateActionSequence(
+  sequenceId: string,
+  hdrConfig: HDRConfig
+) {
+  const { apiKey, endpoint } = hdrConfig;
+
+  const response = await fetch(`${endpoint}/memories/sequence/${sequenceId}`, {
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `HDR API request failed with status ${response.status} to url ${response.url}`
+    );
+  }
+
+  const data = await response.json();
+
+  return data.map((m: any) =>
+    Memory.parse({
+      actionStep: m.actionState,
+      objectiveState: m.ObjectiveState,
+    })
+  ) as Memory[];
+}
