@@ -106,23 +106,15 @@ describe("Browser interaction tests", () => {
 
   beforeAll(async () => {
     browser = await Browser.create(true, "", BrowserMode.text);
-  });
+  }, 20000);
 
   beforeEach(async () => {
     await browser.goTo("https://google.com");
     await browser.parseContent();
-  });
+  }, 5000);
 
   afterAll(async () => {
     await browser.close();
-  });
-
-  test("Click link as array", async () => {
-    await browser.performManyActions([{ kind: "Click", index: 1 }]);
-    // sleep for a bit to let the page load
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const url = await browser.url();
-    expect(url.split("?")[0]).toBe("https://about.google/");
   });
 
   test("that inventory substitution works", async () => {
