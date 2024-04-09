@@ -29,13 +29,9 @@ describe("Browser interaction -- TYPE", () => {
     `;
   const dataUrl = `data:text/html,${encodeURIComponent(htmlContent)}`;
 
-  let browser: Browser;
-
-  beforeAll(async () => {
-    browser = await Browser.create(true, "");
-  }, 10000);
-
   it("should click a button", async () => {
+    const browser = await Browser.create(true, "");
+
     await browser.goTo(dataUrl);
 
     let resultText = await browser.page.evaluate(
@@ -54,9 +50,12 @@ describe("Browser interaction -- TYPE", () => {
       () => document.getElementById("result")!.textContent
     );
     expect(resultText).toBe("Button clicked!");
-  }, 10000);
+    await browser.close();
+  }, 20000);
 
   it("should click a button as an array", async () => {
+    const browser = await Browser.create(true, "");
+
     await browser.goTo(dataUrl);
 
     let resultText = await browser.page.evaluate(
@@ -77,9 +76,6 @@ describe("Browser interaction -- TYPE", () => {
       () => document.getElementById("result")!.textContent
     );
     expect(resultText).toBe("Button clicked!");
-  }, 10000);
-
-  afterAll(async () => {
     await browser.close();
-  });
+  }, 20000);
 });
