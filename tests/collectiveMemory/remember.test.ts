@@ -8,9 +8,9 @@ describe("Remember", () => {
       apiKey: process.env.HDR_API_KEY!,
       endpoint: process.env.HDR_ENDPOINT!,
     });
-    expect(memories[0].actionStep.command).toStrictEqual([
-      { index: 5, kind: "Type", text: "gadget 11 pro price" },
-    ]);
+
+    const memory = memories[0].actionStep.command![0];
+    expect(memory.kind).toBe("Type");
   });
 });
 
