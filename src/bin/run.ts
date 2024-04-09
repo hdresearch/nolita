@@ -8,6 +8,9 @@ import { Inventory } from "../inventory";
 import { completionApiBuilder } from "../agent/config";
 import { GluegunToolbox } from "gluegun";
 
+const MAX_ITERATIONS = 10;
+let iteration = 0;
+
 export const run = async (toolbox: GluegunToolbox) => {
     let {
       startUrl,
@@ -141,7 +144,19 @@ export const run = async (toolbox: GluegunToolbox) => {
         });
     }
     // if no HDR key, we already console.log about it in the agent browser
-    const logger = new Logger("info", (input) => toolbox.print.info(input))
+    const spinner = toolbox.print.spin();
+    spinner.stop();
+    const logger = new Logger("info", (input: any) => {
+     const parsedInput = JSON.parse(input);
+      spinner.text = parsedInput.progressAssessment;
+      if (parsedInput?.result) {
+        if (parsedInput?.result?.kind === "ObjectiveComplete") {
+          spinner.succeed(parsedInput?.result?.result?.objectiveComplete?.result)
+        } else if (parsedInput.result.kind === "ObjectiveFailed") {
+          spinner.fail(parsedInput?.result?.result);
+        }
+      }
+    })
 
     const providerOptions = {
       apiKey: agentApiKey!,
@@ -167,14 +182,14 @@ export const run = async (toolbox: GluegunToolbox) => {
       logger,
       inventory.length > 0 ? inventoryObject : undefined
     );
-    const answer = await agentBrowser.browse(
+    spinner.start("Session starting...");
+    await agentBrowser.browse(
       {
         startUrl,
         objective: [objective],
-        maxIterations: 10,
+        maxIterations: MAX_ITERATIONS,
       },
       ModelResponseSchema
     );
-    process.stdout.write(JSON.stringify(answer));
     await browser.close();
   }
