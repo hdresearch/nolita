@@ -21,7 +21,7 @@ describe("Base browser functionality", () => {
   beforeAll(async () => {
     browser = await Browser.create(true, "", BrowserMode.text);
     await browser.goTo("https://example.com");
-  });
+  }, 20000);
 
   afterAll(async () => {
     await browser.close();
