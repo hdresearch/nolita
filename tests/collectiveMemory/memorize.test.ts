@@ -26,17 +26,19 @@ export const actionStepExample1: ModelResponseType = {
   description: "Searched `gadget 11 pro price`",
 };
 
-describe("Memorize -- local", () => {
+describe("Memorize", () => {
   const cmConfig = CollectiveMemoryConfig.parse({
-    endpoint: "http://localhost:8080",
+    endpoint: "https://api.hdr.is",
   });
   it("should memorize", async () => {
-    const memory = memorize(
+    const memory = await memorize(
       objectiveStateExample1,
       actionStepExample1,
       generateUUID(),
       cmConfig
     );
+
+    expect(memory).toBe(true);
   });
 
   it("should memorize if no api key", async () => {

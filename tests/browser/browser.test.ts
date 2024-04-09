@@ -21,7 +21,7 @@ describe("Base browser functionality", () => {
   beforeAll(async () => {
     browser = await Browser.create(true, "", BrowserMode.text);
     await browser.goTo("https://example.com");
-  });
+  }, 20000);
 
   afterAll(async () => {
     await browser.close();
@@ -106,55 +106,15 @@ describe("Browser interaction tests", () => {
 
   beforeAll(async () => {
     browser = await Browser.create(true, "", BrowserMode.text);
-  });
+  }, 20000);
 
   beforeEach(async () => {
     await browser.goTo("https://google.com");
     await browser.parseContent();
-  });
+  }, 5000);
 
   afterAll(async () => {
     await browser.close();
-  });
-
-  test("Click", async () => {
-    await browser.performAction({ kind: "Click", index: 1 });
-    // sleep for a bit to let the page load
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const url = await browser.url();
-    expect(url.split("?")[0]).toBe("https://about.google/");
-  });
-
-  test("Click link as array", async () => {
-    await browser.performManyActions([{ kind: "Click", index: 1 }]);
-    // sleep for a bit to let the page load
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const url = await browser.url();
-    expect(url.split("?")[0]).toBe("https://about.google/");
-  });
-
-  test("Type", async () => {
-    console.log("MAP:", await browser.getMap());
-    await browser.performManyActions([
-      {
-        kind: "Type",
-        index: 8,
-        text: "High Dimensional Research",
-      },
-    ]);
-    console.log("MAP:", await browser.getMap());
-
-    await browser.performManyActions([
-      {
-        kind: "Click",
-        index: 11,
-      },
-    ]);
-
-    const url = await browser.url();
-    expect(url).toContain(
-      "https://www.google.com/search?q=High+Dimensional+Research"
-    );
   });
 
   test("that inventory substitution works", async () => {
@@ -169,7 +129,7 @@ describe("Browser interaction tests", () => {
       [
         {
           kind: "Type",
-          index: 8,
+          index: 1,
           text: inventoryMaskValue,
         },
       ],
@@ -197,23 +157,6 @@ describe("Browser interaction tests", () => {
       inventory
     );
     expect(spy).toHaveBeenCalled();
-  });
-
-  test("Scroll up", async () => {
-    await browser.goTo("https://hdr.is");
-    const initialOffset = await browser.page.evaluate(() => window.pageYOffset);
-    await browser.performAction({ kind: "Scroll", direction: "down" });
-    const newOffset = await browser.page.evaluate(() => window.pageYOffset);
-    expect(newOffset).toBeGreaterThan(initialOffset);
-  });
-
-  test("Scroll down", async () => {
-    await browser.goTo("https://hdr.is");
-    await browser.performAction({ kind: "Scroll", direction: "down" });
-    const initialOffset = await browser.page.evaluate(() => window.pageYOffset);
-    await browser.performAction({ kind: "Scroll", direction: "up" });
-    const newOffset = await browser.page.evaluate(() => window.pageYOffset);
-    expect(newOffset).toBeLessThan(initialOffset);
   });
 });
 

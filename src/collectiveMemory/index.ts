@@ -1,3 +1,4 @@
 import { memorize } from "./memorize";
+import { remember } from "./remember";
 
-export { memorize };
+export { memorize, remember };
