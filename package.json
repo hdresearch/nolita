@@ -1,11 +1,10 @@
 {
-  "name": "@hdr/browser",
-  "version": "0.3.1",
+  "name": "nolita",
+  "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
   "files": [
-    "dist/**/*",
-    "server/**/*"
+    "dist/**/*"
   ],
   "scripts": {
     "build": "tsc",
