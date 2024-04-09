@@ -12,7 +12,7 @@
     "server": "npx tsx ./src/server/index.ts"
   },
   "bin": {
-    "browser": "dist/bin/index.js"
+    "nolita": "dist/bin/index.js"
   },
   "keywords": [],
   "author": "HDR",
