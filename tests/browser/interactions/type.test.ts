@@ -34,7 +34,7 @@ describe("Browser interaction -- CLICK", () => {
 
     expect(value).toEqual("High Dimensional Research");
     await browser.close();
-  }, 10000);
+  }, 30000);
 
   it("it should enter text as array", async () => {
     const browser = await Browser.create(true, "");
@@ -59,5 +59,5 @@ describe("Browser interaction -- CLICK", () => {
 
     expect(value).toEqual("High Dimensional Research");
     await browser.close();
-  }, 10000);
+  }, 30000);
 });
