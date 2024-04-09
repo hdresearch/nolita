@@ -13,12 +13,8 @@ describe("Browser interaction -- CLICK", () => {
     `;
   const dataUrl = `data:text/html,${encodeURIComponent(htmlContent)}`;
 
-  let browser: Browser;
-  beforeAll(async () => {
-    browser = await Browser.create(true, "");
-  }, 10000);
-
   it("should enter text", async () => {
+    const browser = await Browser.create(true, "");
     await browser.goTo(dataUrl);
 
     const initialValue = await browser.page.evaluate(() =>
@@ -37,9 +33,11 @@ describe("Browser interaction -- CLICK", () => {
     );
 
     expect(value).toEqual("High Dimensional Research");
+    await browser.close();
   }, 10000);
 
   it("it should enter text as array", async () => {
+    const browser = await Browser.create(true, "");
     await browser.goTo(dataUrl);
 
     const initialValue = await browser.page.evaluate(() =>
@@ -60,9 +58,6 @@ describe("Browser interaction -- CLICK", () => {
     );
 
     expect(value).toEqual("High Dimensional Research");
-  }, 10000);
-
-  afterAll(async () => {
     await browser.close();
-  });
+  }, 10000);
 });
