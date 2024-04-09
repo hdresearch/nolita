@@ -102,9 +102,6 @@ export class AgentBrowser {
         for (const currentObjective of objective) {
           // check if we have exceeded maxIterations and return the failure state if so
           if (iterationCount > maxIterations) {
-            // console.error(
-            //   "Maximum number of iterations exceeded. Halting browser."
-            // );
             return await this.returnErrorState(
               "Maximum number of iterations exceeded"
             );

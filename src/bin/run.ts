@@ -113,16 +113,6 @@ export const run = async (toolbox: GluegunToolbox) => {
         });
     }
 
-    //   if (!agentEndpoint) {
-    //     // come back when ollama is ready
-    //     if (agentProvider !== "openai" && agentProvider !== "anthropic") {
-    //       throw new Error("No agent endpoint provided");
-    //     }
-    //     // if (agentProvider === "ollama") {
-    //     //   agentEndpoint = "http://localhost:11434/api/generate";
-    //     // }
-    //   }
-
     if (!agentModel) {
       await toolbox.prompt
         .ask({
