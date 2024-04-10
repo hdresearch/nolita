@@ -1,13 +1,12 @@
 import yargs from "yargs/yargs";
 
 import { AgentBrowser } from "../src/agentBrowser";
-import { Logger } from "../src/utils";
 import { Browser } from "../src/browser";
 import { Agent } from "../src/agent/agent";
 import { Inventory } from "../src/inventory";
-import { completionApiBuilder } from "../src/agent/config";
+import { completionApiBuilder } from "../src/agent";
 
-import { ModelResponseSchema } from "../src/types/browser/actionStep.types";
+import { ModelResponseSchema, ObjectiveComplete } from "../src/types";
 
 const parser = yargs(process.argv.slice(2)).options({
   headless: { type: "boolean", default: true },
@@ -24,7 +23,6 @@ async function main() {
     apiKey: process.env.ANTHROPIC_API_KEY!,
     provider: "anthropic",
   };
-  const logger = new Logger("info");
   const chatApi = completionApiBuilder(providerOptions, {
     model: "claude-2.1",
   });
@@ -34,16 +32,22 @@ async function main() {
       `Failed to create chat api for ${providerOptions.provider}`
     );
   }
-  const agent = new Agent(chatApi);
-  const browser = await Browser.create(argv.headless);
 
   // here we define the inventory
+  // inventories are used to store values that can be used in the browser
+  // for example, a username and password
+  // information in the inventory can be used in the browser to to complete tasks
+  // inventory values are never exposed to either collective memory or the model api
   const inventory = new Inventory([
     { value: "student", name: "Username", type: "string" },
     { value: "Password123", name: "Password", type: "string" },
   ]);
 
-  const agentBrowser = new AgentBrowser(agent, browser, logger, inventory);
+  const agentBrowser = new AgentBrowser({
+    agent: new Agent({ modelApi: chatApi }),
+    browser: await Browser.create(argv.headless),
+    inventory,
+  });
 
   const answer = await agentBrowser.browse(
     {
@@ -51,7 +55,7 @@ async function main() {
       objective: [objective],
       maxIterations: maxIterations,
     },
-    ModelResponseSchema
+    ModelResponseSchema(ObjectiveComplete)
   );
 
   console.log("Answer:", answer?.result);

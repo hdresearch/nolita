@@ -8,7 +8,11 @@ import {
 } from "./types/browser/browser.types";
 import { Agent } from "./agent/agent";
 import { remember } from "./collectiveMemory/remember";
-import { ModelResponseType } from "./types/browser/actionStep.types";
+import {
+  ModelResponseSchema,
+  ModelResponseType,
+  ObjectiveComplete,
+} from "./types/browser/actionStep.types";
 import { BrowserAction } from "./types/browser/actions.types";
 
 import { debug } from "./utils";
@@ -30,20 +34,23 @@ export class AgentBrowser {
   private objectiveProgress: string[];
   private memorySequenceId: string = generateUUID();
 
-  constructor(
-    agent: Agent,
-    browser: Browser,
-    logger: Logger,
-    inventory?: Inventory,
-    behaviorConfig: BrowserBehaviorConfig = BrowserBehaviorConfig.parse(
-      {} as any // for zod optionals
-    )
-  ) {
-    this.agent = agent;
-    this.browser = browser;
-    this.logger = logger;
-    this.config = behaviorConfig;
-    this.inventory = inventory;
+  constructor(agentBrowserArgs: {
+    agent: Agent;
+    browser: Browser;
+    logger?: Logger;
+    inventory?: Inventory;
+    behaviorConfig?: BrowserBehaviorConfig;
+    collectiveMemoryConfig?: CollectiveMemoryConfig;
+  }) {
+    this.agent = agentBrowserArgs.agent;
+    this.browser = agentBrowserArgs.browser;
+    this.logger = agentBrowserArgs.logger ?? new Logger(["info"]);
+    this.config =
+      agentBrowserArgs.behaviorConfig ??
+      BrowserBehaviorConfig.parse(
+        {} as any // for zod optionals
+      );
+    this.inventory = agentBrowserArgs.inventory;
     this.hdrConfig = CollectiveMemoryConfig.parse({});
 
     this.objectiveProgress = [];
@@ -59,9 +66,11 @@ export class AgentBrowser {
     const memories = await remember(state);
   }
 
-  async step<T extends z.ZodType<ModelResponseType>>(
+  async step<
+    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
+  >(
     currentObjective: string,
-    responseType: T
+    responseType: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>
   ) {
     const state: ObjectiveState = await this.browser.state(
       currentObjective,
@@ -73,20 +82,28 @@ export class AgentBrowser {
       config = { inventory: this.inventory };
     }
     const prompt = this.agent.prompt(state, memories, config);
-    const response = await this.agent.askCommand<T>(prompt, responseType);
+    const response = await this.agent.askCommand<TObjectiveComplete>(
+      prompt,
+      responseType
+    );
 
     if (response === undefined) {
       return this.returnErrorState("Agent failed to respond");
     }
-    this.memorize(state, response);
+    this.memorize(
+      state,
+      ModelResponseSchema(ObjectiveComplete).parse(response)
+    );
     this.objectiveProgress.push(response.description);
 
     return response;
   }
 
-  async browse<T extends z.ZodType<ModelResponseType>>(
+  async browse<
+    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
+  >(
     browserObjective: BrowserObjective,
-    responseType: T
+    responseType: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>
   ) {
     const { startUrl, objective, maxIterations } =
       BrowserObjective.parse(browserObjective);
@@ -167,7 +184,7 @@ export class AgentBrowser {
       result: { kind: "ObjectiveFailed", result: failureReason },
       url: this.browser.url(),
       content: this.browser.content(),
-    }
+    };
     if (this.logger) {
       this.logger.log(JSON.stringify(answer));
     }

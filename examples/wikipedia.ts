@@ -2,12 +2,11 @@ import yargs from "yargs/yargs";
 import { z } from "zod";
 
 import { AgentBrowser } from "../src/agentBrowser";
-import { Logger } from "../src/utils";
 import { Browser } from "../src/browser";
 import { Agent } from "../src/agent/agent";
-import { completionApiBuilder } from "../src/agent/config";
+import { completionApiBuilder } from "../src/agent";
 
-import { ModelResponseSchema } from "../src/types/browser/actionStep.types";
+import { ModelResponseSchema, ObjectiveComplete } from "../src/types";
 
 const parser = yargs(process.argv.slice(2)).options({
   headless: { type: "boolean", default: true },
@@ -32,7 +31,6 @@ async function main() {
     apiKey: process.env.OPENAI_API_KEY!,
     provider: "openai",
   };
-  const logger = new Logger("info");
   const chatApi = completionApiBuilder(providerOptions, { model: "gpt-4" });
 
   if (!chatApi) {
@@ -40,12 +38,13 @@ async function main() {
       `Failed to create chat api for ${providerOptions.provider}`
     );
   }
-  const agent = new Agent(chatApi);
-  const browser = await Browser.create(argv.headless);
 
-  const agentBrowser = new AgentBrowser(agent, browser, logger);
+  const agentBrowser = new AgentBrowser({
+    agent: new Agent({ modelApi: chatApi }),
+    browser: await Browser.create(argv.headless),
+  });
 
-  const wikipediaAnswer = ModelResponseSchema.extend({
+  const wikipediaAnswer = ObjectiveComplete.extend({
     numberOfEditors: z
       .number()
       .int()
@@ -58,7 +57,7 @@ async function main() {
       objective: [argv.objective],
       maxIterations: argv.maxIterations,
     },
-    wikipediaAnswer
+    ModelResponseSchema(wikipediaAnswer)
   );
 
   console.log("Answer:", answer?.result);

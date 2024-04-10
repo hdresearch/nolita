@@ -4,7 +4,7 @@ import { ModelResponseSchema } from "./browser/actionStep.types";
 import { ObjectiveState } from "./browser/browser.types";
 
 export const Memory = z.object({
-  actionStep: ModelResponseSchema,
+  actionStep: ModelResponseSchema(),
   objectiveState: ObjectiveState,
 });
 

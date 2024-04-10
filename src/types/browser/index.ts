@@ -3,18 +3,16 @@ import {
   ModelResponseType,
   ObjectiveComplete,
   ObjectiveFailed,
-  BrowserArgs,
-  BrowserMode,
-} from "./browser/index";
-
-import { CollectiveMemoryConfig } from "./collectiveMemory/index";
+} from "./actionStep.types";
+import { BrowserMode, ObjectiveState } from "./browser.types";
+import { BrowserArgs } from "./browser.types";
 
 export {
   ModelResponseSchema,
   ModelResponseType,
-  CollectiveMemoryConfig,
+  BrowserMode,
+  ObjectiveState,
+  BrowserArgs,
   ObjectiveComplete,
   ObjectiveFailed,
-  BrowserArgs,
-  BrowserMode,
 };

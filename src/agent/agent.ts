@@ -3,10 +3,14 @@ import { backOff } from "exponential-backoff";
 import { chat } from "zod-gpt";
 import { ChatRequestMessage, CompletionApi } from "llm-api";
 
-import { ModelResponseType } from "../types/browser/actionStep.types";
+import {
+  ModelResponseSchema,
+  ModelResponseType,
+} from "../types/browser/actionStep.types";
 import { Memory } from "../types/memory.types";
 import { ObjectiveState } from "../types/browser/objectiveState.types";
 import { Inventory } from "../inventory";
+import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
 
 export function stringifyObjects<T>(obj: T[]): string {
   const strings = obj.map((o) => JSON.stringify(o));
@@ -15,15 +19,17 @@ export function stringifyObjects<T>(obj: T[]): string {
 
 export class Agent {
   private modelApi: CompletionApi;
+  systemPrompt?: string;
 
-  constructor(modelApi: CompletionApi) {
-    this.modelApi = modelApi;
+  constructor(agentArgs: { modelApi: CompletionApi; systemPrompt?: string }) {
+    this.modelApi = agentArgs.modelApi;
+    this.systemPrompt = agentArgs.systemPrompt;
   }
 
   prompt(
     currentState: ObjectiveState,
     memories: Memory[],
-    config?: { inventory?: Inventory }
+    config?: { inventory?: Inventory; systemPrompt?: string }
   ): ChatRequestMessage[] {
     const userPrompt = `Here are examples of a request: 
     ${stringifyObjects(memories)}
@@ -34,13 +40,16 @@ export class Agent {
     })} 
     `;
 
-    let messages: ChatRequestMessage[] = [];
+    let messages = [] as ChatRequestMessage[];
 
     const configMessages = this.handleConfig(config || {});
 
     if (configMessages.length > 0) {
-      messages = configMessages;
+      configMessages.forEach((message) => {
+        messages.push(message);
+      });
     }
+
     messages.push({
       role: "user",
       content: userPrompt,
@@ -51,8 +60,17 @@ export class Agent {
 
   private handleConfig(config: {
     inventory?: Inventory;
+    systemPrompt?: string;
   }): ChatRequestMessage[] {
     let messages: ChatRequestMessage[] = [];
+
+    const systemPrompt = config.systemPrompt || this.systemPrompt;
+    if (systemPrompt) {
+      messages.push({
+        role: "system",
+        content: systemPrompt,
+      });
+    }
 
     if (config.inventory) {
       messages.push({
@@ -64,9 +82,11 @@ export class Agent {
     return messages;
   }
 
-  async call<T extends z.ZodType<ModelResponseType>>(
+  async call<
+    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
+  >(
     prompt: ChatRequestMessage[],
-    responseSchema: T,
+    responseSchema: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>,
     opts?: { autoSlice?: boolean }
   ) {
     const response = await chat(this.modelApi, prompt, {
@@ -77,9 +97,11 @@ export class Agent {
     return response;
   }
 
-  async askCommand<T extends z.ZodType<ModelResponseType>>(
+  async askCommand<
+    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
+  >(
     prompt: ChatRequestMessage[],
-    outputSchema: T,
+    outputSchema: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>,
     backoffOptions = {
       numOfAttempts: 5, // Maximum number of retries
       startingDelay: 1000, // Initial delay in milliseconds
@@ -96,5 +118,16 @@ export class Agent {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async chat(prompt: string) {
+    const messages = this.handleConfig({ systemPrompt: this.systemPrompt });
+    messages.push({
+      role: "user",
+      content: prompt,
+    });
+    const response = await chat(this.modelApi, messages);
+
+    return response.content;
   }
 }
