@@ -9,11 +9,11 @@ import { Logger } from "../utils";
 import { Browser } from "../browser";
 import { Agent } from "../agent/agent";
 import { Inventory, InventoryValue } from "../inventory";
-import { ModelResponseSchema } from "../types/browser/actionStep.types";
+import { ModelResponseSchema } from "../types";
 
 import { jsonToZod } from "./utils";
 import { ErrorSchema, apiSchema } from "./schema";
-import { completionApiBuilder } from "../agent/config";
+import { completionApiBuilder } from "../agent";
 
 export const setupServer = () => {
   const app = new OpenAPIHono();

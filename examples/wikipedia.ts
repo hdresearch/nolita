@@ -4,9 +4,9 @@ import { z } from "zod";
 import { AgentBrowser } from "../src/agentBrowser";
 import { Browser } from "../src/browser";
 import { Agent } from "../src/agent/agent";
-import { completionApiBuilder } from "../src/agent/config";
+import { completionApiBuilder } from "../src/agent";
 
-import { ModelResponseSchema } from "../src/types/index";
+import { ModelResponseSchema } from "../src/types";
 
 const parser = yargs(process.argv.slice(2)).options({
   headless: { type: "boolean", default: true },

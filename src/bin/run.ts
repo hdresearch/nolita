@@ -3,7 +3,7 @@ import { AgentBrowser } from "../agentBrowser";
 import { Browser } from "../browser";
 import { Agent } from "../agent/agent";
 import { Logger } from "../utils";
-import { ModelResponseSchema } from "../types/browser/actionStep.types";
+import { ModelResponseSchema } from "../types";
 import { Inventory } from "../inventory";
 import { completionApiBuilder } from "../agent/config";
 import { GluegunToolbox } from "gluegun";
