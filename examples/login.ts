@@ -24,6 +24,9 @@ async function main() {
     apiKey: process.env.ANTHROPIC_API_KEY!,
     provider: "anthropic",
   };
+
+  // We can create a chat api using the completionApiBuilder.
+  // These can be swapped out for other providers like OpenAI
   const chatApi = completionApiBuilder(providerOptions, {
     model: "claude-2.1",
   });
