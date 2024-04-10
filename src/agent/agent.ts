@@ -15,9 +15,17 @@ export function stringifyObjects<T>(obj: T[]): string {
 
 export class Agent {
   private modelApi: CompletionApi;
+  chatHistory: ChatRequestMessage[] = [];
 
-  constructor(modelApi: CompletionApi) {
+  constructor(modelApi: CompletionApi, systemPrompt?: string) {
     this.modelApi = modelApi;
+
+    if (systemPrompt) {
+      this.chatHistory.push({
+        role: "system",
+        content: systemPrompt,
+      });
+    }
   }
 
   prompt(
@@ -34,7 +42,7 @@ export class Agent {
     })} 
     `;
 
-    let messages: ChatRequestMessage[] = [];
+    let messages = this.chatHistory;
 
     const configMessages = this.handleConfig(config || {});
 
@@ -96,5 +104,16 @@ export class Agent {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async chat(prompt: string) {
+    const messages = this.chatHistory;
+    messages.push({
+      role: "user",
+      content: prompt,
+    });
+    const response = await chat(this.modelApi, messages);
+
+    return response.content;
   }
 }
