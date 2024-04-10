@@ -1,11 +1,10 @@
 {
-  "name": "@hdr/browser",
-  "version": "0.3.1",
+  "name": "nolita",
+  "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
   "files": [
-    "dist/**/*",
-    "server/**/*"
+    "dist/**/*"
   ],
   "scripts": {
     "build": "tsc",
@@ -13,7 +12,7 @@
     "server": "npx tsx ./src/server/index.ts"
   },
   "bin": {
-    "browser": "dist/bin/index.js"
+    "nolita": "dist/bin/index.js"
   },
   "keywords": [],
   "author": "HDR",
@@ -39,6 +38,7 @@
     "openai": "^4.28.0",
     "puppeteer": "^22.0.0",
     "puppeteer-extra": "^3.3.6",
+    "simple-git": "^3.24.0",
     "type-fest": "^4.10.2",
     "typescript": "^5.3.3",
     "zod": "^3.22.4",

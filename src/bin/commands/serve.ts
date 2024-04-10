@@ -5,13 +5,16 @@ module.exports = {
     name: 'serve',
     run: async (toolbox: GluegunToolbox) => {
         const { print } = toolbox
+        const { port } = toolbox.parameters.options;
         print.info('Starting the server...')
         const app = setupServer()
         serve({
             fetch: app.fetch,
-            port: 3000
+            port: port || 3000
         })
-        print.success('Server started on port 3000')
+        print.success(`Server started on port ${port || 3000}`)
+        print.info(`Documentation available at http://localhost:${port || 3000}/doc`)
+        print.info('Press Ctrl+C to stop the server.')
         return new Promise<void>(resolve => {
             const shutdown = () => {
                 print.error(' Shutting down server...')
