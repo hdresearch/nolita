@@ -2,7 +2,6 @@ import yargs from "yargs/yargs";
 import { z } from "zod";
 
 import { AgentBrowser } from "../src/agentBrowser";
-import { Logger } from "../src/utils";
 import { Browser } from "../src/browser";
 import { Agent } from "../src/agent/agent";
 import { completionApiBuilder } from "../src/agent/config";
@@ -32,7 +31,6 @@ async function main() {
     apiKey: process.env.OPENAI_API_KEY!,
     provider: "openai",
   };
-  const logger = new Logger("info");
   const chatApi = completionApiBuilder(providerOptions, { model: "gpt-4" });
 
   if (!chatApi) {
@@ -40,10 +38,11 @@ async function main() {
       `Failed to create chat api for ${providerOptions.provider}`
     );
   }
-  const agent = new Agent(chatApi);
-  const browser = await Browser.create(argv.headless);
 
-  const agentBrowser = new AgentBrowser(agent, browser, logger);
+  const agentBrowser = new AgentBrowser({
+    agent: new Agent({ modelApi: chatApi }),
+    browser: await Browser.create(argv.headless),
+  });
 
   const wikipediaAnswer = ModelResponseSchema.extend({
     numberOfEditors: z

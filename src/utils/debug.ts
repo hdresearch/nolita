@@ -1,5 +1,4 @@
 import { debug as mDebug } from "debug";
-import { promises as fs } from "fs";
 import { EventEmitter } from "events";
 
 const error = mDebug("hdr-browser:error");
@@ -19,11 +18,16 @@ export const debug = {
 
 export class Logger {
   logStream: string[];
+  logLevels: string[];
   events: EventEmitter;
   callback: ((input: string) => any) | undefined;
 
-  constructor(logLevel: string, callback?: (input: string) => any | undefined) {
+  constructor(
+    logLevels?: string[],
+    callback?: (input: string) => any | undefined
+  ) {
     this.logStream = [];
+    this.logLevels = logLevels || ["info"];
     this.events = new EventEmitter();
     this.streamHandler();
     this.callback = callback || undefined;
@@ -33,7 +37,7 @@ export class Logger {
     this.logStream.push(input);
     this.events.emit("logAdded", input);
     debug.log(input);
-    this.callback && this.callback(input)
+    this.callback && this.callback(input);
   }
 
   streamHandler() {

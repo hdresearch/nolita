@@ -1,4 +1,3 @@
-import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
@@ -50,88 +49,96 @@ export const setupServer = () => {
     },
   });
   // TODO: fix the type
-// @ts-ignore
-app.openapi(route, async (c) => {
-  const {
-    browse_config,
-    provider_config,
-    model_config,
-    response_type,
-    headless,
-    inventory,
-  } = c.req.valid("json");
+  // @ts-ignore
+  app.openapi(route, async (c) => {
+    const {
+      browse_config,
+      provider_config,
+      model_config,
+      response_type,
+      headless,
+      inventory,
+    } = c.req.valid("json");
 
-  const logger = new Logger("info");
-  const chatApi = completionApiBuilder(provider_config, model_config);
+    const logger = new Logger(["info"]);
+    const chatApi = completionApiBuilder(provider_config, model_config);
 
-  if (!chatApi) {
+    if (!chatApi) {
+      return c.json(
+        {
+          code: 400,
+          message: `Failed to create chat api for ${provider_config.provider}`,
+        },
+        400
+      );
+    }
+
+    const agent = new Agent({ modelApi: chatApi });
+    const browser = await Browser.create(headless);
+
+    // set inventory if it exists
+    let agentInventory: Inventory | undefined;
+    if (inventory) {
+      agentInventory = new Inventory(inventory as InventoryValue[]);
+    }
+
+    // set custom response type if it exists
+    let responseType = ModelResponseSchema;
+
+    // NOTE THIS IS EXTREMELY DANGEROUS AND ONLY FOR DEMONSTRATION PURPOSES
+    // we put some safeguard in place to prevent arbitrary code execution
+    if (response_type) {
+      responseType = ModelResponseSchema.extend({
+        response_type: (
+          await jsonToZod(response_type as JsonSchema)
+        ).optional(),
+      });
+    }
+
+    const args = {
+      agent: agent,
+      browser: browser,
+      logger: logger,
+      inventory: agentInventory,
+    };
+
+    const agentBrowser = new AgentBrowser(args);
+
+    const answer = await agentBrowser.browse(
+      {
+        startUrl: browse_config.startUrl,
+        objective: browse_config.objective,
+        maxIterations: browse_config.maxIterations,
+      },
+      responseType
+    );
+
+    await agentBrowser.close();
+
+    if (answer) {
+      return c.json(answer.result, 200);
+    }
+
     return c.json(
       {
         code: 400,
-        message: `Failed to create chat api for ${provider_config.provider}`,
+        message: "No response from the agent",
       },
       400
     );
-  }
+  });
 
-  const agent = new Agent(chatApi);
-  const browser = await Browser.create(headless);
-
-  // set inventory if it exists
-  let agentInventory: Inventory | undefined;
-  if (inventory) {
-    agentInventory = new Inventory(inventory as InventoryValue[]);
-  }
-
-  // set custom response type if it exists
-  let responseType = ModelResponseSchema;
-
-  // NOTE THIS IS EXTREMELY DANGEROUS AND ONLY FOR DEMONSTRATION PURPOSES
-  // we put some safeguard in place to prevent arbitrary code execution
-  if (response_type) {
-    responseType = ModelResponseSchema.extend({
-      response_type: (await jsonToZod(response_type as JsonSchema)).optional(),
-    });
-  }
-
-  const agentBrowser = new AgentBrowser(agent, browser, logger, agentInventory);
-
-  const answer = await agentBrowser.browse(
-    {
-      startUrl: browse_config.startUrl,
-      objective: browse_config.objective,
-      maxIterations: browse_config.maxIterations,
+  app.doc("/doc", {
+    openapi: "3.0.0",
+    info: {
+      version: "1.0.0",
+      title: "HDR Browser API",
     },
-    responseType
-  );
+  });
 
-  await agentBrowser.close();
-
-  if (answer) {
-    return c.json(answer.result, 200);
-  }
-
-  return c.json(
-    {
-      code: 400,
-      message: "No response from the agent",
-    },
-    400
-  );
-});
-
-app.doc("/doc", {
-  openapi: "3.0.0",
-  info: {
-    version: "1.0.0",
-    title: "HDR Browser API",
-  },
-});
-
-app.get("/", swaggerUI({ url: "/doc" }));
-return app;
-}
-
+  app.get("/", swaggerUI({ url: "/doc" }));
+  return app;
+};
 
 if (require.main === module) {
   const port = 3000;

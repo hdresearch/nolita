@@ -17,13 +17,13 @@ export class Agent {
   private modelApi: CompletionApi;
   chatHistory: ChatRequestMessage[] = [];
 
-  constructor(modelApi: CompletionApi, systemPrompt?: string) {
-    this.modelApi = modelApi;
+  constructor(agentArgs: { modelApi: CompletionApi; systemPrompt?: string }) {
+    this.modelApi = agentArgs.modelApi;
 
-    if (systemPrompt) {
+    if (agentArgs.systemPrompt) {
       this.chatHistory.push({
         role: "system",
-        content: systemPrompt,
+        content: agentArgs.systemPrompt,
       });
     }
   }

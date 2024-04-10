@@ -22,7 +22,7 @@ describe("Agent", () => {
       },
       { model: "gpt-3.5-turbo-1106" }
     );
-    agent = new Agent(openAIChatApi);
+    agent = new Agent({ modelApi: openAIChatApi });
   });
 
   test("Agent can prompt", async () => {
@@ -139,9 +139,12 @@ describe("Agent", () => {
       { model: "gpt-3.5-turbo-1106" }
     );
 
-    const agent = new Agent(openAIChatApi, "Only respond in all caps");
+    const agent = new Agent({
+      modelApi: openAIChatApi,
+      systemPrompt: "Only respond in all caps",
+    });
 
-    const response = await agent.chat("respond with hello and nothing more.");
+    const response = await agent.chat("respond with `hello` and nothing more.");
     expect(response).toBe("HELLO");
   });
 });

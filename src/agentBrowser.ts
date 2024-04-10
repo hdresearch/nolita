@@ -30,20 +30,23 @@ export class AgentBrowser {
   private objectiveProgress: string[];
   private memorySequenceId: string = generateUUID();
 
-  constructor(
-    agent: Agent,
-    browser: Browser,
-    logger: Logger,
-    inventory?: Inventory,
-    behaviorConfig: BrowserBehaviorConfig = BrowserBehaviorConfig.parse(
-      {} as any // for zod optionals
-    )
-  ) {
-    this.agent = agent;
-    this.browser = browser;
-    this.logger = logger;
-    this.config = behaviorConfig;
-    this.inventory = inventory;
+  constructor(agentBrowserArgs: {
+    agent: Agent;
+    browser: Browser;
+    logger?: Logger;
+    inventory?: Inventory;
+    behaviorConfig?: BrowserBehaviorConfig;
+    collectiveMemoryConfig?: CollectiveMemoryConfig;
+  }) {
+    this.agent = agentBrowserArgs.agent;
+    this.browser = agentBrowserArgs.browser;
+    this.logger = agentBrowserArgs.logger ?? new Logger(["info"]);
+    this.config =
+      agentBrowserArgs.behaviorConfig ??
+      BrowserBehaviorConfig.parse(
+        {} as any // for zod optionals
+      );
+    this.inventory = agentBrowserArgs.inventory;
     this.hdrConfig = CollectiveMemoryConfig.parse({});
 
     this.objectiveProgress = [];
@@ -167,7 +170,7 @@ export class AgentBrowser {
       result: { kind: "ObjectiveFailed", result: failureReason },
       url: this.browser.url(),
       content: this.browser.content(),
-    }
+    };
     if (this.logger) {
       this.logger.log(JSON.stringify(answer));
     }

@@ -1,9 +1,7 @@
 import yargs from "yargs/yargs";
-import { OpenAIChatApi } from "llm-api";
 import { z } from "zod";
 
 import { AgentBrowser } from "../src/agentBrowser";
-import { Logger } from "../src/utils";
 import { Browser } from "../src/browser";
 import { Agent } from "../src/agent/agent";
 import { Inventory } from "../src/inventory";
@@ -28,7 +26,6 @@ async function main() {
     apiKey: process.env.OPENAI_API_KEY!,
     provider: "openai",
   };
-  const logger = new Logger("info");
   const chatApi = completionApiBuilder(providerOptions, { model: "gpt-4" });
 
   if (!chatApi) {
@@ -36,16 +33,15 @@ async function main() {
       `Failed to create chat api for ${providerOptions.provider}`
     );
   }
-  const agent = new Agent(chatApi);
-  const browser = await Browser.create(argv.headless);
 
-  // here we define the inventory
-  const inventory = new Inventory([
-    { value: "emma.lopez@gmail.com", name: "email", type: "string" },
-    { value: "Password.123", name: "Password", type: "string" },
-  ]);
-
-  const agentBrowser = new AgentBrowser(agent, browser, logger, inventory);
+  const agentBrowser = new AgentBrowser({
+    agent: new Agent({ modelApi: chatApi }),
+    browser: await Browser.create(argv.headless),
+    inventory: new Inventory([
+      { value: "emma.lopez@gmail.com", name: "email", type: "string" },
+      { value: "Password.123", name: "Password", type: "string" },
+    ]),
+  });
 
   const orderTotalAnswer = ModelResponseSchema.extend({
     orderTotals: z.array(
