@@ -6,7 +6,7 @@ import { Agent } from "../src/agent/agent";
 import { Inventory } from "../src/inventory";
 import { completionApiBuilder } from "../src/agent/config";
 
-import { ModelResponseSchema } from "../src/types/browser/actionStep.types";
+import { ModelResponseSchema } from "../src/types/index";
 
 const parser = yargs(process.argv.slice(2)).options({
   headless: { type: "boolean", default: true },

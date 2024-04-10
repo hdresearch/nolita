@@ -1,8 +1,20 @@
 import {
   ModelResponseSchema,
   ModelResponseType,
-} from "./browser/actionStep.types";
+  ObjectiveComplete,
+  ObjectiveFailed,
+  BrowserArgs,
+  BrowserMode,
+} from "./browser/index";
 
 import { CollectiveMemoryConfig } from "./collectiveMemory/index";
 
-export { ModelResponseSchema, ModelResponseType, CollectiveMemoryConfig };
+export {
+  ModelResponseSchema,
+  ModelResponseType,
+  CollectiveMemoryConfig,
+  ObjectiveComplete,
+  ObjectiveFailed,
+  BrowserArgs,
+  BrowserMode,
+};
