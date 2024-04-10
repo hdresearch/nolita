@@ -3,7 +3,7 @@ import { AgentBrowser } from "../agentBrowser";
 import { Browser } from "../browser";
 import { Agent } from "../agent/agent";
 import { Logger } from "../utils";
-import { ModelResponseSchema } from "../types";
+import { ModelResponseSchema, ObjectiveComplete } from "../types";
 import { Inventory } from "../inventory";
 import { completionApiBuilder } from "../agent/config";
 import { GluegunToolbox } from "gluegun";
@@ -178,7 +178,7 @@ export const run = async (toolbox: GluegunToolbox) => {
       objective: [objective],
       maxIterations: MAX_ITERATIONS,
     },
-    ModelResponseSchema
+    ModelResponseSchema(ObjectiveComplete)
   );
   await args.browser.close();
 };

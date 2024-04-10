@@ -1,3 +1,4 @@
+import { Hono } from "hono"; // this must be left in for setupServer to work
 import { serve } from "@hono/node-server";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
@@ -9,7 +10,7 @@ import { Logger } from "../utils";
 import { Browser } from "../browser";
 import { Agent } from "../agent/agent";
 import { Inventory, InventoryValue } from "../inventory";
-import { ModelResponseSchema } from "../types";
+import { ModelResponseSchema, ObjectiveComplete } from "../types";
 
 import { jsonToZod } from "./utils";
 import { ErrorSchema, apiSchema } from "./schema";
@@ -31,9 +32,9 @@ export const setupServer = () => {
       200: {
         content: {
           "application/json": {
-            schema: ModelResponseSchema.extend({
+            schema: ObjectiveComplete.extend({
               response_type: z.any().optional(),
-            }).openapi("ModelResponse"),
+            }).openapi("ObjectiveComplete"),
           },
         },
         description: "The response from the agent",
@@ -83,15 +84,14 @@ export const setupServer = () => {
     }
 
     // set custom response type if it exists
-    let responseType = ModelResponseSchema;
+    let responseType = ObjectiveComplete;
 
     // NOTE THIS IS EXTREMELY DANGEROUS AND ONLY FOR DEMONSTRATION PURPOSES
     // we put some safeguard in place to prevent arbitrary code execution
+
     if (response_type) {
-      responseType = ModelResponseSchema.extend({
-        response_type: (
-          await jsonToZod(response_type as JsonSchema)
-        ).optional(),
+      responseType = ObjectiveComplete.extend({
+        response_type: await jsonToZod(response_type as JsonSchema),
       });
     }
 
@@ -110,7 +110,7 @@ export const setupServer = () => {
         objective: browse_config.objective,
         maxIterations: browse_config.maxIterations,
       },
-      responseType
+      ModelResponseSchema(responseType)
     );
 
     await agentBrowser.close();

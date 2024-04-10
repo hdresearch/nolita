@@ -6,7 +6,7 @@ import { Agent } from "../src/agent/agent";
 import { Inventory } from "../src/inventory";
 import { completionApiBuilder } from "../src/agent";
 
-import { ModelResponseSchema } from "../src/types";
+import { ModelResponseSchema, ObjectiveComplete } from "../src/types";
 
 const parser = yargs(process.argv.slice(2)).options({
   headless: { type: "boolean", default: true },
@@ -55,7 +55,7 @@ async function main() {
       objective: [objective],
       maxIterations: maxIterations,
     },
-    ModelResponseSchema
+    ModelResponseSchema(ObjectiveComplete)
   );
 
   console.log("Answer:", answer?.result);

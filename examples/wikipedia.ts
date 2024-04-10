@@ -6,7 +6,7 @@ import { Browser } from "../src/browser";
 import { Agent } from "../src/agent/agent";
 import { completionApiBuilder } from "../src/agent";
 
-import { ModelResponseSchema } from "../src/types";
+import { ModelResponseSchema, ObjectiveComplete } from "../src/types";
 
 const parser = yargs(process.argv.slice(2)).options({
   headless: { type: "boolean", default: true },
@@ -44,7 +44,7 @@ async function main() {
     browser: await Browser.create(argv.headless),
   });
 
-  const wikipediaAnswer = ModelResponseSchema.extend({
+  const wikipediaAnswer = ObjectiveComplete.extend({
     numberOfEditors: z
       .number()
       .int()
@@ -57,7 +57,7 @@ async function main() {
       objective: [argv.objective],
       maxIterations: argv.maxIterations,
     },
-    wikipediaAnswer
+    ModelResponseSchema(wikipediaAnswer)
   );
 
   console.log("Answer:", answer?.result);

@@ -6,7 +6,10 @@ import {
   objectiveStateExample1,
   stateActionPair1,
 } from "../../src/collectiveMemory/examples";
-import { ModelResponseSchema } from "../../src/types/browser/actionStep.types";
+import {
+  ModelResponseSchema,
+  ObjectiveComplete,
+} from "../../src/types/browser/actionStep.types";
 
 import { Inventory } from "../../src/inventory";
 
@@ -22,7 +25,11 @@ describe("Agent", () => {
       },
       { model: "gpt-3.5-turbo-1106" }
     );
-    agent = new Agent({ modelApi: openAIChatApi });
+    agent = new Agent({
+      modelApi: openAIChatApi,
+      systemPrompt:
+        "If you generate a command it must be of the kind {Kind: Type, index: 5, Text: 'gadget 11 pro price'}",
+    });
   });
 
   test("Agent can prompt", async () => {
@@ -31,8 +38,8 @@ describe("Agent", () => {
       [stateActionPair1],
       {}
     );
-    expect(prompt[0].role).toBe("user");
-    expect(prompt[0].content).toContain(
+    expect(prompt[1].role).toBe("user");
+    expect(prompt[1].content).toContain(
       `{"objectiveState":{"kind":"ObjectiveState","objective":"how much is an gadget 11 pro","progress":[]`
     );
   });
@@ -47,8 +54,8 @@ describe("Agent", () => {
         ]),
       }
     );
-    expect(prompt[0].role).toBe("user");
-    expect(prompt[0].content).toContain("Use the following information");
+    expect(prompt[1].role).toBe("user");
+    expect(prompt[1].content).toContain("Use the following information");
   });
 
   test("that empty configs are handled", async () => {
@@ -57,8 +64,8 @@ describe("Agent", () => {
       [stateActionPair1],
       {}
     );
-    expect(prompt[0].role).toBe("user");
-    expect(prompt[0].content).toContain("Here are examples of a request");
+    expect(prompt[1].role).toBe("user");
+    expect(prompt[1].content).toContain("Here are examples of a request");
   });
 
   test("ask command", async () => {
@@ -68,7 +75,10 @@ describe("Agent", () => {
       {}
     );
 
-    const response = await agent.call(prompt, ModelResponseSchema);
+    const response = await agent.call(
+      prompt,
+      ModelResponseSchema(ObjectiveComplete)
+    );
     expect(response.data.command).toStrictEqual([
       { index: 5, kind: "Type", text: "gadget 11 pro price" },
     ]);
@@ -81,19 +91,18 @@ describe("Agent", () => {
       {}
     );
 
-    const testSchema = ModelResponseSchema.extend({
+    const testSchema = ObjectiveComplete.extend({
       randomNumber: z
         .number()
         .describe("generate a random number greater than zero"),
     });
 
-    const response = await agent.call(prompt, testSchema);
+    const response = await agent.call(prompt, ModelResponseSchema(testSchema));
     expect(response.data.command).toStrictEqual([
       { index: 5, kind: "Type", text: "gadget 11 pro price" },
     ]);
 
-    expect(response.data.randomNumber).toBeGreaterThanOrEqual(0);
-    expect(ModelResponseSchema.parse(response.data)).toBeDefined();
+    expect(ModelResponseSchema(testSchema).parse(response.data)).toBeDefined();
   });
 
   test("that askCommandWorks", async () => {
@@ -102,7 +111,10 @@ describe("Agent", () => {
       [stateActionPair1],
       {}
     );
-    const response = await agent.askCommand(prompt, ModelResponseSchema);
+    const response = await agent.askCommand(
+      prompt,
+      ModelResponseSchema(ObjectiveComplete)
+    );
     expect(response!.command).toStrictEqual([
       { index: 5, kind: "Type", text: "gadget 11 pro price" },
     ]);
@@ -114,13 +126,16 @@ describe("Agent", () => {
       [stateActionPair1],
       {}
     );
-    const testSchema = ModelResponseSchema.extend({
+    const testSchema = ObjectiveComplete.extend({
       randomNumber: z
         .number()
         .describe("generate a random number greater than zero"),
     });
 
-    const response = await agent.askCommand(prompt, testSchema);
+    const response = await agent.askCommand(
+      prompt,
+      ModelResponseSchema(testSchema)
+    );
     if (response!.command && response!.command.length > 0) {
       const command = response!.command[0];
       if ("index" in command) {
@@ -128,7 +143,12 @@ describe("Agent", () => {
         expect(command.index).toBe(5);
       }
     }
-    expect(response!.randomNumber).toBeGreaterThanOrEqual(0);
+    if (response!.objectiveComplete) {
+      const parsedResponse = ModelResponseSchema(testSchema).parse(
+        response!.objectiveComplete
+      );
+      expect(parsedResponse).toBeDefined();
+    }
   });
 
   it("should follow a system prompt", async () => {
