@@ -6,6 +6,7 @@ import { Browser } from "../src/browser";
 import { Agent } from "../src/agent/agent";
 import { Inventory } from "../src/inventory";
 import { completionApiBuilder } from "../src/agent";
+import { Logger } from "../src/utils";
 
 import { ModelResponseSchema, ObjectiveComplete } from "../src/types";
 
@@ -33,10 +34,12 @@ async function main() {
       `Failed to create chat api for ${providerOptions.provider}`
     );
   }
+  const logger = new Logger(["info"], (msg) => console.log(msg));
 
   const agentBrowser = new AgentBrowser({
     agent: new Agent({ modelApi: chatApi }),
     browser: await Browser.create(argv.headless),
+    logger,
     inventory: new Inventory([
       { value: "emma.lopez@gmail.com", name: "email", type: "string" },
       { value: "Password.123", name: "Password", type: "string" },
@@ -58,7 +61,7 @@ async function main() {
     ModelResponseSchema(orderTotalAnswer)
   );
 
-  console.log("Answer:", answer?.result);
+  console.log("Answer:", JSON.stringify(answer?.result));
   await agentBrowser.close();
 }
 
