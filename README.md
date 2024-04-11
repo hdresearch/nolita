@@ -93,7 +93,7 @@ If you want to import pieces of Nolita for your application, you can. We export 
 
 #### Agent
 
-Wraps an LLM and creates a class for participating with the browser in state machine loops and a predefined prompt.. You can wrap an LLM that is parsed by `llm-api` with our `completionApiBuilder`.
+Wraps an LLM and creates a class for participating with the browser in state machine loops and a predefined prompt. You can wrap an LLM that is parsed by `llm-api` with our `completionApiBuilder`.
 
 ```ts
 const providerOptions = {
