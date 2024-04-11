@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- Fixes an error during the `create` process.
+
 ## 1.0.0
 
 - `@hdr/browser` is now `nolita`!
