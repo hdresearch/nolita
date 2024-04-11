@@ -87,6 +87,100 @@ Give it a project name and it bootstraps a template application built on Express
 
 ## Additional information
 
+### Exported classes
+
+If you want to import pieces of Nolita for your application, you can. We export the following classes:
+
+#### Agent
+
+Wraps an LLM and creates a class for participating with the browser in state machine loops and a predefined prompt.. You can wrap an LLM that is parsed by `llm-api` with our `completionApiBuilder`.
+
+```ts
+const providerOptions = {
+  apiKey: process.env.PROVIDER_API_KEY,
+  provider: process.env.MODEL_PROVIDER,
+};
+
+const modelApi = completionApiBuilder(providerOptions, {
+  model: process.env.MODEL,
+});
+
+const agent = new Agent({ modelApi });
+```
+
+You can optionally change the system prompt.
+
+```ts
+const agent = new Agent({ modelApi, systemPrompt: "You are a little mean and sassy." });
+```
+
+#### Browser
+
+We wrap Puppeteer, incorporating state machine hooks and a lot of accessibility preprocessing.
+
+```ts
+const browser = await Browser.create(true);
+```
+
+It takes one boolean for `headless` mode. If `false,` Chrome will open graphically.
+
+
+#### Logger
+
+Our logger enforces a log level with an optional callback. You can use this to surface objective progress.
+
+```ts
+const logger = new Logger("info", (msg) => {
+    return console.log(`${msg}`);
+  });
+```
+
+#### Inventory
+
+The Inventory class constructs keys and values to mask outside the prompt itself, ie. when using collective memory or subsequent tasks.
+
+```ts
+
+const ourInventory = {
+    "inventory": [
+        { 
+            "value": "student",
+            "name": "Username",
+            "type": "string" 
+        },
+        { 
+            "value": "Password123",
+            "name": "Password",
+            "type": "string"
+        }
+    ]
+}
+
+const inventory = new Inventory(ourInventory || []);
+```
+
+#### ModelResponseSchema
+
+Our base typed response for the agent's state machine. It can be extended with `zod`. See "specifying types," below.
+
+```ts
+```
+
+#### AgentBrowser
+
+This class unifies all prior classes and includes the state machine logic.
+
+```ts
+const answer = await agentBrowser.browse(
+    {
+      startUrl: req.query.url as string,
+      objective: [req.query.objective as string],
+      maxIterations: parseInt(req.query.maxIterations as string) || 10,
+    },
+    ModelResponseSchema,
+  );
+```
+
 ### Specifying types
 
 We use `zod` under the hood to enforce typed responses from the agent. You can use this to enforce predictable output for your application.
