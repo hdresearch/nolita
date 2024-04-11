@@ -163,9 +163,6 @@ const inventory = new Inventory(ourInventory || []);
 
 Our base typed response for the agent's state machine. It can be extended with `zod`. See "specifying types," below.
 
-```ts
-```
-
 #### AgentBrowser
 
 This class unifies all prior classes and includes the state machine logic.
