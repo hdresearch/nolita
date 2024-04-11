@@ -27,5 +27,24 @@ module.exports = {
             maxConcurrentProcesses: 6,
         }).clone('git@github.com:hdresearch/create.git', name)
         filesystem.remove(`${name}/.git`)
+        filesystem.move(`${name}/extensions/.inventory.example`, `${name}/.inventory`)
+        toolbox.print.success(`Created ${name} project`)
+        toolbox.system.run(`cd ${name} && npm install`)
+        await simpleGit({
+            baseDir: process.cwd() + '/' + name,
+            binary: 'git',
+            maxConcurrentProcesses: 6,
+        }).init()
+        await simpleGit({
+            baseDir: process.cwd() + '/' + name,
+            binary: 'git',
+            maxConcurrentProcesses: 6,
+        }).add('.')
+        await simpleGit({
+            baseDir: process.cwd() + '/' + name,
+            binary: 'git',
+            maxConcurrentProcesses: 6,
+        }).commit('Initial commit')
+        toolbox.print.success(`Your project is ready! Get started in the ${name} directory.`)
     },
 }
