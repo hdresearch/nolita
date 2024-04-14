@@ -128,7 +128,7 @@ export class Browser {
           }
 
           let eType = await this.findElement(command.index);
-          await eType.click({ clickCount: 3 });
+          await eType.click({ clickCount: 3 }); // click to select all text
           await eType.type(text + "\n");
           await new Promise((resolve) => setTimeout(resolve, 100));
           break;

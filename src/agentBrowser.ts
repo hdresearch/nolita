@@ -7,7 +7,7 @@ import {
   ObjectiveState,
 } from "./types/browser/browser.types";
 import { Agent } from "./agent/agent";
-import { remember } from "./collectiveMemory/remember";
+import { fetchMemorySequence, remember } from "./collectiveMemory/remember";
 import {
   ModelResponseSchema,
   ModelResponseType,
@@ -21,6 +21,7 @@ import { memorize } from "./collectiveMemory/memorize";
 
 import { BrowserBehaviorConfig } from "./types/agentBrowser.types";
 import { CollectiveMemoryConfig } from "./types";
+import { Memory } from "./types/memory.types";
 
 export class AgentBrowser {
   agent: Agent;
@@ -60,10 +61,58 @@ export class AgentBrowser {
     this.memorySequenceId = generateUUID();
   }
 
-  // returns {action: ActionStep, state: ObjectiveState}
-  // currently not implemented
-  async remember(state: ObjectiveState) {
-    const memories = await remember(state);
+  async performMemory(currentObjective: string, memory: Memory) {
+    // call this so the browser's internal page state is updated
+    const state = await this.browser.state(
+      memory.objectiveState.objective,
+      this.objectiveProgress
+    );
+
+    // add the description to the progress so the model understands
+    // what has been done so far
+    // we need this to help objectiveComplete steps return correctly
+    this.objectiveProgress.push(memory.actionStep.description);
+  }
+
+  private async modifyActionMemory(
+    memory: Memory,
+    objectiveState: ObjectiveState
+  ) {}
+
+  async followPath(memorySequenceId: string, currentObjective: string) {
+    const memories = await fetchMemorySequence(
+      memorySequenceId,
+      this.hdrConfig
+    );
+
+    if (memories.length === 0) {
+      throw new Error("No memories found for sequence id");
+    }
+
+    for (const memory of memories) {
+      const state: ObjectiveState = await this.browser.state(
+        currentObjective,
+        this.objectiveProgress
+      );
+
+      // we should relax this condition in the future
+      if (state.ariaTree === memory.objectiveState.ariaTree) {
+        await this.performMemory(currentObjective, memory);
+      } else {
+        const modifiedActionStep = await this.agent.modifyActions(
+          state,
+          memory
+        );
+        this.browser.performManyActions(
+          modifiedActionStep as BrowserAction[],
+          this.inventory
+        );
+      }
+    }
+  }
+
+  async remember(state: ObjectiveState): Promise<Memory[]> {
+    return await remember(state, this.hdrConfig);
   }
 
   async step<
@@ -125,9 +174,8 @@ export class AgentBrowser {
           }
           const stepResponse = responseType.parse(
             await this.step(currentObjective, responseType)
-          ); // TODO: fix this type
+          );
 
-          // TODO: make this a configurable logging option
           if (this.logger) {
             this.logger.log(JSON.stringify(stepResponse));
           }

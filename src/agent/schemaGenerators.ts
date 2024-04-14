@@ -1,28 +1,29 @@
 import { z } from "zod";
-import {
-  BrowserActionSchemaArray,
-  Click,
-  Type,
-  Back,
-  Wait,
-} from "../types/browser/actionStep.types";
-
-/*
-This function generates a zod schema from past browser actions
-*/
-export function generateCommandSchema(sample: BrowserActionSchemaArray) {
-  const schemaArray: Array<z.ZodTypeAny> = [];
-
-  sample.forEach((action) => {
-    if (action.kind === "Click") {
-      schemaArray.push(Click);
-    } else if (action.kind === "Type") {
-      schemaArray.push(Type);
-    } else if (action.kind === "Back") {
-      schemaArray.push(Back);
-    } else if (action.kind === "Wait") {
-      schemaArray.push(Wait);
-    }
-  });
-  return z.tuple(schemaArray as [z.ZodTypeAny, ...z.ZodTypeAny[]]);
+export interface SchemaElement {
+  kind: string;
+  index: number;
+  text?: string;
 }
+
+export const generateSchema = (sampleSchema: SchemaElement[]) => {
+  const schemaElements = sampleSchema.map((element) => {
+    const baseSchema: any = {
+      kind: z.literal(element.kind),
+    };
+
+    if ("index" in element) {
+      baseSchema.index = z.number();
+    }
+
+    if ("text" in element) {
+      baseSchema.text = z.string();
+    }
+
+    return baseSchema;
+  });
+
+  return z.tuple([
+    z.object(schemaElements[0]),
+    ...schemaElements.slice(1).map((element) => z.object(element)),
+  ]);
+};

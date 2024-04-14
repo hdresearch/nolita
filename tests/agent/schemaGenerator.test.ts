@@ -1,8 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
-import { compareCommand } from "../../src/agent/agent";
 import { BrowserActionSchemaArray } from "../../src/types";
 
-import { generateCommandSchema } from "../../src/agent/schemaGenerators";
+import { generateSchema as generateCommandSchema } from "../../src/agent/schemaGenerators";
 
 describe("generate Schemas", () => {
   it("it should return the schema", () => {
@@ -14,9 +13,7 @@ describe("generate Schemas", () => {
       },
     ];
 
-    const commandArray = BrowserActionSchemaArray.parse(sampleSchema);
-
-    const schema = generateCommandSchema(commandArray);
+    const schema = generateCommandSchema(sampleSchema);
     expect(schema.safeParse(sampleSchema).success).toBe(true);
     expect(schema.parse(sampleSchema)).toBeDefined();
   });
@@ -29,9 +26,7 @@ describe("generate Schemas", () => {
         text: "test",
       },
     ];
-    const schema = generateCommandSchema(
-      sampleSchema as BrowserActionSchemaArray
-    );
+    const schema = generateCommandSchema(sampleSchema);
 
     const f = schema.safeParse([{ kind: "Click", index: 2 }]);
 
@@ -57,9 +52,7 @@ describe("generate Schemas", () => {
       },
     ];
 
-    const schema = generateCommandSchema(
-      sampleSchema as BrowserActionSchemaArray
-    );
+    const schema = generateCommandSchema(sampleSchema);
 
     const newCommand = [
       {
@@ -78,6 +71,8 @@ describe("generate Schemas", () => {
       },
     ];
     const newCommandParsed = schema.parse(newCommand);
+
+    console.log(newCommandParsed);
     expect(schema.safeParse(sampleSchema).success).toBe(true);
     expect(newCommandParsed[0].kind).toBe("Type");
     expect(newCommandParsed[0].index).toBe(3);
@@ -107,9 +102,7 @@ describe("generate Schemas", () => {
       },
     ];
 
-    const schema = generateCommandSchema(
-      sampleSchema as BrowserActionSchemaArray
-    );
+    const schema = generateCommandSchema(sampleSchema);
 
     const newCommand = [
       {
@@ -128,6 +121,7 @@ describe("generate Schemas", () => {
     ];
 
     const f = schema.safeParse(newCommand);
+    console.log(JSON.stringify(f));
     expect(f.success).toBe(false);
   });
 });
