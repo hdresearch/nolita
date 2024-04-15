@@ -5,6 +5,7 @@ import { AgentBrowser } from "../src/agentBrowser";
 import { Browser } from "../src/browser";
 import { Agent } from "../src/agent/agent";
 import { completionApiBuilder } from "../src/agent";
+import { Logger } from "../src/utils";
 
 import { ModelResponseSchema, ObjectiveComplete } from "../src/types";
 
@@ -38,17 +39,23 @@ async function main() {
       `Failed to create chat api for ${providerOptions.provider}`
     );
   }
+  const logger = new Logger(["info"], (msg) => console.log(msg));
 
   const agentBrowser = new AgentBrowser({
     agent: new Agent({ modelApi: chatApi }),
     browser: await Browser.create(argv.headless),
+    logger,
   });
 
+  // Here we are defining a custom return schema
+  // Custom schemas extrend `ObjectiveComplete` by adding additional fields
+  // In addition to returning structured data, we find that using these fields
+  // improves the performance of the model by constraining the conditions
+  // under which the model can halt
   const wikipediaAnswer = ObjectiveComplete.extend({
     numberOfEditors: z
       .number()
       .int()
-      .optional()
       .describe("The number of editors in int format"),
   });
   const answer = await agentBrowser.browse(

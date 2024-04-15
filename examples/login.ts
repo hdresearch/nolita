@@ -5,6 +5,7 @@ import { Browser } from "../src/browser";
 import { Agent } from "../src/agent/agent";
 import { Inventory } from "../src/inventory";
 import { completionApiBuilder } from "../src/agent";
+import { Logger } from "../src/utils";
 
 import { ModelResponseSchema, ObjectiveComplete } from "../src/types";
 
@@ -23,6 +24,9 @@ async function main() {
     apiKey: process.env.ANTHROPIC_API_KEY!,
     provider: "anthropic",
   };
+
+  // We can create a chat api using the completionApiBuilder.
+  // These can be swapped out for other providers like OpenAI
   const chatApi = completionApiBuilder(providerOptions, {
     model: "claude-2.1",
   });
@@ -32,6 +36,11 @@ async function main() {
       `Failed to create chat api for ${providerOptions.provider}`
     );
   }
+
+  // You can define a custom callback function to handle logs
+  // this callback will print logs to the console
+  // but you can further extend this to send logs to a logging service
+  const logger = new Logger(["info"], (msg) => console.log(msg));
 
   // here we define the inventory
   // inventories are used to store values that can be used in the browser
@@ -47,6 +56,7 @@ async function main() {
     agent: new Agent({ modelApi: chatApi }),
     browser: await Browser.create(argv.headless),
     inventory,
+    logger,
   });
 
   const answer = await agentBrowser.browse(
