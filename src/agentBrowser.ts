@@ -250,44 +250,6 @@ export class AgentBrowser {
     }
   }
 
-  // private async unconstrainedBrowse<
-  //   TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
-  // >(
-  //   currentObjective: string,
-  //   iterations: { max: number; current: number },
-  //   responseType: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>
-  // ) {
-  //   while (iterations.current <= iterations.max) {
-  //     const step = await this.step(currentObjective, responseType);
-  //     const stepResponse = responseType.parse(step);
-  //     if (this.logger) {
-  //       this.logger.log(JSON.stringify(stepResponse));
-  //     }
-  //     if (stepResponse.objectiveComplete) {
-  //       const answer = {
-  //         result: { kind: "ObjectiveComplete", result: stepResponse },
-  //         url: this.browser.url(),
-  //         content: this.browser.content(),
-  //       };
-  //       if (this.logger) {
-  //         this.logger.log(JSON.stringify(answer));
-  //       }
-  //       return answer;
-  //     } else if (stepResponse.command) {
-  //       debug.write(
-  //         "Performing action:" + JSON.stringify(stepResponse.command)
-  //       );
-  //       this.browser.performManyActions(
-  //         stepResponse.command as BrowserAction[],
-  //         this.inventory
-  //       );
-  //     }
-  //     iterations.current++;
-
-  //     return iterations;
-  //   }
-  // }
-
   async browse<
     TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
   >(
