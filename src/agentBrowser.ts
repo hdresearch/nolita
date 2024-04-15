@@ -223,7 +223,8 @@ export class AgentBrowser {
   async handleStep<
     TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
   >(
-    step,
+    // TODO - step has a few inferred types, blocks build, marked unknown -- mp
+    step: unknown,
     responseType: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>
   ) {
     const stepResponse = responseType.parse(step);
