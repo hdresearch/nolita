@@ -1,4 +1,4 @@
 import { memorize } from "./memorize";
-import { remember, fetchStateActionSequence } from "./remember";
+import { remember, fetchMemorySequence } from "./remember";
 
-export { memorize, remember, fetchStateActionSequence };
+export { memorize, remember, fetchMemorySequence };

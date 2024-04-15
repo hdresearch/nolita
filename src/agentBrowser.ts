@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 import { Browser } from "./browser";
 import { Logger, generateUUID } from "./utils";
 import {
@@ -12,6 +11,7 @@ import {
   ModelResponseSchema,
   ModelResponseType,
   ObjectiveComplete,
+  ObjectiveCompleteResponse,
 } from "./types/browser/actionStep.types";
 import { BrowserAction } from "./types/browser/actions.types";
 
@@ -68,45 +68,100 @@ export class AgentBrowser {
       this.objectiveProgress
     );
 
+    let description = "";
+    // we should relax this condition in the future
+    if (state.ariaTree === memory.objectiveState.ariaTree) {
+      debug.write("Performing action step from memory");
+      await this.handleStep(
+        memory.actionStep,
+        ModelResponseSchema(ObjectiveComplete)
+      );
+      description = memory.actionStep.description;
+    } else {
+      debug.write("Modifying actions");
+      let modifiedActionStep = await this.agent.modifyActions(state, memory, {
+        inventory: this.inventory,
+      });
+      if (!modifiedActionStep) {
+        const freeStep = await this.step(
+          memory.objectiveState.objective,
+          ModelResponseSchema(ObjectiveComplete)
+        );
+
+        const result = await this.handleStep(
+          freeStep,
+          ModelResponseSchema(ObjectiveComplete)
+        );
+        description = result?.result?.description!;
+
+        if (result) {
+          return result;
+        }
+      } else {
+        description = modifiedActionStep.description;
+        this.browser.performManyActions(
+          modifiedActionStep.command as BrowserAction[],
+          this.inventory
+        );
+      }
+    }
+
     // add the description to the progress so the model understands
     // what has been done so far
     // we need this to help objectiveComplete steps return correctly
-    this.objectiveProgress.push(memory.actionStep.description);
+    this.objectiveProgress.push(description);
   }
 
-  private async modifyActionMemory(
-    memory: Memory,
-    objectiveState: ObjectiveState
-  ) {}
-
-  async followPath(memorySequenceId: string, currentObjective: string) {
-    const memories = await fetchMemorySequence(
+  async followPath<
+    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
+  >(
+    memorySequenceId: string,
+    browserObjective: BrowserObjective,
+    responseSchema: ReturnType<
+      typeof ObjectiveCompleteResponse<TObjectiveComplete>
+    >
+  ) {
+    const memoriesBackwards = await fetchMemorySequence(
       memorySequenceId,
       this.hdrConfig
+    );
+
+    this.logger.log("Following memory sequence: " + memorySequenceId);
+
+    const memories = memoriesBackwards.reverse();
+
+    await this.browser.goTo(
+      memories[0].objectiveState.url,
+      this.config.goToDelay
     );
 
     if (memories.length === 0) {
       throw new Error("No memories found for sequence id");
     }
+    const iterationCount = 0;
 
-    for (const memory of memories) {
-      const state: ObjectiveState = await this.browser.state(
-        currentObjective,
-        this.objectiveProgress
-      );
-
-      // we should relax this condition in the future
-      if (state.ariaTree === memory.objectiveState.ariaTree) {
-        await this.performMemory(currentObjective, memory);
-      } else {
-        const modifiedActionStep = await this.agent.modifyActions(
-          state,
-          memory
-        );
-        this.browser.performManyActions(
-          modifiedActionStep as BrowserAction[],
-          this.inventory
-        );
+    while (iterationCount <= browserObjective.maxIterations) {
+      for (const memory of memories) {
+        if (memory.actionStep.objectiveComplete) {
+          const step = await this.generateResponseSchema(
+            memory.objectiveState.objective,
+            memory,
+            responseSchema
+          );
+          console.log("Step", step);
+          const answer = {
+            kind: "ObjectiveComplete",
+            result: step,
+            url: this.browser.url(),
+            content: this.browser.content(),
+          };
+          if (this.logger) {
+            this.logger.log(JSON.stringify(answer));
+          }
+          return answer;
+        } else {
+          await this.performMemory(browserObjective.objective[0], memory);
+        }
       }
     }
   }
@@ -148,6 +203,91 @@ export class AgentBrowser {
     return response;
   }
 
+  private async generateResponseSchema<
+    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
+  >(
+    currentObjective: string,
+    memory: Memory,
+    responseSchema: ReturnType<
+      typeof ObjectiveCompleteResponse<TObjectiveComplete>
+    >
+  ) {
+    const state: ObjectiveState = await this.browser.state(
+      currentObjective,
+      this.objectiveProgress
+    );
+
+    return await this.agent.generateResponseType(state, memory, responseSchema);
+  }
+
+  async handleStep<
+    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
+  >(
+    step,
+    responseType: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>
+  ) {
+    const stepResponse = responseType.parse(step);
+    if (this.logger) {
+      this.logger.log(JSON.stringify(stepResponse));
+    }
+    if (stepResponse.objectiveComplete) {
+      const answer = {
+        kind: "ObjectiveComplete",
+        result: stepResponse,
+        url: this.browser.url(),
+        content: this.browser.content(),
+      };
+      if (this.logger) {
+        this.logger.log(JSON.stringify(answer));
+      }
+      return answer;
+    } else if (stepResponse.command) {
+      debug.write("Performing action:" + JSON.stringify(stepResponse.command));
+      this.browser.performManyActions(
+        stepResponse.command as BrowserAction[],
+        this.inventory
+      );
+    }
+  }
+
+  // private async unconstrainedBrowse<
+  //   TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
+  // >(
+  //   currentObjective: string,
+  //   iterations: { max: number; current: number },
+  //   responseType: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>
+  // ) {
+  //   while (iterations.current <= iterations.max) {
+  //     const step = await this.step(currentObjective, responseType);
+  //     const stepResponse = responseType.parse(step);
+  //     if (this.logger) {
+  //       this.logger.log(JSON.stringify(stepResponse));
+  //     }
+  //     if (stepResponse.objectiveComplete) {
+  //       const answer = {
+  //         result: { kind: "ObjectiveComplete", result: stepResponse },
+  //         url: this.browser.url(),
+  //         content: this.browser.content(),
+  //       };
+  //       if (this.logger) {
+  //         this.logger.log(JSON.stringify(answer));
+  //       }
+  //       return answer;
+  //     } else if (stepResponse.command) {
+  //       debug.write(
+  //         "Performing action:" + JSON.stringify(stepResponse.command)
+  //       );
+  //       this.browser.performManyActions(
+  //         stepResponse.command as BrowserAction[],
+  //         this.inventory
+  //       );
+  //     }
+  //     iterations.current++;
+
+  //     return iterations;
+  //   }
+  // }
+
   async browse<
     TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
   >(
@@ -172,33 +312,12 @@ export class AgentBrowser {
               "Maximum number of iterations exceeded"
             );
           }
-          const stepResponse = responseType.parse(
-            await this.step(currentObjective, responseType)
-          );
 
-          if (this.logger) {
-            this.logger.log(JSON.stringify(stepResponse));
-          }
-          debug.write(`Step response: ${stepResponse}`);
+          const step = await this.step(currentObjective, responseType);
+          const handleStepResponse = await this.handleStep(step, responseType);
 
-          if (stepResponse.objectiveComplete) {
-            const answer = {
-              result: { kind: "ObjectiveComplete", result: stepResponse },
-              url: this.browser.url(),
-              content: this.browser.content(),
-            };
-            if (this.logger) {
-              this.logger.log(JSON.stringify(answer));
-            }
-            return answer;
-          } else if (stepResponse.command) {
-            debug.write(
-              "Performing action:" + JSON.stringify(stepResponse.command)
-            );
-            this.browser.performManyActions(
-              stepResponse.command as BrowserAction[],
-              this.inventory
-            );
+          if (handleStepResponse) {
+            return handleStepResponse;
           }
 
           iterationCount++;

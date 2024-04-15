@@ -72,3 +72,24 @@ export const ModelResponseSchema = <TObjectiveComplete extends z.AnyZodObject>(
 export type ModelResponseType<
   TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
 > = z.infer<ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>>;
+
+export const ObjectiveCompleteResponse = <
+  TObjectiveComplete extends z.AnyZodObject
+>(
+  objectiveCompleteExtension?: TObjectiveComplete
+) =>
+  z.object({
+    progressAssessment: z.string(),
+    objectiveComplete: objectiveCompleteExtension
+      ? objectiveCompleteExtension.describe(
+          "Only return description of result if objective is complete"
+        )
+      : ObjectiveComplete.describe(
+          "Only return description of result if objective is complete"
+        ),
+    description: z.string(),
+  });
+
+export type ObjectiveCompleteResponse<
+  TObjectiveComplete extends z.AnyZodObject
+> = z.infer<ReturnType<typeof ObjectiveCompleteResponse<TObjectiveComplete>>>;

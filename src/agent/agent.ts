@@ -6,12 +6,14 @@ import { ChatRequestMessage, CompletionApi } from "llm-api";
 import {
   ModelResponseSchema,
   BrowserActionSchemaArray,
+  ObjectiveCompleteResponse,
 } from "../types/browser/actionStep.types";
 import { Memory } from "../types/memory.types";
 import { ObjectiveState } from "../types/browser/objectiveState.types";
 import { Inventory } from "../inventory";
 import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
 import { generateSchema, SchemaElement } from "./schemaGenerators";
+import { debug } from "../utils";
 
 export function stringifyObjects<T>(obj: T[]): string {
   const strings = obj.map((o) => JSON.stringify(o));
@@ -41,15 +43,7 @@ export class Agent {
     })} 
     `;
 
-    let messages = [] as ChatRequestMessage[];
-
-    const configMessages = this.handleConfig(config || {});
-
-    if (configMessages.length > 0) {
-      configMessages.forEach((message) => {
-        messages.push(message);
-      });
-    }
+    let messages = this.handleConfig(config || {});
 
     messages.push({
       role: "user",
@@ -83,6 +77,38 @@ export class Agent {
     return messages;
   }
 
+  async generateResponseType<
+    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
+  >(
+    currentState: ObjectiveState,
+    memories: Memory,
+    responseSchema: ReturnType<
+      typeof ObjectiveCompleteResponse<TObjectiveComplete>
+    >
+  ) {
+    console.log("Generating response type");
+    const messages: ChatRequestMessage[] = [
+      {
+        role: "user",
+        content: `
+        Here is the past state-action pair: ${JSON.stringify(memories)}
+        Please generate the objectiveComplete response for the current state: ${JSON.stringify(
+          {
+            objectiveState: currentState,
+          }
+        )}. You may cannot issue commands. All the information you need is in the the current state.`,
+      },
+    ];
+
+    const response = await chat(this.modelApi, messages, {
+      schema: ObjectiveCompleteResponse(responseSchema),
+    });
+
+    console.log("Response", response.data);
+
+    return ObjectiveCompleteResponse(responseSchema).parse(response.data);
+  }
+
   async modifyActions(
     currentState: ObjectiveState,
     memory: Memory,
@@ -100,16 +126,7 @@ export class Agent {
     Please generate the action sequences for ${JSON.stringify(currentState)}
     `;
 
-    let messages = [] as ChatRequestMessage[];
-
-    const configMessages = this.handleConfig(config || {});
-
-    if (configMessages.length > 0) {
-      configMessages.forEach((message) => {
-        messages.push(message);
-      });
-    }
-
+    let messages = this.handleConfig(config || {});
     messages.push({
       role: "user",
       content: modifyActionsPrompt,
@@ -124,7 +141,7 @@ export class Agent {
 
     // Retry until the response is valid or the max number of attempts is reached
     if (safeParseResultSuccess == false) {
-      const response = await chat(this.modelApi, messages, {
+      let response = await chat(this.modelApi, messages, {
         schema: z.object({
           progressAssessment: z.string(),
           command: BrowserActionSchemaArray,
@@ -136,23 +153,17 @@ export class Agent {
       let safeParseResult = commandSchema.safeParse(response.data.command);
       safeParseResultSuccess = safeParseResult.success;
 
-      while (
-        (safeParseResultSuccess == false && attempts <= maxAttempts) ||
-        5
-      ) {
-        console.log(
-          `Invalid response type. Error messages: ${JSON.stringify(
-            safeParseResult
-          )}`
-        );
-        response.respond(
+      while (safeParseResultSuccess == false && attempts <= maxAttempts) {
+        debug.log("Invalid response type. Retrying...");
+        response = await response.respond(
           `Invalid response type. Error messages: ${JSON.stringify(
             safeParseResult
           )}`
         );
         safeParseResult = commandSchema.safeParse(response.data.command);
+        safeParseResultSuccess = safeParseResult.success;
       }
-      return BrowserActionSchemaArray.parse(response.data.command);
+      return ModelResponseSchema().parse(response.data);
     }
 
     return undefined;

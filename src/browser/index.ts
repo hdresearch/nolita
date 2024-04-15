@@ -161,6 +161,7 @@ export class Browser {
   }
 
   async performManyActions(commands: BrowserAction[], inventory?: Inventory) {
+    console.log("PERFORMING", commands);
     for (const command of commands) {
       await this.performAction(command, inventory);
     }

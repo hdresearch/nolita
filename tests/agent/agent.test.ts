@@ -184,6 +184,6 @@ describe("Agent", () => {
     );
     console.log("Response:", JSON.stringify(response));
     // @ts-ignore
-    expect(response[0].index).toStrictEqual(20);
+    expect(response?.command[0].index).toStrictEqual(20);
   });
 });
