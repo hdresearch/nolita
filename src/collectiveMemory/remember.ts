@@ -62,7 +62,7 @@ export async function remember(
   }
 }
 
-export async function fetchStateActionSequence(
+export async function fetchMemorySequence(
   sequenceId: string,
   hdrConfig: HDRConfig
 ) {

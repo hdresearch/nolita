@@ -5,6 +5,7 @@ import {
   ObjectiveFailed,
   BrowserArgs,
   BrowserMode,
+  BrowserActionSchemaArray,
 } from "./browser/index";
 
 import { CollectiveMemoryConfig } from "./collectiveMemory/index";
@@ -17,4 +18,5 @@ export {
   ObjectiveFailed,
   BrowserArgs,
   BrowserMode,
+  BrowserActionSchemaArray,
 };

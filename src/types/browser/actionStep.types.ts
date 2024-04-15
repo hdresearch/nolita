@@ -1,11 +1,11 @@
 import { z } from "zod";
 
-const Click = z.object({
+export const Click = z.object({
   kind: z.literal("Click").describe("Click on an element"),
   index: z.number().describe("The index of the aria tree"),
 });
 
-const Type = z.object({
+export const Type = z.object({
   kind: z.literal("Type").describe("Type text into an input"),
   index: z
     .number()
@@ -15,13 +15,19 @@ const Type = z.object({
   text: z.string().describe("The text to enter"), // input text
 });
 
-const Back = z.object({
+export const Back = z.object({
   kind: z.literal("Back").describe("Go back to the previous page"),
 });
 
-const Wait = z.object({
+export const Wait = z.object({
   kind: z.literal("Wait").describe("Wait for a certain amount of time"),
 });
+
+export const BrowserActionSchema = z.union([Type, Click, Wait, Back]);
+export type BrowserActionSchema = z.infer<typeof BrowserActionSchema>;
+
+export const BrowserActionSchemaArray = z.array(BrowserActionSchema).min(1);
+export type BrowserActionSchemaArray = z.infer<typeof BrowserActionSchemaArray>;
 
 export const ObjectiveComplete = z.object({
   kind: z.literal("ObjectiveComplete").describe("Objective is complete"),
@@ -37,29 +43,11 @@ export const ObjectiveFailed = z.object({
 
 export type ObjectiveFailed = z.infer<typeof ObjectiveFailed>;
 
-export const BrowserActionSchema = z.union([Type, Click, Wait, Back]);
-
-export const BrowserActionSchemaArray = z.array(BrowserActionSchema).min(1);
-
-export type BrowserAction = z.infer<typeof BrowserActionSchema>;
-
 export const ActionStep = z.union([
   z.array(BrowserActionSchema).min(1).describe("A list of browser actions"),
   ObjectiveComplete.describe("Objective is complete"),
 ]);
 export type ActionStep = z.infer<typeof ActionStep>;
-
-// schemas and types for the model response
-// export const ModelResponseSchema = z.object({
-//   progressAssessment: z.string(),
-//   command: BrowserActionSchemaArray.optional().describe(
-//     "List of browser actions"
-//   ),
-//   objectiveComplete: ObjectiveComplete.optional().describe(
-//     "Only return description of result if objective is complete"
-//   ),
-//   description: z.string(),
-// });
 
 export const ModelResponseSchema = <TObjectiveComplete extends z.AnyZodObject>(
   objectiveCompleteExtension?: TObjectiveComplete
@@ -84,3 +72,24 @@ export const ModelResponseSchema = <TObjectiveComplete extends z.AnyZodObject>(
 export type ModelResponseType<
   TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
 > = z.infer<ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>>;
+
+export const ObjectiveCompleteResponse = <
+  TObjectiveComplete extends z.AnyZodObject
+>(
+  objectiveCompleteExtension?: TObjectiveComplete
+) =>
+  z.object({
+    progressAssessment: z.string(),
+    objectiveComplete: objectiveCompleteExtension
+      ? objectiveCompleteExtension.describe(
+          "Only return description of result if objective is complete"
+        )
+      : ObjectiveComplete.describe(
+          "Only return description of result if objective is complete"
+        ),
+    description: z.string(),
+  });
+
+export type ObjectiveCompleteResponse<
+  TObjectiveComplete extends z.AnyZodObject
+> = z.infer<ReturnType<typeof ObjectiveCompleteResponse<TObjectiveComplete>>>;

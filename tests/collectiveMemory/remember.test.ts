@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { remember, fetchStateActionSequence } from "../../src/collectiveMemory";
+import { remember, fetchMemorySequence } from "../../src/collectiveMemory";
 import { objectiveStateExample1 } from "../../src/collectiveMemory/examples";
 
 describe("Remember", () => {
@@ -16,7 +16,7 @@ describe("Remember", () => {
 
 describe("Fetch state actions sequences", () => {
   it("should fetch state actions sequences", async () => {
-    const stateActionPairs = await fetchStateActionSequence(
+    const stateActionPairs = await fetchMemorySequence(
       "9eaa1d07-1c3d-4e32-867c-f26a8947f1dd",
       {
         apiKey: process.env.HDR_API_KEY!,

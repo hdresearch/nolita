@@ -40,6 +40,10 @@ export class Logger {
     this.callback && this.callback(input);
   }
 
+  info(input: string) {
+    debug.log(input);
+  }
+
   streamHandler() {
     this.events.on("logAdded", (input) => {});
   }

@@ -1,21 +1,24 @@
-import { GluegunToolbox } from "gluegun"
-import { simpleGit } from 'simple-git'
+import { GluegunToolbox } from "gluegun";
+import { simpleGit } from "simple-git";
 
 module.exports = {
-    name: 'create',
-    run: async (toolbox: GluegunToolbox) => {
-        const { filesystem, prompt } = toolbox
+  name: "create",
+  run: async (toolbox: GluegunToolbox) => {
+    const { filesystem, prompt } = toolbox;
 
-        const name = await prompt.ask({
-            type: 'input',
-            name: 'name',
-            message: 'What do you want to name this project?',
-        }).then((answers) => answers.name)
+    const name = await prompt
+      .ask({
+        type: "input",
+        name: "name",
+        message: "What do you want to name this project?",
+      })
+      .then((answers) => answers.name);
 
-        // Ensure the folder doesn't already exist
-        if (filesystem.exists(name)) {
-            return toolbox.print.error(`Folder ${name} already exists`)
-        }
+    // Ensure the folder doesn't already exist
+    if (filesystem.exists(name)) {
+      return toolbox.print.error(`Folder ${name} already exists`);
+    }
+
 
         // validate the name to ensure it's npm compatible
         if (!/^[a-z0-9-@]+$/.test(name)) {

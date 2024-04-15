@@ -14,6 +14,7 @@ import {
 import { Inventory } from "../../src/inventory";
 
 import { z } from "zod";
+import { ObjectiveState } from "../../src/types/browser";
 
 describe("Agent", () => {
   let agent: Agent;
@@ -166,5 +167,23 @@ describe("Agent", () => {
 
     const response = await agent.chat("respond with `hello` and nothing more.");
     expect(response).toBe("HELLO");
+  });
+
+  it("Should correctly modify the actions", async () => {
+    const modifiedObjectiveStateExample1: ObjectiveState = {
+      kind: "ObjectiveState",
+      objective: "how much is an gadget 11 pro",
+      progress: [],
+      url: "https://www.google.com/",
+      ariaTree: `[0,"RootWebArea","Google",[[1,"link","Gmail"],[2,"link","Images"],[3,"button","Google apps"],[4,"link","Sign in"],["img","Google"],[20,"combobox","Search"]]]`,
+    };
+
+    const response = await agent.modifyActions(
+      modifiedObjectiveStateExample1,
+      stateActionPair1
+    );
+    console.log("Response:", JSON.stringify(response));
+    // @ts-ignore
+    expect(response?.command[0].index).toStrictEqual(20);
   });
 });
