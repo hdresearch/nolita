@@ -86,7 +86,6 @@ export class Agent {
       typeof ObjectiveCompleteResponse<TObjectiveComplete>
     >
   ) {
-    console.log("Generating response type");
     const messages: ChatRequestMessage[] = [
       {
         role: "user",
@@ -103,8 +102,6 @@ export class Agent {
     const response = await chat(this.modelApi, messages, {
       schema: ObjectiveCompleteResponse(responseSchema),
     });
-
-    console.log("Response", response.data);
 
     return ObjectiveCompleteResponse(responseSchema).parse(response.data);
   }
