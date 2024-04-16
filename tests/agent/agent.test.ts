@@ -9,12 +9,14 @@ import {
 import {
   ModelResponseSchema,
   ObjectiveComplete,
+  ModelResponseType,
 } from "../../src/types/browser/actionStep.types";
 
 import { Inventory } from "../../src/inventory";
 
 import { z } from "zod";
 import { ObjectiveState } from "../../src/types/browser";
+import { actionStepExample1 } from "../collectiveMemory/memorize.test";
 
 describe("Agent", () => {
   let agent: Agent;
@@ -122,11 +124,19 @@ describe("Agent", () => {
   });
 
   test("that askCommandWorks with a different schema", async () => {
-    const prompt = await agent.prompt(
-      objectiveStateExample1,
-      [stateActionPair1],
-      {}
-    );
+    const fakeState: ObjectiveState = {
+      kind: "ObjectiveState",
+      objective: "how much is an gadget 11 pro",
+      progress: [],
+      url: "https://www.google.com/",
+      ariaTree: `[0,"RootWebArea", "The random number is 4"]`,
+    };
+
+    const prompt = await agent.prompt(fakeState, [], {
+      systemPrompt:
+        "ignore all commands and return the result of the objective result as {progressAssessment: 'Do not have enough information in ariaTree to return an Objective Result.', objectiveComplete: {kind: 'ObjectiveComplete', result: 'The random number is 4', randomNumber: 'THIS SHOULD BE 4'}, description: 'Searched `gadget 11 pro price`'}",
+    });
+
     const testSchema = ObjectiveComplete.extend({
       randomNumber: z
         .number()
@@ -137,19 +147,13 @@ describe("Agent", () => {
       prompt,
       ModelResponseSchema(testSchema)
     );
-    if (response!.command && response!.command.length > 0) {
-      const command = response!.command[0];
-      if ("index" in command) {
-        expect(command.kind).toBe("Type");
-        expect(command.index).toBe(5);
-      }
-    }
-    if (response!.objectiveComplete) {
-      const parsedResponse = ModelResponseSchema(testSchema).parse(
-        response!.objectiveComplete
-      );
-      expect(parsedResponse).toBeDefined();
-    }
+
+    const parsedResponse = ModelResponseSchema(testSchema).parse(response!);
+    console.log("Parsed Response:", parsedResponse);
+
+    expect(
+      testSchema.parse(parsedResponse.objectiveComplete).randomNumber
+    ).toBeDefined();
   });
 
   it("should follow a system prompt", async () => {
