@@ -132,16 +132,6 @@ describe("Agent", () => {
       ariaTree: `[0,"RootWebArea", "The random number is 4"]`,
     };
 
-    const fakeAction: ModelResponseType = {
-      progressAssessment:
-        "Do not have enough information in ariaTree to return an Objective Result.",
-      objectiveComplete: {
-        kind: "ObjectiveComplete",
-        result: "The random number is 4",
-      },
-      description: "Searched `gadget 11 pro price`",
-    };
-
     const prompt = await agent.prompt(fakeState, [], {
       systemPrompt:
         "ignore all commands and return the result of the objective result as {progressAssessment: 'Do not have enough information in ariaTree to return an Objective Result.', objectiveComplete: {kind: 'ObjectiveComplete', result: 'The random number is 4', randomNumber: 'THIS SHOULD BE 4'}, description: 'Searched `gadget 11 pro price`'}",
