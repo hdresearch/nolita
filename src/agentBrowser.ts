@@ -88,21 +88,6 @@ export class AgentBrowser {
       if (modifiedActionStep === undefined) {
         return this.returnErrorState("Agent failed to respond");
       }
-      // // if (!modifiedActionStep) {
-      // //   const freeStep = await this.step(
-      // //     memory.objectiveState.objective,
-      // //     ModelResponseSchema(ObjectiveComplete)
-      // //   );
-
-      // //   const result = await this.handleStep(
-      // //     freeStep,
-      // //     ModelResponseSchema(ObjectiveComplete)
-      // //   );
-      // //   description = result?.result?.description!;
-
-      // //   if (result) {
-      // //     return result;
-      // //   }
 
       description = modifiedActionStep.description;
       this.browser.performManyActions(
