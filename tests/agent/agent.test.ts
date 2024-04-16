@@ -122,11 +122,6 @@ describe("Agent", () => {
   });
 
   test("that askCommandWorks with a different schema", async () => {
-    const prompt = await agent.prompt(
-      objectiveStateExample1,
-      [stateActionPair1],
-      {}
-    );
     const testSchema = ObjectiveComplete.extend({
       randomNumber: z
         .number()
@@ -134,22 +129,18 @@ describe("Agent", () => {
     });
 
     const response = await agent.askCommand(
-      prompt,
+      [
+        {
+          role: "user",
+          content:
+            "please generate an the objectiveCompelte object with a random number. DO NOT generate a command.",
+        },
+      ],
       ModelResponseSchema(testSchema)
     );
-    if (response!.command && response!.command.length > 0) {
-      const command = response!.command[0];
-      if ("index" in command) {
-        expect(command.kind).toBe("Type");
-        expect(command.index).toBe(5);
-      }
-    }
-    if (response!.objectiveComplete) {
-      const parsedResponse = ModelResponseSchema(testSchema).parse(
-        response!.objectiveComplete
-      );
-      expect(parsedResponse).toBeDefined();
-    }
+
+    // @ts-ignore
+    expect(response.objectiveComplete!.randomNumber).toBeDefined();
   });
 
   it("should follow a system prompt", async () => {
