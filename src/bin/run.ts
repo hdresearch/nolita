@@ -49,8 +49,8 @@ export const run = async (toolbox: GluegunToolbox) => {
       headless !== undefined
         ? headless
         : importedConfig?.headless
-        ? importedConfig.headless
-        : process.env.HDR_HEADLESS === "true" || true;
+          ? importedConfig.headless
+          : process.env.HDR_HEADLESS === "true" || true;
     inventory = importedConfig.inventory || [];
   }
 
@@ -133,15 +133,28 @@ export const run = async (toolbox: GluegunToolbox) => {
         agentModel = answers.agentModel;
       });
   }
-  // if no HDR key, we already console.log about it in the agent browser
+
+  if (!hdrApiKey) {
+    await toolbox.prompt
+      .ask({
+        type: "input",
+        name: "hdrApiKey",
+        message: `Do you have an HDR API key? If so, please provide it. If not, you can sign up for a free account at https://dashboard.hdr.is.
+
+Doing so integrates collective memory for this session, which improves agentic reliability and performance.`,
+      })
+      .then((answers) => {
+        hdrApiKey = answers.hdrApiKey;
+      });
+  }
   const spinner = toolbox.print.spin();
   spinner.stop();
   const logger = new Logger(["info"], (input: any) => {
     const parsedInput = JSON.parse(input);
     spinner.text = parsedInput.progressAssessment;
     if (parsedInput?.result) {
-      if (parsedInput?.result?.kind === "ObjectiveComplete") {
-        spinner.succeed(parsedInput?.result?.result?.objectiveComplete?.result);
+      if (parsedInput?.kind === "ObjectiveComplete") {
+        spinner.succeed(parsedInput?.result?.objectiveComplete?.result);
       } else if (parsedInput.result.kind === "ObjectiveFailed") {
         spinner.fail(parsedInput?.result?.result);
       }
@@ -159,7 +172,7 @@ export const run = async (toolbox: GluegunToolbox) => {
 
   if (!chatApi) {
     throw new Error(
-      `Failed to create chat api for ${providerOptions.provider}`
+      `Failed to create chat api for ${providerOptions.provider}`,
     );
   }
 
@@ -168,6 +181,14 @@ export const run = async (toolbox: GluegunToolbox) => {
     browser: await Browser.create(headless),
     logger,
     inventory: inventory.length > 0 ? new Inventory(inventory) : undefined,
+    ...(hdrApiKey
+      ? {
+          collectiveMemoryConfig: {
+            endpoint: "https://api.hdr.is",
+            apiKey: hdrApiKey,
+          },
+        }
+      : {}),
   };
 
   const agentBrowser = new AgentBrowser(args);
@@ -178,7 +199,7 @@ export const run = async (toolbox: GluegunToolbox) => {
       objective: [objective],
       maxIterations: MAX_ITERATIONS,
     },
-    ModelResponseSchema(ObjectiveComplete)
+    ModelResponseSchema(ObjectiveComplete),
   );
   await args.browser.close();
 };
