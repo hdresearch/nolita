@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0
+
+- Incorporates the ability to pass in HDR keys for using collective memory.
+
 ## 1.0.1
 
 - Fixes an error during the `create` process.
