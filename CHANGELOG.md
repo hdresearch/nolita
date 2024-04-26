@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.2
+## 1.2.0
 
 - Agents can now search for routes before starting a free browsing session
 - Memory API is now much more stable
