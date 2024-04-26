@@ -121,29 +121,22 @@ export async function fetchRoute(
 
   const data = await response.json();
 
-  return data.map((m: any) =>
-    Memory.parse({
-      actionStep: m.actionState,
-      objectiveState: m.ObjectiveState,
-    })
-  ) as Memory[];
+  return { sequenceId: data.sequenceId };
 }
 
 export async function findRoute(
   routeParams: { url: string; objective: string },
   hdrConfig: HDRConfig
-): Promise<Memory[] | undefined> {
+): Promise<string | undefined> {
   const apiKey = hdrConfig?.apiKey || process.env.HDR_API_KEY;
   if (!apiKey) {
-    return DEFAULT_STATE_ACTION_PAIRS;
+    return undefined;
   }
 
   try {
     const config = hdrConfig || { apiKey, endpoint: "https://api.hdr.is" };
-    return await fetchRoute(routeParams, hdrConfig);
+    return (await fetchRoute(routeParams, config)).sequenceId;
   } catch (error) {
-    // console.error("Error calling HDR API:", error);
-    // return DEFAULT_STATE_ACTION_PAIRS;
     return undefined;
   }
 }

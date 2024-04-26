@@ -216,16 +216,16 @@ export class AgentBrowser {
 
     this.setMemorySequenceId();
 
-    const route = await findRoute(
+    const sequenceId = await findRoute(
       { url: startUrl, objective: objective[0] },
       this.hdrConfig
     );
 
-    if (route) {
+    if (sequenceId) {
       return await this.followPath(
-        this.memorySequenceId,
+        sequenceId,
         browserObjective,
-        ObjectiveCompleteResponse(responseType)
+        ObjectiveCompleteResponse<TObjectiveComplete>()
       );
     }
 

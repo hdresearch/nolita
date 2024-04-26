@@ -36,6 +36,12 @@ async function main() {
   }
   const logger = new Logger(["info"], (msg) => console.log(msg));
 
+  // You can pass in collective memory configuration to the agent browser
+  // const collectiveMemoryConfig = {
+  //   apiKey: process.env.HDR_API_KEY!,
+  //   endpoint: process.env.HDR_ENDPOINT!,
+  // };
+
   const agentBrowser = new AgentBrowser({
     agent: new Agent({ modelApi: chatApi }),
     browser: await Browser.create(argv.headless),
@@ -44,10 +50,7 @@ async function main() {
       { value: "emma.lopez@gmail.com", name: "email", type: "string" },
       { value: "Password.123", name: "Password", type: "string" },
     ]),
-    collectiveMemoryConfig: {
-      apiKey: process.env.HDR_API_KEY!,
-      endpoint: process.env.HDR_ENDPOINT!,
-    },
+    // collectiveMemoryConfig,
   });
 
   const orderTotalAnswer = ObjectiveComplete.extend({
