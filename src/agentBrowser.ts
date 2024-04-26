@@ -6,7 +6,11 @@ import {
   ObjectiveState,
 } from "./types/browser/browser.types";
 import { Agent } from "./agent/agent";
-import { fetchMemorySequence, remember } from "./collectiveMemory/remember";
+import {
+  fetchMemorySequence,
+  findRoute,
+  remember,
+} from "./collectiveMemory/remember";
 import {
   ModelResponseSchema,
   ModelResponseType,
@@ -211,6 +215,20 @@ export class AgentBrowser {
       BrowserObjective.parse(browserObjective);
 
     this.setMemorySequenceId();
+
+    const route = await findRoute(
+      { url: startUrl, objective: objective[0] },
+      this.hdrConfig
+    );
+
+    if (route) {
+      return await this.followPath(
+        this.memorySequenceId,
+        browserObjective,
+        ObjectiveCompleteResponse(responseType)
+      );
+    }
+
     // goto the start url
     await this.browser.goTo(startUrl, this.config.goToDelay);
 

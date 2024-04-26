@@ -95,3 +95,55 @@ export async function fetchMemorySequence(
     })
   ) as Memory[];
 }
+
+export async function fetchRoute(
+  routeParams: { url: string; objective: string },
+  hdrConfig: HDRConfig
+) {
+  const { apiKey, endpoint } = hdrConfig;
+
+  const body = JSON.stringify({
+    state: ObjectiveState.parse(routeParams),
+  });
+
+  const response = await fetch(`${endpoint}/memories/findpath`, {
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body,
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `HDR API request failed with status ${response.status} to url ${response.url}`
+    );
+  }
+
+  const data = await response.json();
+
+  return data.map((m: any) =>
+    Memory.parse({
+      actionStep: m.actionState,
+      objectiveState: m.ObjectiveState,
+    })
+  ) as Memory[];
+}
+
+export async function findRoute(
+  routeParams: { url: string; objective: string },
+  hdrConfig: HDRConfig
+): Promise<Memory[] | undefined> {
+  const apiKey = hdrConfig?.apiKey || process.env.HDR_API_KEY;
+  if (!apiKey) {
+    return DEFAULT_STATE_ACTION_PAIRS;
+  }
+
+  try {
+    const config = hdrConfig || { apiKey, endpoint: "https://api.hdr.is" };
+    return await fetchRoute(routeParams, hdrConfig);
+  } catch (error) {
+    // console.error("Error calling HDR API:", error);
+    // return DEFAULT_STATE_ACTION_PAIRS;
+    return undefined;
+  }
+}
