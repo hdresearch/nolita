@@ -46,7 +46,7 @@ async function main() {
     ]),
     collectiveMemoryConfig: {
       apiKey: process.env.HDR_API_KEY!,
-      endpoint: "https://prodcmi-dev.up.railway.app",
+      endpoint: process.env.HDR_ENDPOINT!,
     },
   });
 
