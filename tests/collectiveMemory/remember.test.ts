@@ -1,17 +1,23 @@
 import { describe, expect, it } from "@jest/globals";
 import { remember, fetchMemorySequence } from "../../src/collectiveMemory";
-import { objectiveStateExample1 } from "../../src/collectiveMemory/examples";
+import {
+  objectiveStateExample1,
+  objectiveStateExample2,
+} from "../../src/collectiveMemory/examples";
 
 describe("Remember", () => {
   it("should remember", async () => {
-    const memories = await remember(objectiveStateExample1, {
-      apiKey: process.env.HDR_API_KEY!,
+    console.log("Endpoint", process.env.HDR_ENDPOINT);
+    const memories = await remember(objectiveStateExample2, {
+      apiKey: "hdr-24aceaa62a28cabf96afbd720816484",
       endpoint: process.env.HDR_ENDPOINT!,
     });
 
+    console.log(JSON.stringify(memories, null, 2));
+
     const memory = memories[0].actionStep.command![0];
     expect(memory.kind).toBe("Type");
-  });
+  }, 10000);
 });
 
 describe("Fetch state actions sequences", () => {
