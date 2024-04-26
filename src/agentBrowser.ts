@@ -54,7 +54,9 @@ export class AgentBrowser {
         {} as any // for zod optionals
       );
     this.inventory = agentBrowserArgs.inventory;
-    this.hdrConfig = CollectiveMemoryConfig.parse({});
+    this.hdrConfig =
+      agentBrowserArgs.collectiveMemoryConfig ??
+      CollectiveMemoryConfig.parse({});
 
     this.objectiveProgress = [];
   }
@@ -175,7 +177,8 @@ export class AgentBrowser {
       currentObjective,
       this.objectiveProgress
     );
-    const memories = await remember(state);
+    const memories = await this.remember(state);
+    // console.log("Memories", memories);
     let config = {};
     if (this.inventory) {
       config = { inventory: this.inventory };

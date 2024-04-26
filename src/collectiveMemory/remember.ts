@@ -14,8 +14,13 @@ export async function fetchStateActionPairs(
   state: ObjectiveState,
   hdrConfig: HDRConfig,
   limit: number = 2
-) {
+): Promise<Memory[]> {
   const { apiKey, endpoint } = hdrConfig;
+
+  const body = JSON.stringify({
+    state: ObjectiveState.parse(state),
+    limit,
+  });
 
   const response = await fetch(`${endpoint}/memories/remember`, {
     method: "POST",
@@ -23,10 +28,7 @@ export async function fetchStateActionPairs(
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({
-      state: ObjectiveState.parse(state),
-      limit,
-    }),
+    body,
   });
 
   if (!response.ok) {
@@ -35,6 +37,10 @@ export async function fetchStateActionPairs(
     );
   }
   const data = await response.json();
+
+  if (data.length === 0) {
+    return DEFAULT_STATE_ACTION_PAIRS;
+  }
 
   return data.map((m: any) =>
     Memory.parse({

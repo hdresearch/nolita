@@ -44,6 +44,10 @@ async function main() {
       { value: "emma.lopez@gmail.com", name: "email", type: "string" },
       { value: "Password.123", name: "Password", type: "string" },
     ]),
+    collectiveMemoryConfig: {
+      apiKey: process.env.HDR_API_KEY!,
+      endpoint: process.env.HDR_ENDPOINT!,
+    },
   });
 
   const orderTotalAnswer = ObjectiveComplete.extend({
