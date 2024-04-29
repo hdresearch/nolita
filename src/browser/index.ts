@@ -5,6 +5,7 @@ import puppeteer, {
   SerializedAXNode,
   CDPSession,
   Protocol,
+  Device,
 } from "puppeteer";
 
 import { browserContext } from "./browserUtils";
@@ -24,6 +25,7 @@ export class Browser {
   private browser: PuppeteerBrowser;
   //@ts-ignore
   page: Page;
+
   // @ts-ignore
   private mode: BrowserMode;
   private userDataDir = "/tmp"; // TODO: make this configurable
@@ -32,7 +34,11 @@ export class Browser {
 
   constructor() {}
 
-  private async init(browser: PuppeteerBrowser, mode: BrowserMode) {
+  private async init(
+    browser: PuppeteerBrowser,
+    mode: BrowserMode,
+    device?: Device
+  ) {
     this.browser = browser;
     this.page = await this.browser.newPage();
     let self = this;
