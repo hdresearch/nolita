@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.0
+
+- Agents can now search for routes before starting a free browsing session
+- Memory API is now much more stable
+- Added comments to ./examples/shopping.ts for how to set memory
+- Fixed an issue where the ARIA tree was being badly truncated
+
+## 1.1.0
+
+- Incorporates the ability to pass in HDR keys for using collective memory.
+
 ## 1.0.1
 
 - Fixes an error during the `create` process.
@@ -9,10 +20,9 @@
 - `@hdr/browser` is now `nolita`!
 - Introduced several breaking changes to the type system in the underlying engine -- specifically in the structure of responses. All are streamlined, but you may see different structure coming back from the output.
 - We now have several commands you can run:
-    - `nolita` works the same as before, running a quick session in-terminal to solve a task. It's been rewritten to be cleaner and more friendly.
-    - `nolita serve` lets you run a server for running objectives in a sandboxed local Chrome instance. `--port` will let you set a custom port. Documentation is provided.
-    - `nolita create` lets you bootstrap a full-stack agentic application in one command.
-
+  - `nolita` works the same as before, running a quick session in-terminal to solve a task. It's been rewritten to be cleaner and more friendly.
+  - `nolita serve` lets you run a server for running objectives in a sandboxed local Chrome instance. `--port` will let you set a custom port. Documentation is provided.
+  - `nolita create` lets you bootstrap a full-stack agentic application in one command.
 
 ## 0.3.1
 

@@ -1,6 +1,6 @@
 {
   "name": "nolita",
-  "version": "1.0.1",
+  "version": "1.2.0",
   "description": "",
   "main": "dist/index.js",
   "files": [
@@ -14,11 +14,12 @@
   "bin": {
     "nolita": "dist/bin/index.js"
   },
+  "types": "dist/types/index.d.ts",
   "keywords": [],
   "author": "HDR",
   "license": "MIT",
   "dependencies": {
-    "@hono/node-server": "^1.8.2",
+    "@hono/node-server": ">=1.10.1",
     "@hono/swagger-ui": "^0.2.1",
     "@hono/zod-openapi": "^0.9.8",
     "@hono/zod-validator": "^0.2.0",

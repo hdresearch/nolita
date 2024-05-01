@@ -90,14 +90,13 @@ export class Browser {
 
   async state(
     objective: string,
-    objectiveProgress: string[],
-    limit = 4000
+    objectiveProgress: string[]
   ): Promise<ObjectiveState> {
     let contentJSON = await this.parseContent();
     let content: ObjectiveState = {
       kind: "ObjectiveState",
       url: this.url().replace(/[?].*/g, ""),
-      ariaTree: contentJSON.substring(0, limit),
+      ariaTree: contentJSON,
       progress: objectiveProgress,
       objective: objective,
     };
@@ -161,7 +160,6 @@ export class Browser {
   }
 
   async performManyActions(commands: BrowserAction[], inventory?: Inventory) {
-    // console.log("PERFORMING", commands);
     for (const command of commands) {
       await this.performAction(command, inventory);
     }
