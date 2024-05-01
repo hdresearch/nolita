@@ -80,6 +80,9 @@ dependencies:
   zod-gpt:
     specifier: ^0.12.1
     version: 0.12.1(llm-api@1.5.1)(zod@3.22.4)
+  zod-to-json-schema:
+    specifier: ^3.23.0
+    version: 3.23.0(zod@3.22.4)
 
 devDependencies:
   '@jest/globals':
@@ -5053,15 +5056,15 @@ packages:
       lodash: 4.17.21
       type-fest: 4.15.0
       zod: 3.22.4
-      zod-to-json-schema: 3.22.5(zod@3.22.4)
+      zod-to-json-schema: 3.23.0(zod@3.22.4)
     transitivePeerDependencies:
       - supports-color
     dev: false
 
-  /zod-to-json-schema@3.22.5(zod@3.22.4):
-    resolution: {integrity: sha512-+akaPo6a0zpVCCseDed504KBJUQpEW5QZw7RMneNmKw+fGaML1Z9tUNLnHHAC8x6dzVRO1eB2oEMyZRnuBZg7Q==}
+  /zod-to-json-schema@3.23.0(zod@3.22.4):
+    resolution: {integrity: sha512-az0uJ243PxsRIa2x1WmNE/pnuA05gUq/JB8Lwe1EDCCL/Fz9MgjYQ0fPlyc2Tcv6aF2ZA7WM5TWaRZVEFaAIag==}
     peerDependencies:
-      zod: ^3.22.4
+      zod: ^3.23.3
     dependencies:
       zod: 3.22.4
     dev: false

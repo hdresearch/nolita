@@ -9,7 +9,7 @@ describe("Remember", () => {
   it("should remember", async () => {
     console.log("Endpoint", process.env.HDR_ENDPOINT);
     const memories = await remember(objectiveStateExample2, {
-      apiKey: "hdr-24aceaa62a28cabf96afbd720816484",
+      apiKey: process.env.HDR_API_KEY!,
       endpoint: process.env.HDR_ENDPOINT!,
     });
 
