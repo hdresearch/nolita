@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.3
+
+- Removed a console.log in the `npx` default runner.
+
 ## 1.2.2
 
 - Redeploy due to missing dependency.
