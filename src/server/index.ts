@@ -59,6 +59,7 @@ export const setupServer = () => {
       response_type,
       headless,
       inventory,
+      hdr_config,
     } = c.req.valid("json");
 
     const logger = new Logger(["info"]);
@@ -95,11 +96,20 @@ export const setupServer = () => {
       });
     }
 
+    let collectiveMemoryConfig = undefined;
+    if (hdr_config?.apikey && hdr_config?.endpoint) {
+      collectiveMemoryConfig = {
+        apiKey: hdr_config.apikey,
+        endpoint: hdr_config.endpoint,
+      };
+    }
+
     const args = {
       agent: agent,
       browser: browser,
       logger: logger,
       inventory: agentInventory,
+      collectiveMemoryConfig: collectiveMemoryConfig,
     };
 
     const agentBrowser = new AgentBrowser(args);

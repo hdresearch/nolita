@@ -2,13 +2,11 @@ import { z } from "zod";
 
 export const browseSchema = z.object({
   startUrl: z.string().url().openapi({ example: "https://google.com" }),
-  objective: z
-    .array(z.string())
-    .openapi({
-      example: [
-        "what is the most active game on steam and what is the number of users?",
-      ],
-    }),
+  objective: z.array(z.string()).openapi({
+    example: [
+      "what is the most active game on steam and what is the number of users?",
+    ],
+  }),
   maxIterations: z.number().int().default(20).openapi({ example: 10 }),
 });
 
@@ -76,6 +74,12 @@ export const apiSchema = z
       }),
     inventory: InventorySchema.optional(),
     headless: z.boolean().default(true),
+    hdr_config: z
+      .object({
+        apikey: z.string().optional(),
+        endpoint: z.string().url().default("https://api.hdr.is"),
+      })
+      .optional(),
   })
   .openapi("ApiSchema");
 
