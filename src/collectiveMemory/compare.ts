@@ -1,33 +1,26 @@
 import { ObjectiveState } from "../types/browser";
 import { BrowserAction } from "../types/browser/actions.types";
+import { AccessibilityTree } from "../types/browser/browser.types";
 import { Memory } from "../types/memory.types";
 
-export function extractTerminalArrays(arr: any[]): Map<number, any[]> {
-  const terminalArrays = new Map<number, any[]>();
-  const stack: any[][] = [arr];
+type NestedArray<T> = Array<T | NestedArray<T>>;
 
-  while (stack.length > 0) {
-    const currentArr = stack.pop();
+export function extractTerminalArrays<T>(arr: NestedArray<T>): T[][] {
+  const terminalArrays: T[][] = [];
 
-    if (currentArr) {
-      for (let i = 0; i < currentArr.length; i++) {
-        const element = currentArr[i];
-        if (Array.isArray(element)) {
-          if (element.every((item: any) => !Array.isArray(item))) {
-            console.log("element", typeof element[0]);
-            if (typeof element[0] === "number") {
-              terminalArrays.set(element[0], element);
-            }
-          } else {
-            if (typeof element[0] === "number") {
-              stack.push(element);
-            }
-          }
+  function traverse(currentArr: NestedArray<T>) {
+    for (const item of currentArr) {
+      if (Array.isArray(item)) {
+        if (item.every((subItem) => !Array.isArray(subItem))) {
+          terminalArrays.push(item as T[]);
+        } else {
+          traverse(item as NestedArray<T>);
         }
       }
     }
   }
 
+  traverse(arr);
   return terminalArrays;
 }
 
@@ -39,15 +32,31 @@ export function compareMemories(
   return false;
 }
 
-export function diffMemory(
-  currentState: ObjectiveState,
-  memory: Memory
-): boolean {
-  if (!memory || !currentState) {
-    return false;
+function arrayDiff<T>(arr1: T[], arr2: T[]): T[] {
+  const set1 = new Set(arr1);
+  const set2 = new Set(arr2);
+
+  const diff: T[] = [];
+
+  for (const item of set1) {
+    if (!set2.has(item)) {
+      diff.push(item);
+    }
   }
 
-  const { actionStep, objectiveState } = memory;
+  for (const item of set2) {
+    if (!set1.has(item)) {
+      diff.push(item);
+    }
+  }
+
+  return diff;
+}
+
+export function diffMemory(currentState: ObjectiveState, memory: Memory) {
+  if (!memory || !currentState) {
+    return { memoryTreeMap: [], currentTreeMap: [], diff: [] };
+  }
 
   const memoryTreeMap = extractTerminalArrays(
     JSON.parse(memory.objectiveState.ariaTree)
@@ -56,8 +65,7 @@ export function diffMemory(
     JSON.parse(currentState.ariaTree)
   );
 
-  console.log("memoryTree", memoryTreeMap);
-  console.log("currentTree", currentTreeMap);
+  const diff = arrayDiff(memoryTreeMap, currentTreeMap);
 
-  return false;
+  return { memoryTreeMap, currentTreeMap, diff };
 }
