@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1
+
+- Improves finding routes before sessions.
+- Adds collective memory configuration to the server endpoint.
+- Note: While there are no interface changes in this package itself, the collective memory endpoint itself has interface changes that necessitate using this version. Please update if you are using 1.2.0 or below. When in doubt, `npx nolita@latest`.
+
 ## 1.2.0
 
 - Agents can now search for routes before starting a free browsing session
