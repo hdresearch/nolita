@@ -9,6 +9,7 @@ import { completionApiBuilder } from "../src/agent";
 import { Logger } from "../src/utils";
 
 import { ModelResponseSchema, ObjectiveComplete } from "../src/types";
+import { ObjectiveCompleteResponse } from "../src/types/browser/actionStep.types";
 
 const parser = yargs(process.argv.slice(2)).options({
   headless: { type: "boolean", default: true },
@@ -17,11 +18,11 @@ const parser = yargs(process.argv.slice(2)).options({
 async function main() {
   const argv = await parser.parse();
 
-  const startUrl = "http://shop.junglegym.ai/customer/account/login/";
+  const startUrl = "http://shop.junglegym.ai/customer/account/login";
 
   const objective =
     "please login into the website then tell me the order total for the five most recent orders";
-  const maxIterations = 10;
+  const maxIterations = 15;
 
   const providerOptions = {
     apiKey: process.env.OPENAI_API_KEY!,
@@ -37,10 +38,10 @@ async function main() {
   const logger = new Logger(["info"], (msg) => console.log(msg));
 
   // You can pass in collective memory configuration to the agent browser
-  // const collectiveMemoryConfig = {
-  //   apiKey: process.env.HDR_API_KEY!,
-  //   endpoint: process.env.HDR_ENDPOINT!,
-  // };
+  const collectiveMemoryConfig = {
+    apiKey: process.env.HDR_API_KEY!,
+    endpoint: process.env.HDR_ENDPOINT!,
+  };
 
   const agentBrowser = new AgentBrowser({
     agent: new Agent({ modelApi: chatApi }),
@@ -50,7 +51,7 @@ async function main() {
       { value: "emma.lopez@gmail.com", name: "email", type: "string" },
       { value: "Password.123", name: "Password", type: "string" },
     ]),
-    // collectiveMemoryConfig,
+    collectiveMemoryConfig,
   });
 
   const orderTotalAnswer = ObjectiveComplete.extend({
@@ -68,7 +69,7 @@ async function main() {
     ModelResponseSchema(orderTotalAnswer)
   );
 
-  console.log("Answer:", JSON.stringify(answer?.result));
+  console.log("\x1b[32m Answer:", JSON.stringify(answer?.result));
   await agentBrowser.close();
 }
 

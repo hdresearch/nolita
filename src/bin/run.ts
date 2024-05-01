@@ -7,7 +7,7 @@ import { ModelResponseSchema, ObjectiveComplete } from "../types";
 import { Inventory } from "../inventory";
 import { completionApiBuilder } from "../agent/config";
 import { GluegunToolbox } from "gluegun";
-
+import "dotenv/config";
 const MAX_ITERATIONS = 10;
 let iteration = 0;
 
@@ -147,6 +147,7 @@ Doing so integrates collective memory for this session, which improves agentic r
         hdrApiKey = answers.hdrApiKey;
       });
   }
+  console.log(process.env.HDR_ENDPOINT);
   const spinner = toolbox.print.spin();
   spinner.stop();
   const logger = new Logger(["info"], (input: any) => {
@@ -184,7 +185,7 @@ Doing so integrates collective memory for this session, which improves agentic r
     ...(hdrApiKey
       ? {
           collectiveMemoryConfig: {
-            endpoint: "https://api.hdr.is",
+            endpoint: process.env.HDR_ENDPOINT || "https://api.hdr.is",
             apiKey: hdrApiKey,
           },
         }
