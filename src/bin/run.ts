@@ -147,7 +147,6 @@ Doing so integrates collective memory for this session, which improves agentic r
         hdrApiKey = answers.hdrApiKey;
       });
   }
-  console.log(process.env.HDR_ENDPOINT);
   const spinner = toolbox.print.spin();
   spinner.stop();
   const logger = new Logger(["info"], (input: any) => {
