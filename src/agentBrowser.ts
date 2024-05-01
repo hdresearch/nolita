@@ -249,8 +249,6 @@ export class AgentBrowser {
       debug.write("Exiting predefined route");
     }
 
-    console.log(this.objectiveProgress);
-
     try {
       do {
         // loop through all objectives
