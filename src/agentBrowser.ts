@@ -58,6 +58,7 @@ export class AgentBrowser {
         {} as any // for zod optionals
       );
     this.inventory = agentBrowserArgs.inventory;
+
     this.hdrConfig =
       agentBrowserArgs.collectiveMemoryConfig ??
       CollectiveMemoryConfig.parse({});
@@ -69,16 +70,18 @@ export class AgentBrowser {
     this.memorySequenceId = generateUUID();
   }
 
-  async performMemory(currentObjective: string, memory: Memory) {
+  async performMemory(memory: Memory) {
     // call this so the browser's internal page state is updated
     const state = await this.browser.state(
       memory.objectiveState.objective,
       this.objectiveProgress
     );
-
+    const hasText = memory.actionStep.command?.some(
+      (action) => action.kind === "Type"
+    );
     let description = "";
     // we should relax this condition in the future
-    if (state.ariaTree === memory.objectiveState.ariaTree) {
+    if (state.ariaTree === memory.objectiveState.ariaTree && !hasText) {
       debug.write("Performing action step from memory");
       this.browser.performManyActions(
         memory.actionStep.command as BrowserAction[],
@@ -161,9 +164,26 @@ export class AgentBrowser {
           }
           return answer;
         } else {
-          await this.performMemory(browserObjective.objective[0], memory);
+          await this.performMemory(memory);
         }
       }
+    }
+  }
+
+  async followRoute(memories: Memory[]) {
+    try {
+      for (const memory of memories) {
+        if ("objectiveComplete" in memory.actionStep) {
+          return;
+        } else {
+          if (this.logger) {
+            this.logger.log(JSON.stringify(memory.actionStep));
+          }
+          await this.performMemory(memory);
+        }
+      }
+    } catch (e) {
+      debug.write("Error following route: " + e);
     }
   }
 
@@ -182,7 +202,6 @@ export class AgentBrowser {
       this.objectiveProgress
     );
     const memories = await this.remember(state);
-    // console.log("Memories", memories);
     let config = {};
     if (this.inventory) {
       config = { inventory: this.inventory };
@@ -216,21 +235,21 @@ export class AgentBrowser {
 
     this.setMemorySequenceId();
 
-    const sequenceId = await findRoute(
+    // goto the start url
+    await this.browser.goTo(startUrl, this.config.goToDelay);
+
+    const memoryRoute = await findRoute(
       { url: startUrl, objective: objective[0] },
       this.hdrConfig
     );
 
-    if (sequenceId) {
-      return await this.followPath(
-        sequenceId,
-        browserObjective,
-        ObjectiveCompleteResponse<TObjectiveComplete>()
-      );
+    if (memoryRoute) {
+      debug.write("Entering predefined route");
+      await this.followRoute(memoryRoute);
+      debug.write("Exiting predefined route");
     }
 
-    // goto the start url
-    await this.browser.goTo(startUrl, this.config.goToDelay);
+    console.log(this.objectiveProgress);
 
     try {
       do {

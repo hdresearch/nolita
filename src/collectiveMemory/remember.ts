@@ -102,18 +102,20 @@ export async function fetchRoute(
 ) {
   const { apiKey, endpoint } = hdrConfig;
 
-  const body = JSON.stringify({
-    state: ObjectiveState.parse(routeParams),
-  });
-
   const response = await fetch(`${endpoint}/memories/findpath`, {
+    method: "POST",
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
-    body,
+    body: JSON.stringify({
+      url: routeParams.url,
+      objective: routeParams.objective,
+    }),
   });
 
   if (!response.ok) {
+    console.error("Error calling HDR API:", await response.text());
     throw new Error(
       `HDR API request failed with status ${response.status} to url ${response.url}`
     );
@@ -121,13 +123,13 @@ export async function fetchRoute(
 
   const data = await response.json();
 
-  return { sequenceId: data.sequenceId };
+  return data;
 }
 
 export async function findRoute(
   routeParams: { url: string; objective: string },
   hdrConfig: HDRConfig
-): Promise<string | undefined> {
+): Promise<Memory[] | undefined> {
   const apiKey = hdrConfig?.apiKey || process.env.HDR_API_KEY;
   if (!apiKey) {
     return undefined;
@@ -135,7 +137,14 @@ export async function findRoute(
 
   try {
     const config = hdrConfig || { apiKey, endpoint: "https://api.hdr.is" };
-    return (await fetchRoute(routeParams, config)).sequenceId;
+    const route = await fetchRoute(routeParams, config);
+
+    return route.map((m: any) => {
+      return Memory.parse({
+        actionStep: m.actionState,
+        objectiveState: m.ObjectiveState,
+      });
+    });
   } catch (error) {
     return undefined;
   }
