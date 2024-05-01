@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.2
+
+- Redeploy due to missing dependency.
+
 ## 1.2.1
 
 - Improves finding routes before sessions.
