@@ -6,6 +6,16 @@ import { Inventory } from "./inventory";
 import { completionApiBuilder } from "./agent/config";
 import { setupServer } from "./server";
 
+import { ModelResponseSchema,
+  ModelResponseType,
+  CollectiveMemoryConfig,
+  ObjectiveComplete,
+  ObjectiveFailed,
+  BrowserArgs,
+  BrowserMode,
+  BrowserActionSchemaArray
+} from "./types";
+
 export {
   Agent,
   Browser,
@@ -13,5 +23,13 @@ export {
   Logger,
   Inventory,
   completionApiBuilder,
-  setupServer
+  setupServer,
+  ModelResponseSchema,
+  ModelResponseType,
+  CollectiveMemoryConfig,
+  ObjectiveComplete,
+  ObjectiveFailed,
+  BrowserArgs,
+  BrowserMode,
+  BrowserActionSchemaArray
 };
