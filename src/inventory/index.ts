@@ -15,7 +15,7 @@ export class Inventory {
     this.maskedInventory = inventory.map((item) => {
       return {
         name: item.name,
-        value: `USER_PROVIDED_${item.name.toUpperCase()}`,
+        value: `USER_PROVIDED_${item.name.toUpperCase().replace(/ /g, "_")}`,
         type: item.type,
       };
     });
