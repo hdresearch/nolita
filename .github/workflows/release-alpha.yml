@@ -42,6 +42,8 @@ jobs:
       
       - name: Publish alpha
         run: | 
+          git config --global user.name "Matilde Park"
+          git config --global user.email "matilde.park@hdr.is"
           git_hash=$(git rev-parse --short "$GITHUB_SHA")
           pnpm version prerelease --preid alpha.$git_hash
           pnpm publish --tag alpha
