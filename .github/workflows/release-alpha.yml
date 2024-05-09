@@ -1,6 +1,8 @@
 name: Push alpha artifact to npm
 on:
-  - push
+  push:
+    branches:
+      - main
 
 jobs:
   test:
