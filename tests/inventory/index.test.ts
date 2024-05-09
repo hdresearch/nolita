@@ -9,9 +9,8 @@ describe("Inventory", () => {
     ];
     const inv = new Inventory(inventory);
     expect(inv.maskedInventory[0].value).not.toEqual("password");
-    expect(inv.maskedInventory[0].value.length).toEqual(8);
-    expect(inv.maskedInventory[1].value).toBeGreaterThanOrEqual(100);
-    expect(inv.maskedInventory[1].value).toBeLessThanOrEqual(999);
+    expect(inv.maskedInventory[0].value).toEqual("USER_PROVIDED_PASSWORD");
+    expect(inv.maskedInventory[1].value).toBe("USER_PROVIDED_AGE");
   });
 
   it("should replace mask", () => {

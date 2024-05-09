@@ -15,7 +15,7 @@ export class Inventory {
     this.maskedInventory = inventory.map((item) => {
       return {
         name: item.name,
-        value: this.maskValue(item.value, item.type),
+        value: `USER_PROVIDED_${item.name.toUpperCase().replace(/ /g, "_")}`,
         type: item.type,
       };
     });
@@ -27,14 +27,6 @@ export class Inventory {
     });
 
     return inventoryArray.join(", ");
-  }
-
-  private maskValue(value: any, type: number | string) {
-    if (type === "string") {
-      return maskString(value);
-    } else if (type === "number") {
-      return maskNumber(value);
-    }
   }
 
   replaceMask(value: string): string {
