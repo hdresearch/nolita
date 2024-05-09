@@ -69,14 +69,6 @@ describe("updateCommandIndices", () => {
       commands
     );
 
-    // const result = updateCommandIndices(
-    //   objectiveStateOld,
-    //   objectiveStateNew,
-    //   BrowserActionSchemaArray.parse(commands)
-    // );
-
-    // expect(result).toEqual(BrowserActionSchemaArray.parse(expectedCommands));
-
     expect(res).toStrictEqual(expectedCommands);
   });
 });
