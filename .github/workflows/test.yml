@@ -11,6 +11,8 @@ jobs:
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: 'stable'
+        run: |
+          echo "TEST_CHROME_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -43,6 +45,7 @@ jobs:
         run: pnpm install
         env:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+          CHROME_PATH: ${{ env.TEST_CHROME_PATH }}
 
       - name: Run tests
         env:
