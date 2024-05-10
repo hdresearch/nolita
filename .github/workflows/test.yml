@@ -9,6 +9,7 @@ jobs:
     steps:
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v1
+        id: setup-chrome
         with:
           chrome-version: 'stable'
       - run: |
@@ -42,9 +43,9 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install
         env:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+        run: pnpm install
 
       - name: Run tests
         env:
