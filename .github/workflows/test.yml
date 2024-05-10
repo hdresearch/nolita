@@ -11,7 +11,7 @@ jobs:
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: 'stable'
-        run: |
+      - run: |
           echo "TEST_CHROME_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> $GITHUB_ENV
 
       - name: Checkout
