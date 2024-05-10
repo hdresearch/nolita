@@ -20,6 +20,14 @@ Bootstrap a project with the `create` command:
 npx nolita create
 ```
 
+Our main branch is the bleeding edge. If you want to use what's currently on this repo, you can run:
+
+```bash
+npx nolita@alpha
+```
+
+When stabilised, we tag and release on `@latest`.
+
 ## Usage
 
 You can use Nolita for running quick tasks, as a persistent server for agentic web browsing, or to bootstrap an agentic product.

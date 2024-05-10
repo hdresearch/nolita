@@ -15,7 +15,7 @@ describe("chromePaths", () => {
     }
 
     if (process.env.CI === "true") {
-      expect(chromePath).toBe("google-chrome");
+      expect(chromePath).toBe(process.env.CHROME_PATH);
     }
   });
 });
