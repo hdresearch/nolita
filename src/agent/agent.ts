@@ -181,6 +181,33 @@ export class Agent {
     return response;
   }
 
+  async actionCall<T extends z.ZodSchema<any>>(
+    prompt: ChatRequestMessage[],
+    commandSchema: T
+  ) {
+    const response = await chat(this.modelApi, prompt, {
+      schema: z.object({
+        progressAssessment: z.string(),
+        command: commandSchema,
+        description: z.string(),
+      }),
+      autoSlice: true,
+    });
+
+    return response.data;
+  }
+
+  async returnCall<T extends z.ZodSchema<any>>(
+    prompt: ChatRequestMessage[],
+    responseSchema: T
+  ): Promise<z.infer<T>> {
+    const response = await chat(this.modelApi, prompt, {
+      schema: responseSchema,
+    });
+
+    return response.data;
+  }
+
   async askCommand<
     TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
   >(
