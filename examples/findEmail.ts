@@ -21,8 +21,6 @@ async function main() {
   }
   const agent = new Agent({
     modelApi: chatApi,
-    // systemPrompt:
-    //   "All your descriptions should be slightly mean but very witty and always in valid json",
   });
 
   const browser = await Browser.create(false);
@@ -32,7 +30,7 @@ async function main() {
   await page.goto("https://hdr.is");
 
   await page.do("click on the company link", agent);
-  await page.get(
+  const answer = await page.get(
     "Find all the email addresses on the page",
     z.object({
       emails: z
@@ -41,6 +39,9 @@ async function main() {
     }),
     agent
   );
+
+  console.log(answer);
+  await browser.close();
 }
 
 main();

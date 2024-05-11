@@ -169,7 +169,6 @@ export class Page {
     try {
       switch (command.kind) {
         case "Click":
-          console.log("Clicking on element with index", command.index);
           let eClick = await this.findElement(command.index);
           await eClick.click();
           await new Promise((resolve) => setTimeout(resolve, 100));
@@ -258,7 +257,6 @@ export class Page {
     agent: Agent
   ): Promise<z.infer<T>> {
     const prompt = await this.makePrompt(request, agent);
-
     return await agent.returnCall(prompt, returnType);
   }
 }
