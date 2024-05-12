@@ -270,7 +270,14 @@ export class AgentBrowser {
             this.logger.log(JSON.stringify(stepResponse));
           }
 
-          if (stepResponse.objectiveComplete) {
+          if (stepResponse.command) {
+            debug.write(
+              "Performing action:" + JSON.stringify(stepResponse.command)
+            );
+            page.performManyActions(
+              stepResponse.command as BrowserAction[],
+              this.inventory
+            );
             const answer = {
               kind: "ObjectiveComplete",
               result: stepResponse,
@@ -281,14 +288,17 @@ export class AgentBrowser {
               this.logger.log(JSON.stringify(answer));
             }
             return answer;
-          } else if (stepResponse.command) {
-            debug.write(
-              "Performing action:" + JSON.stringify(stepResponse.command)
-            );
-            page.performManyActions(
-              stepResponse.command as BrowserAction[],
-              this.inventory
-            );
+          } else if (stepResponse.objectiveComplete) {
+            const answer = {
+              kind: "ObjectiveComplete",
+              result: stepResponse,
+              url: page.url(),
+              content: await page.content(),
+            };
+            if (this.logger) {
+              this.logger.log(JSON.stringify(answer));
+            }
+            return answer;
           }
 
           this.iterationCount++;
