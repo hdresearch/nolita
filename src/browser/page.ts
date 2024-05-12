@@ -13,7 +13,7 @@ import {
   AccessibilityTree,
   ObjectiveState,
 } from "../types/browser/browser.types";
-import { debug } from "../utils";
+import { debug, generateUUID } from "../utils";
 import { BrowserAction } from "../types/browser/actions.types";
 import { Inventory } from "../inventory";
 import { Agent } from "../agent";
@@ -22,11 +22,14 @@ import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 // Do not touch this. We're using undocumented puppeteer APIs
 // @ts-ignore
 import { MAIN_WORLD } from "puppeteer";
+import { memorize } from "../collectiveMemory";
+import { ModelResponseType } from "../types";
 
 export class Page {
   page: PuppeteerPage;
   private idMapping: Map<number, any> = new Map();
   private _state: ObjectiveState | undefined = undefined;
+  pageId: string;
 
   ariaTree: string | undefined;
 
@@ -34,6 +37,7 @@ export class Page {
 
   constructor(page: PuppeteerPage) {
     this.page = page;
+    this.pageId = generateUUID();
   }
 
   url(): string {
@@ -42,6 +46,14 @@ export class Page {
 
   async content(): Promise<string> {
     return await this.page.evaluate(() => document.body.innerText);
+  }
+
+  async setViewport(
+    width: number,
+    height: number,
+    deviceScaleFactor: number = 1
+  ) {
+    this.page.setViewport({ width, height, deviceScaleFactor });
   }
 
   async screenshot(): Promise<Buffer> {
@@ -165,6 +177,8 @@ export class Page {
       progress: objectiveProgress,
       objective: objective,
     };
+
+    this._state = content;
     return content;
   }
 
@@ -259,6 +273,10 @@ export class Page {
 
   async do(request: string, agent: Agent, inventory?: Inventory) {
     const command = await this.generateCommand(request, agent);
+    memorize(this._state!, command as ModelResponseType, this.pageId, {
+      endpoint: process.env.HDR_API_ENDPOINT ?? "https://api.hdr.is",
+      apiKey: process.env.HDR_API_KEY ?? "",
+    });
     await this.performManyActions(command.command, inventory);
   }
 
