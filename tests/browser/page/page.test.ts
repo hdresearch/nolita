@@ -23,7 +23,7 @@ describe("Page", () => {
   it("should return the state of the page", async () => {
     const browser = await Browser.create(true);
 
-    const page = new Page(browser.page);
+    const page = await browser.newPage();
     await page.goto("http://example.com");
     const state = await page.state("Describe the page content", []);
     const safeParseResult = ObjectiveState.safeParse(state);
@@ -34,7 +34,7 @@ describe("Page", () => {
 
   it("should make a prompt", async () => {
     const browser = await Browser.create(true);
-    const page = new Page(browser.page);
+    const page = await browser.newPage();
 
     await page.goto("http://example.com");
 
@@ -49,7 +49,7 @@ describe("Page", () => {
 
   it("should get a result", async () => {
     const browser = await Browser.create(true);
-    const page = new Page(browser.page);
+    const page = await browser.newPage();
 
     await page.goto("https://hdr.is/people");
 
@@ -92,7 +92,7 @@ describe("Page", () => {
 
   it("should return html content", async () => {
     const browser = await Browser.create(true);
-    const page = new Page(browser.page);
+    const page = await browser.newPage();
 
     await page.goto("http://example.com");
 
@@ -104,7 +104,7 @@ describe("Page", () => {
 
   it("should return markdown content", async () => {
     const browser = await Browser.create(true);
-    const page = new Page(browser.page);
+    const page = await browser.newPage();
 
     await page.goto("http://example.com");
 
@@ -116,7 +116,7 @@ describe("Page", () => {
 
   it("should inject bounding boxes correctly", async () => {
     const browser = await Browser.create(true);
-    const page = new Page(browser.page);
+    const page = await browser.newPage();
 
     await page.goto("http://example.com");
     await page.injectBoundingBoxes();

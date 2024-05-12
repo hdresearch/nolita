@@ -34,12 +34,12 @@ export class Browser {
     return browser;
   }
 
-  async newPage(device?: Device): Promise<Page> {
+  async newPage(pageId?: string, device?: Device): Promise<Page> {
     const basePage = await this.browser.newPage();
     if (device) {
       await basePage.emulate(device);
     }
-    return new Page(basePage);
+    return new Page(basePage, pageId);
   }
 
   async close() {

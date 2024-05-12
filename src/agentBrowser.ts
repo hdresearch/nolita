@@ -209,10 +209,7 @@ export class AgentBrowser {
       config = { inventory: this.inventory };
     }
     const prompt = this.agent.prompt(state, memories, config);
-    const response = await this.agent.askCommand<TObjectiveComplete>(
-      prompt,
-      responseType
-    );
+    const response = await this.agent.askCommand(prompt, responseType);
 
     if (response === undefined) {
       return this.returnErrorState(page, "Agent failed to respond");
@@ -278,16 +275,6 @@ export class AgentBrowser {
               stepResponse.command as BrowserAction[],
               this.inventory
             );
-            const answer = {
-              kind: "ObjectiveComplete",
-              result: stepResponse,
-              url: page.url(),
-              content: await page.content(),
-            };
-            if (this.logger) {
-              this.logger.log(JSON.stringify(answer));
-            }
-            return answer;
           } else if (stepResponse.objectiveComplete) {
             const answer = {
               kind: "ObjectiveComplete",

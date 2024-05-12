@@ -21,7 +21,7 @@ describe("Browser", () => {
   it("should create a new page with device", async () => {
     const browser = await Browser.create(true);
     const device = KnownDevices["iPhone 6"];
-    const page = await browser.newPage(device);
+    const page = await browser.newPage(undefined, device);
     expect(page).toBeDefined();
     expect(page.page.viewport()).toBe(device.viewport);
 

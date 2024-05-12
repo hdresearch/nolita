@@ -53,7 +53,7 @@ describe("Page interaction -- TYPE", () => {
 
     agent = new Agent({ modelApi: chatApi! });
     browser = await Browser.create(true, "");
-    page = new Page(browser.page);
+    page = await browser.newPage();
   }, 20000);
 
   it("should click a button", async () => {

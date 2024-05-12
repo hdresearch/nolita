@@ -35,9 +35,9 @@ export class Page {
 
   error: string | undefined;
 
-  constructor(page: PuppeteerPage) {
+  constructor(page: PuppeteerPage, pageId?: string) {
     this.page = page;
-    this.pageId = generateUUID();
+    this.pageId = pageId ?? generateUUID();
   }
 
   url(): string {
@@ -189,18 +189,18 @@ export class Page {
     return this._state;
   }
 
-  private async onDOMChange(objective: string, objectiveProgress: string[]) {
-    this._state = await this.state(objective, objectiveProgress);
-  }
-
-  async performAction(command: BrowserAction, inventory?: Inventory) {
+  async performAction(
+    command: BrowserAction,
+    inventory?: Inventory,
+    delay: number = 100
+  ) {
     this.error = undefined;
     try {
       switch (command.kind) {
         case "Click":
           let eClick = await this.findElement(command.index);
           await eClick.click();
-          await new Promise((resolve) => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, delay));
           break;
 
         case "Type":
@@ -214,14 +214,14 @@ export class Page {
           let eType = await this.findElement(command.index);
           await eType.click({ clickCount: 3 }); // click to select all text
           await eType.type(text + "\n");
-          await new Promise((resolve) => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, delay));
           break;
         case "Wait":
           await new Promise((resolve) => setTimeout(resolve, 1000));
           break;
         case "Back":
           await this.page.goBack();
-          await new Promise((resolve) => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, delay));
           break;
         case "Hover":
           let eHover = await this.findElement(command.index);
