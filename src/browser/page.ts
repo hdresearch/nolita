@@ -7,6 +7,7 @@ import {
 } from "puppeteer";
 
 import { z } from "zod";
+import Turndown from "turndown";
 
 import {
   AccessibilityTree,
@@ -16,7 +17,6 @@ import { debug } from "../utils";
 import { BrowserAction } from "../types/browser/actions.types";
 import { Inventory } from "../inventory";
 import { Agent } from "../agent";
-import { BrowserActionSchemaArray } from "../types";
 import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 
 // Do not touch this. We're using undocumented puppeteer APIs
@@ -42,6 +42,18 @@ export class Page {
 
   async content(): Promise<string> {
     return await this.page.evaluate(() => document.body.innerText);
+  }
+
+  async screenshot(): Promise<Buffer> {
+    return await this.page.screenshot();
+  }
+
+  async html(): Promise<string> {
+    return await this.page.content();
+  }
+
+  async markdown(): Promise<string> {
+    return new Turndown().turndown(await this.html());
   }
 
   private async getAccessibilityTree(): Promise<SerializedAXNode | null> {
@@ -209,7 +221,6 @@ export class Page {
       }
     } catch (e) {
       this.error = (e as Error).toString();
-      console.error(e);
       debug.error(
         ` Error ${this.error} on command: ${JSON.stringify(command)}`
       );
@@ -258,5 +269,143 @@ export class Page {
   ): Promise<z.infer<T>> {
     const prompt = await this.makePrompt(request, agent);
     return await agent.returnCall(prompt, returnType);
+  }
+
+  async injectBoundingBoxes() {
+    await this.page.evaluate(() => {
+      // @ts-ignore
+      var labels = [];
+
+      const unmarkPage = () => {
+        // @ts-ignore
+        for (const label of labels) {
+          document.body.removeChild(label);
+        }
+        labels = [];
+      };
+
+      // Function to generate random colors
+      // @ts-ignore
+      function getColor(elementType) {
+        const colorMapping = {
+          INPUT: "#FF0000", // Red for input fields
+          TEXTAREA: "#00FF00", // Green for textareas
+          SELECT: "#0000FF", // Blue for select dropdowns
+          BUTTON: "#FFFF00", // Yellow for buttons
+          A: "#FF00FF", // Magenta for links
+          DEFAULT: "#CCCCCC", // Grey for any other elements
+        };
+        // @ts-ignore
+        return colorMapping[elementType] || colorMapping.DEFAULT;
+      }
+
+      const markPage = () => {
+        unmarkPage();
+
+        var bodyRect = document.body.getBoundingClientRect();
+
+        var items = Array.prototype.slice
+          .call(document.querySelectorAll("*"))
+          .map(function (element) {
+            var vw = Math.max(
+              document.documentElement.clientWidth || 0,
+              window.innerWidth || 0
+            );
+            var vh = Math.max(
+              document.documentElement.clientHeight || 0,
+              window.innerHeight || 0
+            );
+
+            var rects = [...element.getClientRects()]
+              .filter((bb) => {
+                var center_x = bb.left + bb.width / 2;
+                var center_y = bb.top + bb.height / 2;
+                var elAtCenter = document.elementFromPoint(center_x, center_y);
+
+                return elAtCenter === element || element.contains(elAtCenter);
+              })
+              .map((bb) => {
+                const rect = {
+                  left: Math.max(0, bb.left),
+                  top: Math.max(0, bb.top),
+                  right: Math.min(vw, bb.right),
+                  bottom: Math.min(vh, bb.bottom),
+                };
+                return {
+                  ...rect,
+                  width: rect.right - rect.left,
+                  height: rect.bottom - rect.top,
+                };
+              });
+            var area = rects.reduce(
+              (acc, rect) => acc + rect.width * rect.height,
+              0
+            );
+
+            return {
+              element: element,
+              include:
+                element.tagName === "INPUT" ||
+                element.tagName === "TEXTAREA" ||
+                element.tagName === "SELECT" ||
+                element.tagName === "BUTTON" ||
+                element.tagName === "A" ||
+                element.onclick != null ||
+                window.getComputedStyle(element).cursor == "pointer" ||
+                element.tagName === "IFRAME" ||
+                element.tagName === "VIDEO",
+              area,
+              rects,
+              text: element.textContent.trim().replace(/\s{2,}/g, " "),
+            };
+          })
+          .filter((item) => item.include && item.area >= 20);
+
+        // Only keep inner clickable items
+        items = items.filter(
+          (x) => !items.some((y) => x.element.contains(y.element) && !(x == y))
+        );
+
+        items.forEach(function (item, index) {
+          item.rects.forEach((bbox) => {
+            var newElement = document.createElement("div");
+            newElement.id = `ai-label-${index}`;
+            var borderColor = getColor(item.element.tagName);
+            newElement.style.outline = `2px dashed ${borderColor}`;
+            newElement.style.position = "absolute";
+            newElement.style.left = bbox.left + window.scrollX + "px";
+            newElement.style.top = bbox.top + window.scrollY + "px";
+            newElement.style.width = bbox.width + "px";
+            newElement.style.height = bbox.height + "px";
+            newElement.style.pointerEvents = "none";
+            newElement.style.boxSizing = "border-box";
+            newElement.style.zIndex = "2147483647";
+
+            // Add floating label at the corner
+            var label = document.createElement("span");
+            label.textContent = index.toString();
+            label.style.position = "absolute";
+            label.style.top = "-19px";
+            label.style.left = "0px";
+            label.style.background = borderColor;
+            label.style.color = "white";
+            label.style.padding = "2px 4px";
+            label.style.fontSize = "12px";
+            label.style.borderRadius = "2px";
+            newElement.appendChild(label);
+
+            document.body.appendChild(newElement);
+            //@ts-ignore
+            labels.push(newElement);
+          });
+        });
+      };
+
+      addEventListener("mouseover", markPage);
+      addEventListener("click", markPage);
+      addEventListener("scroll", unmarkPage);
+      addEventListener("load", markPage);
+    });
+    await this.page.hover("body");
   }
 }
