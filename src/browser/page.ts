@@ -76,8 +76,11 @@ export class Page {
     await this.page.close();
   }
 
-  async goto(url: string) {
+  async goto(url: string, options?: { delay: number }) {
     await this.page.goto(url);
+    if (options?.delay) {
+      await new Promise((resolve) => setTimeout(resolve, options.delay));
+    }
   }
   private async queryAXTree(
     client: CDPSession,
@@ -248,14 +251,7 @@ export class Page {
   }
 
   async makePrompt(request: string, agent: Agent, progress?: string[]) {
-    const state: ObjectiveState = {
-      kind: "ObjectiveState",
-      url: this.url().replace(/[?].*/g, ""),
-      ariaTree: await this.parseContent(),
-      progress: progress || [],
-      objective: request,
-    };
-
+    const state = (await this.state(request, progress ?? [])) as ObjectiveState;
     const prompt = agent.prompt(state, DEFAULT_STATE_ACTION_PAIRS);
 
     return prompt;

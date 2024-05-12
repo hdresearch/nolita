@@ -1,23 +1,13 @@
 import { z } from "zod";
-import { Browser } from "./browser";
+import { Browser, Page } from "./browser";
 import { Logger, generateUUID } from "./utils";
-import {
-  BrowserObjective,
-  ObjectiveState,
-} from "./types/browser/browser.types";
+
 import { Agent } from "./agent/agent";
 import {
   fetchMemorySequence,
   findRoute,
   remember,
 } from "./collectiveMemory/remember";
-import {
-  ModelResponseSchema,
-  ModelResponseType,
-  ObjectiveComplete,
-  ObjectiveCompleteResponse,
-} from "./types/browser/actionStep.types";
-import { BrowserAction } from "./types/browser/actions.types";
 
 import { debug } from "./utils";
 import { Inventory } from "./inventory";
@@ -26,6 +16,17 @@ import { memorize } from "./collectiveMemory/memorize";
 import { BrowserBehaviorConfig } from "./types/agentBrowser.types";
 import { CollectiveMemoryConfig } from "./types";
 import { Memory } from "./types/memory.types";
+import {
+  ModelResponseSchema,
+  ModelResponseType,
+  ObjectiveComplete,
+  ObjectiveCompleteResponse,
+} from "./types/browser/actionStep.types";
+import { BrowserAction } from "./types/browser/actions.types";
+import {
+  BrowserObjective,
+  ObjectiveState,
+} from "./types/browser/browser.types";
 
 export class AgentBrowser {
   agent: Agent;
@@ -33,8 +34,8 @@ export class AgentBrowser {
   logger: Logger;
   config: BrowserBehaviorConfig;
   inventory?: Inventory;
-  plugins: any; // to be done later
   hdrConfig: CollectiveMemoryConfig;
+  page: Page | undefined;
 
   private iterationCount: number = 0;
 
@@ -70,9 +71,9 @@ export class AgentBrowser {
     this.memorySequenceId = generateUUID();
   }
 
-  async performMemory(memory: Memory) {
+  async performMemory(page: Page, memory: Memory) {
     // call this so the browser's internal page state is updated
-    const state = await this.browser.state(
+    const state = await page.state(
       memory.objectiveState.objective,
       this.objectiveProgress
     );
@@ -83,7 +84,7 @@ export class AgentBrowser {
     // we should relax this condition in the future
     if (state.ariaTree === memory.objectiveState.ariaTree && !hasText) {
       debug.write("Performing action step from memory");
-      this.browser.performManyActions(
+      page.performManyActions(
         memory.actionStep.command as BrowserAction[],
         this.inventory
       );
@@ -95,11 +96,11 @@ export class AgentBrowser {
       });
 
       if (modifiedActionStep === undefined) {
-        return this.returnErrorState("Agent failed to respond");
+        return this.returnErrorState(page, "Agent failed to respond");
       }
 
       description = modifiedActionStep.description;
-      this.browser.performManyActions(
+      page.performManyActions(
         modifiedActionStep.command as BrowserAction[],
         this.inventory
       );
@@ -115,6 +116,7 @@ export class AgentBrowser {
     TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
   >(
     memorySequenceId: string,
+    page: Page,
     browserObjective: BrowserObjective,
     responseSchema: ReturnType<
       typeof ObjectiveCompleteResponse<TObjectiveComplete>
@@ -129,10 +131,9 @@ export class AgentBrowser {
 
     const memories = memoriesBackwards.reverse();
 
-    await this.browser.goTo(
-      memories[0].objectiveState.url,
-      this.config.goToDelay
-    );
+    await page.goto(memories[0].objectiveState.url, {
+      delay: this.config.goToDelay,
+    });
 
     if (memories.length === 0) {
       throw new Error("No memories found for sequence id");
@@ -141,7 +142,7 @@ export class AgentBrowser {
     while (this.iterationCount <= browserObjective.maxIterations) {
       for (const memory of memories) {
         if (memory.actionStep.objectiveComplete) {
-          const state: ObjectiveState = await this.browser.state(
+          const state: ObjectiveState = await page.state(
             memory.objectiveState.objective,
             this.objectiveProgress
           );
@@ -156,21 +157,21 @@ export class AgentBrowser {
           const answer = {
             kind: "ObjectiveComplete",
             result: stepResponse,
-            url: this.browser.url(),
-            content: this.browser.content(),
+            url: page.url(),
+            content: await page.content(),
           };
           if (this.logger) {
             this.logger.log(JSON.stringify(answer));
           }
           return answer;
         } else {
-          await this.performMemory(memory);
+          await this.performMemory(page, memory);
         }
       }
     }
   }
 
-  async followRoute(memories: Memory[]) {
+  async followRoute(page: Page, memories: Memory[]) {
     try {
       for (const memory of memories) {
         if ("objectiveComplete" in memory.actionStep) {
@@ -179,7 +180,7 @@ export class AgentBrowser {
           if (this.logger) {
             this.logger.log(JSON.stringify(memory.actionStep));
           }
-          await this.performMemory(memory);
+          await this.performMemory(page, memory);
         }
       }
     } catch (e) {
@@ -194,10 +195,11 @@ export class AgentBrowser {
   async step<
     TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
   >(
+    page: Page,
     currentObjective: string,
     responseType: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>
   ) {
-    const state: ObjectiveState = await this.browser.state(
+    const state: ObjectiveState = await page.state(
       currentObjective,
       this.objectiveProgress
     );
@@ -213,7 +215,7 @@ export class AgentBrowser {
     );
 
     if (response === undefined) {
-      return this.returnErrorState("Agent failed to respond");
+      return this.returnErrorState(page, "Agent failed to respond");
     }
     this.memorize(
       state,
@@ -234,9 +236,10 @@ export class AgentBrowser {
       BrowserObjective.parse(browserObjective);
 
     this.setMemorySequenceId();
+    const page = await this.browser.newPage();
 
     // goto the start url
-    await this.browser.goTo(startUrl, this.config.goToDelay);
+    await page.goto(startUrl, { delay: this.config.goToDelay });
 
     const memoryRoute = await findRoute(
       { url: startUrl, objective: objective[0] },
@@ -245,7 +248,7 @@ export class AgentBrowser {
 
     if (memoryRoute) {
       debug.write("Entering predefined route");
-      await this.followRoute(memoryRoute);
+      await this.followRoute(page, memoryRoute);
       debug.write("Exiting predefined route");
     }
 
@@ -256,10 +259,11 @@ export class AgentBrowser {
           // check if we have exceeded maxIterations and return the failure state if so
           if (this.iterationCount > maxIterations) {
             return await this.returnErrorState(
+              page,
               "Maximum number of iterations exceeded"
             );
           }
-          const step = await this.step(currentObjective, responseType);
+          const step = await this.step(page, currentObjective, responseType);
           const stepResponse = responseType.parse(step);
 
           if (this.logger) {
@@ -270,8 +274,8 @@ export class AgentBrowser {
             const answer = {
               kind: "ObjectiveComplete",
               result: stepResponse,
-              url: this.browser.url(),
-              content: this.browser.content(),
+              url: page.url(),
+              content: await page.content(),
             };
             if (this.logger) {
               this.logger.log(JSON.stringify(answer));
@@ -281,7 +285,7 @@ export class AgentBrowser {
             debug.write(
               "Performing action:" + JSON.stringify(stepResponse.command)
             );
-            this.browser.performManyActions(
+            page.performManyActions(
               stepResponse.command as BrowserAction[],
               this.inventory
             );
@@ -314,11 +318,11 @@ export class AgentBrowser {
     }
   }
 
-  async returnErrorState(failureReason: string) {
+  async returnErrorState(page: Page, failureReason: string) {
     const answer = {
       result: { kind: "ObjectiveFailed", result: failureReason },
-      url: this.browser.url(),
-      content: this.browser.content(),
+      url: page.url(),
+      content: page.content(),
     };
     if (this.logger) {
       this.logger.log(JSON.stringify(answer));

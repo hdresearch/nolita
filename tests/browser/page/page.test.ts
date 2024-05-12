@@ -70,13 +70,23 @@ describe("Page", () => {
 
   it("should take a screenshot", async () => {
     const browser = await Browser.create(true);
-    const page = new Page(browser.page);
-
-    await page.goto("http://example.com");
-
+    const page = await browser.newPage();
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <body>
+        <h1>Hello, World!</h1>
+      </body>
+      </html>
+    `;
+    const dataUrl = `data:text/html,${encodeURIComponent(htmlContent)}`;
+    await page.goto(dataUrl);
     const screenshot = await page.screenshot();
-
-    expect(screenshot).toBeDefined();
+    const expectedStringPartial = "iVBORw0KGgoAAAANSUhEUgAAAy";
+    const screenshotB64 = screenshot.toString("base64");
+    expect(screenshotB64.slice(0, expectedStringPartial.length)).toBe(
+      expectedStringPartial
+    );
     await browser.close();
   });
 

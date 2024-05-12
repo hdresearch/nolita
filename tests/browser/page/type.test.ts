@@ -31,12 +31,12 @@ describe("Page interaction -- Type", () => {
 
     agent = new Agent({ modelApi: chatApi! });
     browser = await Browser.create(true, "");
-    page = new Page(browser.page);
+    page = await browser.newPage();
   }, 20000);
 
   it("should enter text", async () => {
     const browser = await Browser.create(true, "");
-    const page = new Page(browser.page);
+    const page = await browser.newPage();
     await page.goto(dataUrl);
 
     const initialValue = await page.page.evaluate(() =>
@@ -84,7 +84,7 @@ describe("Page interaction -- Type", () => {
 
   it("should enter text via do", async () => {
     const browser = await Browser.create(true, "");
-    const page = new Page(browser.page);
+    const page = await browser.newPage();
 
     await page.goto(dataUrl);
 

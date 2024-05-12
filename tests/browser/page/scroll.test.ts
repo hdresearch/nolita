@@ -58,12 +58,12 @@ describe("Page interaction -- SCROLL", () => {
 
     agent = new Agent({ modelApi: chatApi! });
     browser = await Browser.create(true, "");
-    page = new Page(browser.page);
+    page = await browser.newPage();
   }, 20000);
 
   it("should scroll to the bottom", async () => {
     const browser = await Browser.create(true, "");
-    const page = new Page(browser.page);
+    const page = await browser.newPage();
 
     await page.goto(dataUrl);
 
@@ -98,7 +98,7 @@ describe("Page interaction -- SCROLL", () => {
 
   it("should scroll via do", async () => {
     const browser = await Browser.create(true, "");
-    const page = new Page(browser.page);
+    const page = await browser.newPage();
 
     await page.goto(dataUrl);
 

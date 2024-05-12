@@ -25,7 +25,7 @@ async function main() {
 
   const browser = await Browser.create(false);
 
-  const page = new Page(browser.page);
+  const page = await browser.newPage();
 
   await page.goto("https://hdr.is");
 
