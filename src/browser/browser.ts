@@ -7,58 +7,44 @@ import { browserContext } from "./browserUtils";
 export class Browser {
   // @ts-ignore
   private browser: PuppeteerBrowser;
-  //@ts-ignore
-  page: Page;
   // @ts-ignore
-  private mode: BrowserMode;
+  mode: BrowserMode;
   private userDataDir = "/tmp"; // TODO: make this configurable
-  device?: Device;
 
   constructor() {}
 
-  private async init(
-    browser: PuppeteerBrowser,
-    mode: BrowserMode,
-    device?: Device
-  ) {
+  private async init(browser: PuppeteerBrowser, mode: BrowserMode) {
     this.browser = browser;
-    this.page = await this.newPage();
     this.mode = mode;
-    this.device = device;
-    let self = this;
-
-    // this helps us work when links are opened in new tab
-    this.browser.on("targetcreated", async function (target) {
-      let pPage = await target.page();
-
-      if (pPage) {
-        self.page = new Page(pPage);
-      }
-    });
   }
 
   static async create(
     headless: boolean,
     browserWSEndpoint?: string,
-    mode: BrowserMode = BrowserMode.text,
-    device?: Device
+    browserLaunchArgs?: string[],
+    mode: BrowserMode = BrowserMode.text
   ): Promise<Browser> {
     const browser = new Browser();
 
     await browser.init(
-      await browserContext(headless, browserWSEndpoint),
-      mode,
-      device
+      await browserContext(headless, browserWSEndpoint, browserLaunchArgs),
+      mode
     );
 
     return browser;
   }
 
-  async newPage(): Promise<Page> {
+  async newPage(device?: Device): Promise<Page> {
     const basePage = await this.browser.newPage();
-    if (this.device) {
-      await basePage.emulate(this.device);
+    if (device) {
+      await basePage.emulate(device);
     }
     return new Page(basePage);
+  }
+
+  async close() {
+    const pages = await this.browser.pages();
+    await Promise.all(pages.map((page) => page.close()));
+    await this.browser.close();
   }
 }
