@@ -13,12 +13,13 @@ export async function main() {
   }
 
   const browser = await Browser.create(argv.headless);
-  await browser.goTo(argv.url);
+  const page = await browser.newPage();
+  await page.goto(argv.url);
 
-  console.log("Inner content:", await browser.content());
-  console.log("ARIA TREE:", await browser.parseContent());
+  console.log("Inner content:", await page.content());
+  console.log("ARIA TREE:", await page.parseContent());
 
-  const tree = await browser.parseContent();
+  const tree = await page.parseContent();
   console.log("raw tree", tree);
 
   await browser.close();

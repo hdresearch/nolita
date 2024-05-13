@@ -16,7 +16,7 @@ export const getChromePath = (): string | undefined => {
 export const browserContext = async (
   headless: boolean,
   browserWSEndpoint?: string,
-  browserLaunchArgs: string[] = BROWSER_LAUNCH_ARGS
+  browserLaunchArgs?: string[]
 ) => {
   let browser: PuppeteerBrowser;
   if (browserWSEndpoint) {
@@ -27,7 +27,7 @@ export const browserContext = async (
     browser = await PuppeteerExtra.launch({
       headless: headless,
       executablePath: getChromePath(),
-      args: browserLaunchArgs,
+      args: browserLaunchArgs ?? BROWSER_LAUNCH_ARGS,
     });
   }
   return browser;

@@ -1,24 +1,26 @@
 import { Agent } from "./agent/agent";
-import { Browser } from "./browser";
+import { Browser, Page } from "./browser";
 import { AgentBrowser } from "./agentBrowser";
 import { Logger } from "./utils";
 import { Inventory } from "./inventory";
 import { completionApiBuilder } from "./agent/config";
 import { setupServer } from "./server";
 
-import { ModelResponseSchema,
+import {
+  ModelResponseSchema,
   ModelResponseType,
   CollectiveMemoryConfig,
   ObjectiveComplete,
   ObjectiveFailed,
   BrowserArgs,
   BrowserMode,
-  BrowserActionSchemaArray
+  BrowserActionSchemaArray,
 } from "./types";
 
 export {
   Agent,
   Browser,
+  Page,
   AgentBrowser,
   Logger,
   Inventory,
@@ -31,5 +33,5 @@ export {
   ObjectiveFailed,
   BrowserArgs,
   BrowserMode,
-  BrowserActionSchemaArray
+  BrowserActionSchemaArray,
 };

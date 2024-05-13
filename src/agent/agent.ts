@@ -166,6 +166,40 @@ export class Agent {
     return undefined;
   }
 
+  async _call<T extends z.ZodSchema<any>>(
+    prompt: ChatRequestMessage[],
+    commandSchema: T,
+    opts?: { autoSlice?: boolean }
+  ) {
+    const response = await chat(this.modelApi, prompt, {
+      schema: commandSchema,
+      autoSlice: opts?.autoSlice ?? true,
+    });
+
+    return response;
+  }
+
+  async askCommand<T extends z.ZodSchema<any>>(
+    prompt: ChatRequestMessage[],
+    schema: T,
+    backoffOptions = {
+      numOfAttempts: 5, // Maximum number of retries
+      startingDelay: 1000, // Initial delay in milliseconds
+      timeMultiple: 2, // Multiplier for the delay
+      maxDelay: 10000, // Maximum delay
+    }
+  ) {
+    const operation = () => this._call(prompt, schema);
+
+    try {
+      const response = await backOff(operation, backoffOptions);
+
+      return schema.parse(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async call<
     TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
   >(
@@ -181,27 +215,31 @@ export class Agent {
     return response;
   }
 
-  async askCommand<
-    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
-  >(
+  async actionCall<T extends z.ZodSchema<any>>(
     prompt: ChatRequestMessage[],
-    outputSchema: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>,
-    backoffOptions = {
-      numOfAttempts: 5, // Maximum number of retries
-      startingDelay: 1000, // Initial delay in milliseconds
-      timeMultiple: 2, // Multiplier for the delay
-      maxDelay: 10000, // Maximum delay
-    }
+    commandSchema: T
   ) {
-    const operation = () => this.call(prompt, outputSchema);
+    const response = await chat(this.modelApi, prompt, {
+      schema: z.object({
+        progressAssessment: z.string(),
+        command: commandSchema,
+        description: z.string(),
+      }),
+      autoSlice: true,
+    });
 
-    try {
-      const response = await backOff(operation, backoffOptions);
+    return response.data;
+  }
 
-      return response.data;
-    } catch (error) {
-      console.log(error);
-    }
+  async returnCall<T extends z.ZodSchema<any>>(
+    prompt: ChatRequestMessage[],
+    responseSchema: T
+  ): Promise<z.infer<T>> {
+    const response = await chat(this.modelApi, prompt, {
+      schema: responseSchema,
+    });
+
+    return response.data;
   }
 
   async chat(prompt: string) {
