@@ -1,3 +1,4 @@
+import { Agent, completionApiBuilder } from "../src/agent";
 import { Browser } from "../src/browser";
 import yargs from "yargs/yargs";
 const parser = yargs(process.argv.slice(2)).options({
@@ -12,7 +13,18 @@ export async function main() {
     throw new Error("url is not provided");
   }
 
-  const browser = await Browser.create(argv.headless);
+  const providerOptions = {
+    apiKey: process.env.OPENAI_API_KEY!,
+    provider: "openai",
+  };
+
+  const chatApi = completionApiBuilder(providerOptions, {
+    model: "gpt-4-turbo",
+  });
+
+  const agent = new Agent({ modelApi: chatApi! });
+
+  const browser = await Browser.create(argv.headless, agent);
   const page = await browser.newPage();
   await page.goto(argv.url);
 
