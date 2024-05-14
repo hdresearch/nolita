@@ -220,11 +220,7 @@ export class Agent {
     commandSchema: T
   ) {
     const response = await chat(this.modelApi, prompt, {
-      schema: z.object({
-        progressAssessment: z.string(),
-        command: commandSchema,
-        description: z.string(),
-      }),
+      schema: commandSchema,
       autoSlice: true,
     });
 
