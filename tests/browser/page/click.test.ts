@@ -52,7 +52,7 @@ describe("Page interaction -- TYPE", () => {
     });
 
     agent = new Agent({ modelApi: chatApi! });
-    browser = await Browser.create(true, "");
+    browser = await Browser.create(true, agent);
     page = await browser.newPage();
   }, 20000);
 
@@ -109,7 +109,7 @@ describe("Page interaction -- TYPE", () => {
     );
     expect(resultText).toEqual("");
 
-    await page.do("click on the button", agent);
+    await page.do("click on the button", { agent });
 
     // Verify the updated state of the result paragraph after the command
 

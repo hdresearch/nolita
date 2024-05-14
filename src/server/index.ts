@@ -76,7 +76,7 @@ export const setupServer = () => {
     }
 
     const agent = new Agent({ modelApi: chatApi });
-    const browser = await Browser.create(headless);
+    const browser = await Browser.create(headless, agent);
 
     // set inventory if it exists
     let agentInventory: Inventory | undefined;

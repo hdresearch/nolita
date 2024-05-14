@@ -8,6 +8,7 @@ import { z } from "zod";
 
 describe("Page", () => {
   let agent: Agent;
+  let browser: Browser;
   beforeAll(async () => {
     const providerOptions = {
       apiKey: process.env.OPENAI_API_KEY!,
@@ -19,10 +20,9 @@ describe("Page", () => {
     });
 
     agent = new Agent({ modelApi: chatApi! });
+    browser = await Browser.create(true, agent);
   });
   it("should return the state of the page", async () => {
-    const browser = await Browser.create(true);
-
     const page = await browser.newPage();
     await page.goto("http://example.com");
     const state = await page.state("Describe the page content", []);
@@ -33,7 +33,6 @@ describe("Page", () => {
   });
 
   it("should make a prompt", async () => {
-    const browser = await Browser.create(true);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");
@@ -48,7 +47,6 @@ describe("Page", () => {
   });
 
   it("should get a result", async () => {
-    const browser = await Browser.create(true);
     const page = await browser.newPage();
 
     await page.goto("https://hdr.is/people");
@@ -60,7 +58,7 @@ describe("Page", () => {
           .array(z.string())
           .describe("The email addresses found on the page"),
       }),
-      agent
+      { agent }
     );
 
     expect(result).toBeDefined();
@@ -69,7 +67,6 @@ describe("Page", () => {
   }, 10000);
 
   it("should take a screenshot", async () => {
-    const browser = await Browser.create(true);
     const page = await browser.newPage();
     const htmlContent = `
       <!DOCTYPE html>
@@ -91,7 +88,6 @@ describe("Page", () => {
   });
 
   it("should return html content", async () => {
-    const browser = await Browser.create(true);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");
@@ -103,7 +99,6 @@ describe("Page", () => {
   });
 
   it("should return markdown content", async () => {
-    const browser = await Browser.create(true);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");
@@ -115,7 +110,6 @@ describe("Page", () => {
   });
 
   it("should inject bounding boxes correctly", async () => {
-    const browser = await Browser.create(true);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");

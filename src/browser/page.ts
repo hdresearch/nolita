@@ -29,14 +29,15 @@ export class Page {
   page: PuppeteerPage;
   private idMapping: Map<number, any> = new Map();
   private _state: ObjectiveState | undefined = undefined;
-  pageId: string;
 
-  ariaTree: string | undefined;
+  pageId: string;
+  agent: Agent;
 
   error: string | undefined;
 
-  constructor(page: PuppeteerPage, pageId?: string) {
+  constructor(page: PuppeteerPage, agent: Agent, pageId?: string) {
     this.page = page;
+    this.agent = agent;
     this.pageId = pageId ?? generateUUID();
   }
 
@@ -267,7 +268,9 @@ export class Page {
     return command;
   }
 
-  async do(request: string, agent: Agent, inventory?: Inventory) {
+  async do(request: string, opts: { agent?: Agent; inventory?: Inventory }) {
+    const agent = opts?.agent ?? this.agent;
+    const inventory = opts?.inventory;
     const command = await this.generateCommand(request, agent);
     memorize(this._state!, command as ModelResponseType, this.pageId, {
       endpoint: process.env.HDR_API_ENDPOINT ?? "https://api.hdr.is",
@@ -279,8 +282,9 @@ export class Page {
   async get<T extends z.ZodSchema<any>>(
     request: string,
     returnType: T,
-    agent: Agent
+    opts?: { agent?: Agent }
   ): Promise<z.infer<T>> {
+    const agent = opts?.agent ?? this.agent;
     const prompt = await this.makePrompt(request, agent);
     return await agent.returnCall(prompt, returnType);
   }
