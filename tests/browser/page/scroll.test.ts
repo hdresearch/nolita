@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeAll } from "@jest/globals";
 
 import { Browser } from "../../../src/browser/index";
-import { Page } from "../../../src/browser/page";
 import { Agent, completionApiBuilder } from "../../../src/agent";
 
 describe("Page interaction -- SCROLL", () => {

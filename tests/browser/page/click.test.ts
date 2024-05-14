@@ -1,12 +1,4 @@
-import {
-  describe,
-  it,
-  expect,
-  beforeAll,
-  beforeEach,
-  afterEach,
-} from "@jest/globals";
-import { Page } from "../../../src/browser/page";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Browser } from "../../../src/browser";
 import { Agent, completionApiBuilder } from "../../../src/agent";
 

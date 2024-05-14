@@ -4,41 +4,40 @@ import { Page } from "./page";
 import { BrowserMode } from "../types/browser/browser.types";
 import { browserContext } from "./browserUtils";
 import { Agent } from "../agent";
+import { Logger } from "../utils";
 
 export class Browser {
-  // @ts-ignore
-  private browser: PuppeteerBrowser;
-  // @ts-ignore
+  browser: PuppeteerBrowser;
   mode: BrowserMode;
-  // @ts-ignore
   agent: Agent;
+  logger?: Logger;
   private userDataDir = "/tmp"; // TODO: make this configurable
 
-  constructor() {}
-
-  private async init(
+  constructor(
     browser: PuppeteerBrowser,
     agent: Agent,
-    mode: BrowserMode
+    mode: BrowserMode,
+    logger?: Logger
   ) {
     this.agent = agent;
     this.browser = browser;
     this.mode = mode;
+    this.logger = logger;
   }
 
   static async create(
     headless: boolean,
     agent: Agent,
+    logger?: Logger,
     browserWSEndpoint?: string,
     browserLaunchArgs?: string[],
     mode: BrowserMode = BrowserMode.text
   ): Promise<Browser> {
-    const browser = new Browser();
-
-    await browser.init(
+    const browser = new Browser(
       await browserContext(headless, browserWSEndpoint, browserLaunchArgs),
       agent,
-      mode
+      mode,
+      logger
     );
 
     return browser;
@@ -49,7 +48,7 @@ export class Browser {
     if (device) {
       await basePage.emulate(device);
     }
-    return new Page(basePage, this.agent, pageId);
+    return new Page(basePage, this.agent, { pageId, logger: this.logger });
   }
 
   async close() {
