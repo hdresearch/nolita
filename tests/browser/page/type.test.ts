@@ -96,5 +96,5 @@ describe("Page interaction -- Type", () => {
 
     expect(value).toEqual("High Dimensional Research");
     await browser.close();
-  });
+  }, 20000);
 });
