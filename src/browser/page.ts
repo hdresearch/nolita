@@ -268,7 +268,7 @@ export class Page {
     return command;
   }
 
-  async do(request: string, opts: { agent?: Agent; inventory?: Inventory }) {
+  async do(request: string, opts?: { agent?: Agent; inventory?: Inventory }) {
     const agent = opts?.agent ?? this.agent;
     const inventory = opts?.inventory;
     const command = await this.generateCommand(request, agent);
