@@ -22,7 +22,7 @@ describe("Page", () => {
   }, 5000);
 
   it("should return the state of the page", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
     await page.goto("http://example.com");
     const state = await page.state("Describe the page content", []);
@@ -33,7 +33,7 @@ describe("Page", () => {
   });
 
   it("should make a prompt", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");
@@ -45,7 +45,7 @@ describe("Page", () => {
   }, 10000);
 
   it("should get a result", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto("https://hdr.is/people");
@@ -66,7 +66,7 @@ describe("Page", () => {
   }, 10000);
 
   it("should take a screenshot", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
     const htmlContent = `
       <!DOCTYPE html>
@@ -88,7 +88,7 @@ describe("Page", () => {
   });
 
   it("should return html content", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");
@@ -100,7 +100,7 @@ describe("Page", () => {
   });
 
   it("should return markdown content", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");
@@ -112,7 +112,7 @@ describe("Page", () => {
   });
 
   it("should inject bounding boxes correctly", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");

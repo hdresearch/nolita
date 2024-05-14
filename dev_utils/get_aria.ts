@@ -24,7 +24,7 @@ export async function main() {
 
   const agent = new Agent({ modelApi: chatApi! });
 
-  const browser = await Browser.create(argv.headless, agent);
+  const browser = await Browser.launch(argv.headless, agent);
   const page = await browser.newPage();
   await page.goto(argv.url);
 

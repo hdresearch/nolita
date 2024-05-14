@@ -44,7 +44,7 @@ async function main() {
 
   const agentBrowser = new AgentBrowser({
     agent: agent,
-    browser: await Browser.create(argv.headless, agent),
+    browser: await Browser.launch(argv.headless, agent),
     logger,
   });
 

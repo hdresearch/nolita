@@ -7,7 +7,7 @@ export async function memorize(
   state: ObjectiveState,
   action: ModelResponseType,
   sequnceId: string,
-  collectiveMemoryConfig: CollectiveMemoryConfig
+  collectiveMemoryConfig?: CollectiveMemoryConfig
 ) {
   const config = CollectiveMemoryConfig.parse(collectiveMemoryConfig);
   const endpoint = `${config.endpoint}/memorize`;

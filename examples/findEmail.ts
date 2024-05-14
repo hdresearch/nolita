@@ -23,7 +23,7 @@ async function main() {
     modelApi: chatApi,
   });
 
-  const browser = await Browser.create(false, agent);
+  const browser = await Browser.launch(false, agent);
 
   const page = await browser.newPage();
 
