@@ -13,6 +13,7 @@ import {
   AccessibilityTree,
   ObjectiveState,
 } from "../types/browser/browser.types";
+
 import { Logger, debug, generateUUID } from "../utils";
 import { BrowserAction } from "../types/browser/actions.types";
 import { Inventory } from "../inventory";
@@ -23,7 +24,8 @@ import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 // @ts-ignore
 import { MAIN_WORLD } from "puppeteer";
 import { memorize } from "../collectiveMemory";
-import { ModelResponseType } from "../types";
+import { ModelResponseSchema, ModelResponseType } from "../types";
+import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
 
 /**
  * Represents a web page and provides methods to interact with it.
@@ -37,6 +39,7 @@ export class Page {
   pageId: string;
   agent: Agent;
   logger?: Logger;
+  progress: string[] = [];
 
   error: string | undefined;
 
@@ -52,7 +55,11 @@ export class Page {
   constructor(
     page: PuppeteerPage,
     agent: Agent,
-    opts?: { pageId?: string; logger?: Logger; inventory?: Inventory }
+    opts?: {
+      pageId?: string;
+      logger?: Logger;
+      inventory?: Inventory;
+    }
   ) {
     this.page = page;
     this.agent = agent;
@@ -277,14 +284,14 @@ export class Page {
    */
   async state(
     objective: string,
-    objectiveProgress: string[]
+    objectiveProgress?: string[]
   ): Promise<ObjectiveState> {
     let contentJSON = await this.parseContent();
     let content = ObjectiveState.parse({
       kind: "ObjectiveState",
       url: this.url().replace(/[?].*/g, ""),
       ariaTree: contentJSON,
-      progress: objectiveProgress,
+      progress: objectiveProgress ?? this.progress,
       objective: objective,
     });
 
@@ -379,16 +386,19 @@ export class Page {
   /**
    * Creates a prompt for the agent based on the request and current state.
    * @param request The request or objective.
+   * @param {Object} [opts] The navigation options.
    * @param agent The agent to create the prompt for.
    * @param progress The progress of the objective (optional).
    * @returns A promise that resolves to the created prompt.
    */
   async makePrompt(
     request: string,
-    progress?: string[],
-    opts?: { agent?: Agent }
+    opts?: { progress?: string[]; agent?: Agent }
   ) {
-    const state = (await this.state(request, progress ?? [])) as ObjectiveState;
+    const state = (await this.state(
+      request,
+      opts?.progress ?? this.progress
+    )) as ObjectiveState;
     const agent = opts?.agent ?? this.agent;
     const prompt = agent.prompt(state, DEFAULT_STATE_ACTION_PAIRS);
 
@@ -398,22 +408,17 @@ export class Page {
   /**
    * Generates a command based on the request and current state.
    * @param request The request or objective.
-   * @param agent The agent to generate the command for.
-   * @param progress The progress of the objective (optional).
-   * @returns A promise that resolves to the generated command.
+   * @param opts Additional options.
    */
-  async generateCommand(
+  async generateCommand<T extends z.ZodSchema<any>>(
     request: string,
-    progress?: string[],
-    opts?: { agent?: Agent }
-  ) {
+    opts?: { progress?: string[]; agent?: Agent; schema?: T }
+  ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
-    const prompt = await this.makePrompt(request, progress, { agent });
+    const prompt = await this.makePrompt(request, opts);
+    const schema = opts?.schema ?? z.array(BrowserAction).min(1);
 
-    const command = await agent.actionCall(
-      prompt,
-      z.array(BrowserAction).min(1)
-    );
+    const command = await agent.actionCall(prompt, schema);
     return command;
   }
 
@@ -431,13 +436,11 @@ export class Page {
       inventory?: Inventory;
       progress?: string[];
       delay?: number;
+      schema?: z.ZodSchema<any>;
     }
   ) {
-    const agent = opts?.agent ?? this.agent;
     const inventory = opts?.inventory;
-    const command = await this.generateCommand(request, opts?.progress, {
-      agent,
-    });
+    const command = await this.generateCommand(request, opts);
     this.log(JSON.stringify(command));
     memorize(this._state!, command as ModelResponseType, this.pageId, {
       endpoint: process.env.HDR_API_ENDPOINT ?? "https://api.hdr.is",
@@ -453,21 +456,75 @@ export class Page {
    * Retrieves data from the page based on the request and return type.
    * @template T The type of the return value.
    * @param request The request or objective.
-   * @param returnType The Zod schema for the return type.
+   * @param outputSchema The Zod schema for the return type.
    * @param opts Additional options.
    * @param opts.agent The agent to use (optional).
    * @returns A promise that resolves to the retrieved data.
    */
   async get<T extends z.ZodSchema<any>>(
     request: string,
-    returnType: T,
+    outputSchema: T,
     opts?: { agent?: Agent; progress?: string[] }
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
-    const prompt = await this.makePrompt(request, opts?.progress, { agent });
-    const result = await agent.returnCall(prompt, returnType);
+    const prompt = await this.makePrompt(request, opts);
+    const result = await agent.returnCall(prompt, outputSchema);
     this.log(JSON.stringify(result));
     return result;
+  }
+
+  async auto(
+    request: string,
+    opts: {
+      agent?: Agent;
+      progress?: string[];
+      maxTurns: number;
+      currentTurn: number;
+    } = { maxTurns: 20, currentTurn: 0 }
+  ) {
+    await this.do(request, opts);
+    return await this.get(request, z.any(), opts);
+  }
+
+  /**
+   * Browses the page based on the request and return type.
+   *
+   */
+  async browse(
+    request: string,
+    outputSchema: z.ZodSchema<any>,
+    opts: {
+      agent?: Agent;
+      progress?: string[];
+      inventory?: Inventory;
+      maxTurns: number;
+      currentTurn: number;
+    } = {
+      maxTurns: 20,
+      currentTurn: 0,
+    }
+  ): Promise<z.infer<typeof outputSchema>> {
+    const responseSchema = ModelResponseSchema(
+      ObjectiveComplete.extend({ outputSchema })
+    );
+
+    while (opts.currentTurn < opts.maxTurns) {
+      const result = await this.generateCommand(request, {
+        agent: opts.agent,
+        progress: opts.progress,
+        schema: responseSchema,
+      });
+
+      if (result.command) {
+        this.log(JSON.stringify(result));
+        await this.performManyActions(result.command);
+      } else if (result.objectiveComplete) {
+        this.log(JSON.stringify(result));
+        return result;
+      }
+
+      opts.currentTurn++;
+    }
   }
 
   /**
