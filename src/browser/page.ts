@@ -129,6 +129,11 @@ export class Page {
     await this.page.close();
   }
 
+  /**
+   * Logs a message to the logger.
+   * @param {string} msg The message to log.
+   * @private
+   */
   private log(msg: string) {
     if (this.logger) {
       this.logger.log(
