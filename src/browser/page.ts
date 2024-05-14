@@ -13,7 +13,7 @@ import {
   AccessibilityTree,
   ObjectiveState,
 } from "../types/browser/browser.types";
-import { debug, generateUUID } from "../utils";
+import { Logger, debug, generateUUID } from "../utils";
 import { BrowserAction } from "../types/browser/actions.types";
 import { Inventory } from "../inventory";
 import { Agent } from "../agent";
@@ -32,27 +32,38 @@ export class Page {
   page: PuppeteerPage;
   private idMapping: Map<number, any> = new Map();
   private _state: ObjectiveState | undefined = undefined;
+  private inventory: Inventory | undefined;
 
   pageId: string;
   agent: Agent;
+  logger?: Logger;
 
   error: string | undefined;
 
   /**
    * Creates a new Page instance.
-   * @param page The Puppeteer page instance.
-   * @param agent The agent associated with the page.
-   * @param pageId The unique identifier for the page.
+   * @param {PuppeteerPage} page - The PuppeteerPage object representing the browser page.
+   * @param {Agent} agent - The Agent object representing the user agent interacting with the page.
+   * @param {Object} [opts] - Optional parameters for additional configuration.
+   * @param {string} [opts.pageId] - An optional unique identifier for the page; if not provided, a UUID will be generated.
+   * @param {Logger} [opts.logger] - An optional logger for logging events; if not provided, logging may be absent.
+   * @param {Inventory} [opts.inventory] - An optional inventory object for storing and retrieving user data.
    */
-  constructor(page: PuppeteerPage, agent: Agent, pageId?: string) {
+  constructor(
+    page: PuppeteerPage,
+    agent: Agent,
+    opts?: { pageId?: string; logger?: Logger; inventory?: Inventory }
+  ) {
     this.page = page;
     this.agent = agent;
-    this.pageId = pageId ?? generateUUID();
+    this.pageId = opts?.pageId ?? generateUUID();
+    this.logger = opts?.logger;
+    this.inventory = opts?.inventory;
   }
 
   /**
    * Returns the URL of the page.
-   * @returns The URL of the page.
+   * @returns {string} The URL of the page.
    */
   url(): string {
     return this.page.url();
@@ -60,7 +71,7 @@ export class Page {
 
   /**
    * Returns the text content of the page.
-   * @returns A promise that resolves to the text content of the page.
+   * @returns {Promise<string>} A promise that resolves to the text content of the page.
    */
   async content(): Promise<string> {
     return await this.page.evaluate(() => document.body.innerText);
@@ -68,7 +79,7 @@ export class Page {
 
   /**
    * Sets the viewport size of the page.
-   * @param width The width of the viewport.
+   * @param {number} width The width of the viewport.
    * @param height The height of the viewport.
    * @param deviceScaleFactor The device scale factor (default: 1).
    */
@@ -118,15 +129,29 @@ export class Page {
     await this.page.close();
   }
 
+  private log(msg: string) {
+    if (this.logger) {
+      this.logger.log(
+        JSON.stringify({
+          pageId: this.pageId,
+          timestamp: Date.now(),
+          message: msg,
+        })
+      );
+    }
+  }
+
   /**
    * Navigates to a URL.
-   * @param url The URL to navigate to.
-   * @param options The navigation options.
+   * @param {string} url The URL to navigate to.
+   * @param {Object} [opts] The navigation options.
+   * @param {number} [opts.delay] The delay in milliseconds after navigating to the URL.
    */
-  async goto(url: string, options?: { delay: number }) {
+  async goto(url: string, opts?: { delay: number }) {
+    this.log(`Navigating to ${url}`);
     await this.page.goto(url);
-    if (options?.delay) {
-      await new Promise((resolve) => setTimeout(resolve, options.delay));
+    if (opts?.delay) {
+      await new Promise((resolve) => setTimeout(resolve, opts.delay));
     }
   }
 
@@ -160,7 +185,7 @@ export class Page {
 
   /**
    * Finds an element by its index in the ID mapping.
-   * @param index The index of the element in the ID mapping.
+   * @param {index} index The index of the element in the ID mapping.
    * @returns A promise that resolves to the found element handle.
    */
   private async findElement(index: number): Promise<ElementHandle<Element>> {
@@ -250,13 +275,13 @@ export class Page {
     objectiveProgress: string[]
   ): Promise<ObjectiveState> {
     let contentJSON = await this.parseContent();
-    let content: ObjectiveState = {
+    let content = ObjectiveState.parse({
       kind: "ObjectiveState",
       url: this.url().replace(/[?].*/g, ""),
       ariaTree: contentJSON,
       progress: objectiveProgress,
       objective: objective,
-    };
+    });
 
     this._state = content;
     return content;
@@ -278,9 +303,10 @@ export class Page {
    */
   async performAction(
     command: BrowserAction,
-    inventory?: Inventory,
-    delay: number = 100
+    opts?: { inventory?: Inventory; delay?: number }
   ) {
+    const inventory = opts?.inventory ?? this.inventory;
+    const delay = opts?.delay ?? 100;
     this.error = undefined;
     try {
       switch (command.kind) {
@@ -336,9 +362,12 @@ export class Page {
    * @param commands An array of browser actions to perform.
    * @param inventory The inventory object (optional).
    */
-  async performManyActions(commands: BrowserAction[], inventory?: Inventory) {
+  async performManyActions(
+    commands: BrowserAction[],
+    opts?: { delay?: number; inventory?: Inventory }
+  ) {
     for (let command of commands) {
-      await this.performAction(command, inventory);
+      await this.performAction(command, opts);
     }
   }
 
@@ -349,8 +378,13 @@ export class Page {
    * @param progress The progress of the objective (optional).
    * @returns A promise that resolves to the created prompt.
    */
-  async makePrompt(request: string, agent: Agent, progress?: string[]) {
+  async makePrompt(
+    request: string,
+    progress?: string[],
+    opts?: { agent?: Agent }
+  ) {
     const state = (await this.state(request, progress ?? [])) as ObjectiveState;
+    const agent = opts?.agent ?? this.agent;
     const prompt = agent.prompt(state, DEFAULT_STATE_ACTION_PAIRS);
 
     return prompt;
@@ -363,8 +397,13 @@ export class Page {
    * @param progress The progress of the objective (optional).
    * @returns A promise that resolves to the generated command.
    */
-  async generateCommand(request: string, agent: Agent, progress?: string[]) {
-    const prompt = await this.makePrompt(request, agent, progress);
+  async generateCommand(
+    request: string,
+    progress?: string[],
+    opts?: { agent?: Agent }
+  ) {
+    const agent = opts?.agent ?? this.agent;
+    const prompt = await this.makePrompt(request, progress, { agent });
 
     const command = await agent.actionCall(
       prompt,
@@ -380,15 +419,29 @@ export class Page {
    * @param opts.agent The agent to use (optional).
    * @param opts.inventory The inventory object (optional).
    */
-  async do(request: string, opts?: { agent?: Agent; inventory?: Inventory }) {
+  async do(
+    request: string,
+    opts?: {
+      agent?: Agent;
+      inventory?: Inventory;
+      progress?: string[];
+      delay?: number;
+    }
+  ) {
     const agent = opts?.agent ?? this.agent;
     const inventory = opts?.inventory;
-    const command = await this.generateCommand(request, agent);
+    const command = await this.generateCommand(request, opts?.progress, {
+      agent,
+    });
+    this.log(JSON.stringify(command));
     memorize(this._state!, command as ModelResponseType, this.pageId, {
       endpoint: process.env.HDR_API_ENDPOINT ?? "https://api.hdr.is",
       apiKey: process.env.HDR_API_KEY ?? "",
     });
-    await this.performManyActions(command.command, inventory);
+    await this.performManyActions(command.command, {
+      inventory,
+      delay: opts?.delay,
+    });
   }
 
   /**
@@ -403,11 +456,13 @@ export class Page {
   async get<T extends z.ZodSchema<any>>(
     request: string,
     returnType: T,
-    opts?: { agent?: Agent }
+    opts?: { agent?: Agent; progress?: string[] }
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
-    const prompt = await this.makePrompt(request, agent);
-    return await agent.returnCall(prompt, returnType);
+    const prompt = await this.makePrompt(request, opts?.progress, { agent });
+    const result = await agent.returnCall(prompt, returnType);
+    this.log(JSON.stringify(result));
+    return result;
   }
 
   /**

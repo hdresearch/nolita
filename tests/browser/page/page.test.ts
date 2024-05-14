@@ -1,5 +1,4 @@
 import { describe, expect, it, beforeAll } from "@jest/globals";
-import { Page } from "../../../src/browser/page";
 import { Browser } from "../../../src/browser";
 import { ObjectiveState } from "../../../src/types/browser";
 import { Agent, completionApiBuilder } from "../../../src/agent";
@@ -39,10 +38,7 @@ describe("Page", () => {
 
     await page.goto("http://example.com");
 
-    const prompt = await page.makePrompt(
-      "What is the title of the page?",
-      agent
-    );
+    const prompt = await page.makePrompt("What is the title of the page?");
 
     expect(prompt).toBeDefined();
     await browser.close();

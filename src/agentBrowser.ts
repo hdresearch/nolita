@@ -84,10 +84,9 @@ export class AgentBrowser {
     // we should relax this condition in the future
     if (state.ariaTree === memory.objectiveState.ariaTree && !hasText) {
       debug.write("Performing action step from memory");
-      page.performManyActions(
-        memory.actionStep.command as BrowserAction[],
-        this.inventory
-      );
+      page.performManyActions(memory.actionStep.command as BrowserAction[], {
+        inventory: this.inventory,
+      });
       description = memory.actionStep.description;
     } else {
       debug.write("Modifying actions");
@@ -100,10 +99,9 @@ export class AgentBrowser {
       }
 
       description = modifiedActionStep.description;
-      page.performManyActions(
-        modifiedActionStep.command as BrowserAction[],
-        this.inventory
-      );
+      page.performManyActions(modifiedActionStep.command as BrowserAction[], {
+        inventory: this.inventory,
+      });
     }
 
     // add the description to the progress so the model understands
@@ -271,10 +269,9 @@ export class AgentBrowser {
             debug.write(
               "Performing action:" + JSON.stringify(stepResponse.command)
             );
-            page.performManyActions(
-              stepResponse.command as BrowserAction[],
-              this.inventory
-            );
+            page.performManyActions(stepResponse.command as BrowserAction[], {
+              inventory: this.inventory,
+            });
           } else if (stepResponse.objectiveComplete) {
             const answer = {
               kind: "ObjectiveComplete",
