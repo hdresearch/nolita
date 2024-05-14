@@ -78,7 +78,7 @@ export class AgentBrowser {
       this.objectiveProgress
     );
     const hasText = memory.actionStep.command?.some(
-      (action) => action.kind === "Type"
+      (action: any) => action.kind === "Type"
     );
     let description = "";
     // we should relax this condition in the future
