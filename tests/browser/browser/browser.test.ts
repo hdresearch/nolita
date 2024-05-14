@@ -18,6 +18,7 @@ describe("Browser", () => {
 
     agent = new Agent({ modelApi: chatApi! });
   });
+
   it("should create a browser", async () => {
     const browser = await Browser.create(true, agent);
     expect(browser).toBeDefined();

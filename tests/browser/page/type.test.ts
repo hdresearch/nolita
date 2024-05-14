@@ -16,8 +16,6 @@ describe("Page interaction -- Type", () => {
   const dataUrl = `data:text/html,${encodeURIComponent(htmlContent)}`;
 
   let agent: Agent;
-  let page: Page;
-  let browser: Browser;
 
   beforeAll(async () => {
     const providerOptions = {
@@ -30,12 +28,12 @@ describe("Page interaction -- Type", () => {
     });
 
     agent = new Agent({ modelApi: chatApi! });
-    browser = await Browser.create(true, agent);
-    page = await browser.newPage();
   }, 20000);
 
   it("should enter text", async () => {
+    const browser = await Browser.create(true, agent);
     const page = await browser.newPage();
+
     await page.goto(dataUrl);
 
     const initialValue = await page.page.evaluate(() =>
@@ -58,6 +56,8 @@ describe("Page interaction -- Type", () => {
   }, 30000);
 
   it("it should enter text as array", async () => {
+    const browser = await Browser.create(true, agent);
+    const page = await browser.newPage();
     await page.goto(dataUrl);
 
     const initialValue = await page.page.evaluate(() =>
@@ -82,6 +82,7 @@ describe("Page interaction -- Type", () => {
   }, 30000);
 
   it("should enter text via do", async () => {
+    const browser = await Browser.create(true, agent);
     const page = await browser.newPage();
 
     await page.goto(dataUrl);
