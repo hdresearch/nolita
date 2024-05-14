@@ -45,20 +45,12 @@ export const run = async (toolbox: GluegunToolbox) => {
       process.env.HDR_AGENT_ENDPOINT;
     hdrApiKey =
       hdrApiKey || importedConfig.hdrApiKey || process.env.HDR_API_KEY;
-    headless =
-      headless !== undefined
-        ? headless
-        : importedConfig?.headless
-          ? importedConfig.headless
-          : process.env.HDR_HEADLESS === "true" || true;
+    headless = headless ?? importedConfig.headless ?? process.env.HDR_HEADLESS;
     inventory = importedConfig.inventory || [];
   }
 
-  headless =
-    headless !== undefined
-      ? headless
-      : process.env.HDR_HEADLESS === "true" || true;
-
+  headless = headless == "false" ? false : true;
+  
   if (!startUrl) {
     await toolbox.prompt
       .ask({
@@ -176,9 +168,13 @@ Doing so integrates collective memory for this session, which improves agentic r
     );
   }
 
+  const agent = new Agent({
+    modelApi: chatApi,
+  });
+
   const args = {
-    agent: new Agent({ modelApi: chatApi }),
-    browser: await Browser.create(headless),
+    agent,
+    browser: await Browser.create(headless, agent),
     logger,
     inventory: inventory.length > 0 ? new Inventory(inventory) : undefined,
     ...(hdrApiKey
