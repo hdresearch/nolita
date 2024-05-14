@@ -55,7 +55,7 @@ async function main() {
   const agent = new Agent({ modelApi: chatApi });
   const agentBrowser = new AgentBrowser({
     agent,
-    browser: await Browser.create(argv.headless, agent),
+    browser: await Browser.launch(argv.headless, agent),
     inventory,
     logger,
   });

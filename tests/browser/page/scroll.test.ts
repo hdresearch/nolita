@@ -57,7 +57,7 @@ describe("Page interaction -- SCROLL", () => {
   }, 20000);
 
   it("should scroll to the bottom", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto(dataUrl);
@@ -78,7 +78,7 @@ describe("Page interaction -- SCROLL", () => {
   }, 20000);
 
   it("should scroll to the top", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
     await page.goto(dataUrl);
 
@@ -94,7 +94,7 @@ describe("Page interaction -- SCROLL", () => {
   }, 20000);
 
   it("should scroll via do", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto(dataUrl);

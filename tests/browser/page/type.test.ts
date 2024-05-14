@@ -30,7 +30,7 @@ describe("Page interaction -- Type", () => {
   }, 20000);
 
   it("should enter text", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto(dataUrl);
@@ -55,7 +55,7 @@ describe("Page interaction -- Type", () => {
   }, 30000);
 
   it("it should enter text as array", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
     await page.goto(dataUrl);
 
@@ -81,7 +81,7 @@ describe("Page interaction -- Type", () => {
   }, 30000);
 
   it("should enter text via do", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto(dataUrl);

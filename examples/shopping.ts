@@ -45,7 +45,7 @@ async function main() {
   const agent = new Agent({ modelApi: chatApi });
   const agentBrowser = new AgentBrowser({
     agent: new Agent({ modelApi: chatApi }),
-    browser: await Browser.create(argv.headless, agent),
+    browser: await Browser.launch(argv.headless, agent),
     logger,
     inventory: new Inventory([
       { value: "emma.lopez@gmail.com", name: "email", type: "string" },
