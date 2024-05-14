@@ -23,21 +23,20 @@ async function main() {
     modelApi: chatApi,
   });
 
-  const browser = await Browser.create(false);
+  const browser = await Browser.create(false, agent);
 
   const page = await browser.newPage();
 
   await page.goto("https://hdr.is");
 
-  await page.do("click on the company link", agent);
+  await page.do("click on the company link");
   const answer = await page.get(
     "Find all the email addresses on the page",
     z.object({
       emails: z
         .array(z.string())
         .describe("The email addresses found on the page"),
-    }),
-    agent
+    })
   );
 
   console.log(answer);

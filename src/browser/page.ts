@@ -25,29 +25,53 @@ import { MAIN_WORLD } from "puppeteer";
 import { memorize } from "../collectiveMemory";
 import { ModelResponseType } from "../types";
 
+/**
+ * Represents a web page and provides methods to interact with it.
+ */
 export class Page {
   page: PuppeteerPage;
   private idMapping: Map<number, any> = new Map();
   private _state: ObjectiveState | undefined = undefined;
-  pageId: string;
 
-  ariaTree: string | undefined;
+  pageId: string;
+  agent: Agent;
 
   error: string | undefined;
 
-  constructor(page: PuppeteerPage, pageId?: string) {
+  /**
+   * Creates a new Page instance.
+   * @param page The Puppeteer page instance.
+   * @param agent The agent associated with the page.
+   * @param pageId The unique identifier for the page.
+   */
+  constructor(page: PuppeteerPage, agent: Agent, pageId?: string) {
     this.page = page;
+    this.agent = agent;
     this.pageId = pageId ?? generateUUID();
   }
 
+  /**
+   * Returns the URL of the page.
+   * @returns The URL of the page.
+   */
   url(): string {
     return this.page.url();
   }
 
+  /**
+   * Returns the text content of the page.
+   * @returns A promise that resolves to the text content of the page.
+   */
   async content(): Promise<string> {
     return await this.page.evaluate(() => document.body.innerText);
   }
 
+  /**
+   * Sets the viewport size of the page.
+   * @param width The width of the viewport.
+   * @param height The height of the viewport.
+   * @param deviceScaleFactor The device scale factor (default: 1).
+   */
   async setViewport(
     width: number,
     height: number,
@@ -56,32 +80,65 @@ export class Page {
     this.page.setViewport({ width, height, deviceScaleFactor });
   }
 
+  /**
+   * Takes a screenshot of the page.
+   * @returns A promise that resolves to the screenshot buffer
+   */
   async screenshot(): Promise<Buffer> {
     return await this.page.screenshot();
   }
 
+  /**
+   * Returns the HTML content of the page.
+   * @returns A promise that resolves to the HTML content of the page.
+   */
   async html(): Promise<string> {
     return await this.page.content();
   }
 
+  /**
+   * Returns the Markdown representation of the page's HTML content.
+   * @returns A promise that resolves to the Markdown content of the page.   */
   async markdown(): Promise<string> {
     return new Turndown().turndown(await this.html());
   }
 
+  /**
+   * Returns the accessibility tree of the page.
+   * @returns A promise that resolves to the serialized accessibility tree.
+   */
   private async getAccessibilityTree(): Promise<SerializedAXNode | null> {
     return await this.page.accessibility.snapshot({ interestingOnly: true });
   }
 
+  /**
+   * Closes the page.
+   */
   async close() {
     await this.page.close();
   }
 
+  /**
+   * Navigates to a URL.
+   * @param url The URL to navigate to.
+   * @param options The navigation options.
+   */
   async goto(url: string, options?: { delay: number }) {
     await this.page.goto(url);
     if (options?.delay) {
       await new Promise((resolve) => setTimeout(resolve, options.delay));
     }
   }
+
+  /**
+   * Queries the accessibility tree of an element.
+   * @param client The CDP session client.
+   * @param element The element to query.
+   * @param accessibleName The accessible name of the element.
+   * @param role The role of the element.
+   * @returns A promise that resolves to the accessibility tree of the element.
+   * @private
+   */
   private async queryAXTree(
     client: CDPSession,
     element: ElementHandle<Node>,
@@ -101,6 +158,11 @@ export class Page {
     return filteredNodes;
   }
 
+  /**
+   * Finds an element by its index in the ID mapping.
+   * @param index The index of the element in the ID mapping.
+   * @returns A promise that resolves to the found element handle.
+   */
   private async findElement(index: number): Promise<ElementHandle<Element>> {
     let e = this.idMapping.get(index);
     let role = e[1];
@@ -132,6 +194,11 @@ export class Page {
     return ret;
   }
 
+  /**
+   * Simplifies the accessibility tree by converting it to an AccessibilityTree structure.
+   * @param node The serialized accessibility node to simplify.
+   * @returns The simplified accessibility tree.
+   */
   private simplifyTree(node: SerializedAXNode): AccessibilityTree {
     switch (node.role) {
       case "StaticText":
@@ -158,6 +225,10 @@ export class Page {
     return e;
   }
 
+  /**
+   * Parses the content of the page and returns a simplified accessibility tree.
+   * @returns A promise that resolves to the simplified accessibility tree as a JSON string.
+   */
   async parseContent(): Promise<string> {
     const tree = await this.getAccessibilityTree();
     debug.write(`Aria tree: ${JSON.stringify(tree)}`);
@@ -168,6 +239,12 @@ export class Page {
     return ret;
   }
 
+  /**
+   * Retrieves the current state of the page based on the objective and progress.
+   * @param objective The objective of the page.
+   * @param objectiveProgress The progress of the objective.
+   * @returns A promise that resolves to the objective state of the page.
+   */
   async state(
     objective: string,
     objectiveProgress: string[]
@@ -185,10 +262,20 @@ export class Page {
     return content;
   }
 
+  /**
+   * Returns the current state of the page.
+   * @returns The objective state of the page.
+   */
   getState(): ObjectiveState | undefined {
     return this._state;
   }
 
+  /**
+   * Performs a browser action on the page.
+   * @param command The browser action to perform.
+   * @param inventory The inventory object (optional).
+   * @param delay The delay in milliseconds after performing the action (default: 100).
+   */
   async performAction(
     command: BrowserAction,
     inventory?: Inventory,
@@ -244,12 +331,24 @@ export class Page {
     }
   }
 
+  /**
+   * Performs multiple browser actions on the page.
+   * @param commands An array of browser actions to perform.
+   * @param inventory The inventory object (optional).
+   */
   async performManyActions(commands: BrowserAction[], inventory?: Inventory) {
     for (let command of commands) {
       await this.performAction(command, inventory);
     }
   }
 
+  /**
+   * Creates a prompt for the agent based on the request and current state.
+   * @param request The request or objective.
+   * @param agent The agent to create the prompt for.
+   * @param progress The progress of the objective (optional).
+   * @returns A promise that resolves to the created prompt.
+   */
   async makePrompt(request: string, agent: Agent, progress?: string[]) {
     const state = (await this.state(request, progress ?? [])) as ObjectiveState;
     const prompt = agent.prompt(state, DEFAULT_STATE_ACTION_PAIRS);
@@ -257,6 +356,13 @@ export class Page {
     return prompt;
   }
 
+  /**
+   * Generates a command based on the request and current state.
+   * @param request The request or objective.
+   * @param agent The agent to generate the command for.
+   * @param progress The progress of the objective (optional).
+   * @returns A promise that resolves to the generated command.
+   */
   async generateCommand(request: string, agent: Agent, progress?: string[]) {
     const prompt = await this.makePrompt(request, agent, progress);
 
@@ -267,7 +373,16 @@ export class Page {
     return command;
   }
 
-  async do(request: string, agent: Agent, inventory?: Inventory) {
+  /**
+   * Performs a request on the page.
+   * @param request The request or objective.
+   * @param opts Additional options.
+   * @param opts.agent The agent to use (optional).
+   * @param opts.inventory The inventory object (optional).
+   */
+  async do(request: string, opts?: { agent?: Agent; inventory?: Inventory }) {
+    const agent = opts?.agent ?? this.agent;
+    const inventory = opts?.inventory;
     const command = await this.generateCommand(request, agent);
     memorize(this._state!, command as ModelResponseType, this.pageId, {
       endpoint: process.env.HDR_API_ENDPOINT ?? "https://api.hdr.is",
@@ -276,15 +391,28 @@ export class Page {
     await this.performManyActions(command.command, inventory);
   }
 
+  /**
+   * Retrieves data from the page based on the request and return type.
+   * @template T The type of the return value.
+   * @param request The request or objective.
+   * @param returnType The Zod schema for the return type.
+   * @param opts Additional options.
+   * @param opts.agent The agent to use (optional).
+   * @returns A promise that resolves to the retrieved data.
+   */
   async get<T extends z.ZodSchema<any>>(
     request: string,
     returnType: T,
-    agent: Agent
+    opts?: { agent?: Agent }
   ): Promise<z.infer<T>> {
+    const agent = opts?.agent ?? this.agent;
     const prompt = await this.makePrompt(request, agent);
     return await agent.returnCall(prompt, returnType);
   }
 
+  /**
+   * Injects bounding boxes around clickable elements on the page.
+   */
   async injectBoundingBoxes() {
     await this.page.evaluate(() => {
       // @ts-ignore

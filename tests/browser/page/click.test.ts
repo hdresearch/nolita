@@ -38,8 +38,6 @@ describe("Page interaction -- TYPE", () => {
   const dataUrl = `data:text/html,${encodeURIComponent(htmlContent)}`;
 
   let agent: Agent;
-  let page: Page;
-  let browser: Browser;
 
   beforeEach(async () => {
     const providerOptions = {
@@ -52,11 +50,12 @@ describe("Page interaction -- TYPE", () => {
     });
 
     agent = new Agent({ modelApi: chatApi! });
-    browser = await Browser.create(true, "");
-    page = await browser.newPage();
   }, 20000);
 
   it("should click a button", async () => {
+    const browser = await Browser.create(true, agent);
+    const page = await browser.newPage();
+
     await page.goto(dataUrl);
 
     let resultText = await page.page.evaluate(
@@ -79,6 +78,9 @@ describe("Page interaction -- TYPE", () => {
   }, 20000);
 
   it("should click a button as an array", async () => {
+    const browser = await Browser.create(true, agent);
+    const page = await browser.newPage();
+
     await page.goto(dataUrl);
 
     let resultText = await page.page.evaluate(
@@ -103,13 +105,16 @@ describe("Page interaction -- TYPE", () => {
   }, 20000);
 
   it("should click a button via do", async () => {
+    const browser = await Browser.create(true, agent);
+    const page = await browser.newPage();
+
     await page.goto(dataUrl);
     let resultText = await page.page.evaluate(
       () => document.getElementById("result")!.textContent
     );
     expect(resultText).toEqual("");
 
-    await page.do("click on the button", agent);
+    await page.do("click on the button", { agent });
 
     // Verify the updated state of the result paragraph after the command
 

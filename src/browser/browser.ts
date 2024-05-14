@@ -3,23 +3,32 @@ import { Browser as PuppeteerBrowser, Device } from "puppeteer";
 import { Page } from "./page";
 import { BrowserMode } from "../types/browser/browser.types";
 import { browserContext } from "./browserUtils";
+import { Agent } from "../agent";
 
 export class Browser {
   // @ts-ignore
   private browser: PuppeteerBrowser;
   // @ts-ignore
   mode: BrowserMode;
+  // @ts-ignore
+  agent: Agent;
   private userDataDir = "/tmp"; // TODO: make this configurable
 
   constructor() {}
 
-  private async init(browser: PuppeteerBrowser, mode: BrowserMode) {
+  private async init(
+    browser: PuppeteerBrowser,
+    agent: Agent,
+    mode: BrowserMode
+  ) {
+    this.agent = agent;
     this.browser = browser;
     this.mode = mode;
   }
 
   static async create(
     headless: boolean,
+    agent: Agent,
     browserWSEndpoint?: string,
     browserLaunchArgs?: string[],
     mode: BrowserMode = BrowserMode.text
@@ -28,6 +37,7 @@ export class Browser {
 
     await browser.init(
       await browserContext(headless, browserWSEndpoint, browserLaunchArgs),
+      agent,
       mode
     );
 
@@ -39,7 +49,7 @@ export class Browser {
     if (device) {
       await basePage.emulate(device);
     }
-    return new Page(basePage, pageId);
+    return new Page(basePage, this.agent, pageId);
   }
 
   async close() {
