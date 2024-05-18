@@ -20,13 +20,13 @@ Bootstrap a project with the `create` command:
 npx nolita create
 ```
 
-Our main branch is the bleeding edge. If you want to use what's currently on this repo, you can run:
+Our `dev` branch is the bleeding edge. If you want to use what's coming up, you can run:
 
 ```bash
 npx nolita@alpha
 ```
 
-When stabilised, we tag and release on `@latest`.
+When stabilised, we tag and release on `@latest` and merge into `main`.
 
 ## Usage
 

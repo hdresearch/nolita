@@ -2,7 +2,7 @@ name: Push alpha artifact to npm
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   test:
