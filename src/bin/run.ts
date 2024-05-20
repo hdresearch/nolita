@@ -191,9 +191,7 @@ export const run = async (toolbox: GluegunToolbox) => {
       .ask({
         type: "input",
         name: "hdrApiKey",
-        message: `Do you have an HDR API key? If so, please provide it. If not, you can sign up for a free account at https://dashboard.hdr.is.
-
-Doing so integrates collective memory for this session, which improves agentic reliability and performance.`,
+        message: `Do you have an HDR API key? If so, you can enter it here:`,
       })
       .then(async (answers) => {
         if (!answers.hdrApiKey) {
