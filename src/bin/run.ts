@@ -1,6 +1,6 @@
-import * as path from 'path';
-import * as os from 'os';
-import * as fs from 'fs';
+import * as path from "path";
+import * as os from "os";
+import * as fs from "fs";
 import { AgentBrowser } from "../agentBrowser";
 import { Browser } from "../browser";
 import { Agent } from "../agent/agent";
@@ -14,21 +14,24 @@ const MAX_ITERATIONS = 10;
 
 const loadConfigFile = (filePath: string): any => {
   try {
-    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    return JSON.parse(fs.readFileSync(filePath, "utf8"));
   } catch (error) {
     return {};
   }
 };
 
 const loadConfigs = (config: string | undefined): any => {
-  const commandLineConfig = loadConfigFile(path.resolve(process.cwd(), config || ''));
-  const homeConfig = loadConfigFile(path.resolve(os.homedir(), '.nolitarc'));
+  const commandLineConfig = loadConfigFile(
+    path.resolve(process.cwd(), config || ""),
+  );
+  const homeConfig = loadConfigFile(path.resolve(os.homedir(), ".nolitarc"));
   const mergedConfig = { ...homeConfig, ...commandLineConfig };
 
   return mergedConfig;
 };
 
-const getConfig = (mergedConfig: any,
+const getConfig = (
+  mergedConfig: any,
   startUrl: string | undefined,
   objective: string | undefined,
   agentProvider: string | undefined,
@@ -40,20 +43,28 @@ const getConfig = (mergedConfig: any,
 ): any => ({
   startUrl: startUrl || mergedConfig.startUrl,
   objective: objective || mergedConfig.objective,
-  agentProvider: agentProvider || mergedConfig.agentProvider || process.env.HDR_AGENT_PROVIDER,
-  agentModel: agentModel || mergedConfig.agentModel || process.env.HDR_AGENT_MODEL,
-  agentApiKey: agentApiKey || mergedConfig.agentApiKey || process.env.HDR_AGENT_API_KEY,
-  agentEndpoint: agentEndpoint || mergedConfig.agentEndpoint || process.env.HDR_AGENT_ENDPOINT,
+  agentProvider:
+    agentProvider ||
+    mergedConfig.agentProvider ||
+    process.env.HDR_AGENT_PROVIDER,
+  agentModel:
+    agentModel || mergedConfig.agentModel || process.env.HDR_AGENT_MODEL,
+  agentApiKey:
+    agentApiKey || mergedConfig.agentApiKey || process.env.HDR_AGENT_API_KEY,
+  agentEndpoint:
+    agentEndpoint ||
+    mergedConfig.agentEndpoint ||
+    process.env.HDR_AGENT_ENDPOINT,
   hdrApiKey: hdrApiKey || mergedConfig.hdrApiKey || process.env.HDR_API_KEY,
   headless: headless ?? mergedConfig.headless ?? process.env.HDR_HEADLESS,
-  inventory: mergedConfig.inventory || []
+  inventory: mergedConfig.inventory || [],
 });
 
 const writeToNolitarc = (key: string, value: string): void => {
-  const nolitarcPath = path.resolve(os.homedir(), '.nolitarc');
+  const nolitarcPath = path.resolve(os.homedir(), ".nolitarc");
   let nolitarc = {};
   try {
-    const nolitarcContent = fs.readFileSync(nolitarcPath, 'utf8');
+    const nolitarcContent = fs.readFileSync(nolitarcPath, "utf8");
     nolitarc = JSON.parse(nolitarcContent);
   } catch (error) {
     // File does not exist or is not valid JSON
@@ -76,7 +87,8 @@ export const run = async (toolbox: GluegunToolbox) => {
   } = toolbox.parameters.options;
 
   const mergedConfig = loadConfigs(config);
-  const resolvedConfig = getConfig(mergedConfig,
+  const resolvedConfig = getConfig(
+    mergedConfig,
     startUrl,
     objective,
     agentProvider,
@@ -84,11 +96,10 @@ export const run = async (toolbox: GluegunToolbox) => {
     agentApiKey,
     agentEndpoint,
     hdrApiKey,
-    headless
+    headless,
   );
-  resolvedConfig.headless = resolvedConfig.headless !== 'false';
+  resolvedConfig.headless = resolvedConfig.headless !== "false";
 
-  
   if (!resolvedConfig.startUrl) {
     await toolbox.prompt
       .ask({
@@ -141,16 +152,16 @@ export const run = async (toolbox: GluegunToolbox) => {
       .then(async (answers) => {
         resolvedConfig.agentApiKey = answers.agentApiKey;
         await toolbox.prompt
-        .ask({
-          type: 'confirm',
-          name: 'save',
-          message: 'Would you like to save the API key for future use?'
-        })
-        .then((answers) => {
-          if (answers.save) {
-              writeToNolitarc('agentApiKey', resolvedConfig.agentApiKey);
-          }
-        });
+          .ask({
+            type: "confirm",
+            name: "save",
+            message: "Would you like to save the API key for future use?",
+          })
+          .then((answers) => {
+            if (answers.save) {
+              writeToNolitarc("agentApiKey", resolvedConfig.agentApiKey);
+            }
+          });
       });
   }
 
@@ -190,16 +201,16 @@ Doing so integrates collective memory for this session, which improves agentic r
         }
         resolvedConfig.hdrApiKey = answers.hdrApiKey;
         await toolbox.prompt
-      .ask({
-        type: 'confirm',
-        name: 'save',
-        message: 'Would you like to save the HDR API key for future use?'
-      })
-      .then((answers) => {
-        if (answers.save) {
-            writeToNolitarc('hdrApiKey', resolvedConfig.hdrApiKey);
-        }
-      });
+          .ask({
+            type: "confirm",
+            name: "save",
+            message: "Would you like to save the HDR API key for future use?",
+          })
+          .then((answers) => {
+            if (answers.save) {
+              writeToNolitarc("hdrApiKey", resolvedConfig.hdrApiKey);
+            }
+          });
       });
   }
   const spinner = toolbox.print.spin();
@@ -240,7 +251,10 @@ Doing so integrates collective memory for this session, which improves agentic r
     agent,
     browser: await Browser.create(resolvedConfig.headless, agent),
     logger,
-    inventory: resolvedConfig.inventory.length > 0 ? new Inventory(resolvedConfig.inventory) : undefined,
+    inventory:
+      resolvedConfig.inventory.length > 0
+        ? new Inventory(resolvedConfig.inventory)
+        : undefined,
     ...(resolvedConfig.hdrApiKey
       ? {
           collectiveMemoryConfig: {
