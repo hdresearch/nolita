@@ -138,19 +138,19 @@ export const run = async (toolbox: GluegunToolbox) => {
         name: "agentApiKey",
         message: "An API key for your provider is required",
       })
-      .then((answers) => {
+      .then(async (answers) => {
         resolvedConfig.agentApiKey = answers.agentApiKey;
-      });
-      await toolbox.prompt
-      .ask({
-        type: 'confirm',
-        name: 'save',
-        message: 'Would you like to save the API key for future use?'
-      })
-      .then((answers) => {
-        if (answers.save) {
-            writeToNolitarc('agentApiKey', resolvedConfig.agentApiKey);
-        }
+        await toolbox.prompt
+        .ask({
+          type: 'confirm',
+          name: 'save',
+          message: 'Would you like to save the API key for future use?'
+        })
+        .then((answers) => {
+          if (answers.save) {
+              writeToNolitarc('agentApiKey', resolvedConfig.agentApiKey);
+          }
+        });
       });
   }
 
@@ -184,10 +184,12 @@ export const run = async (toolbox: GluegunToolbox) => {
 
 Doing so integrates collective memory for this session, which improves agentic reliability and performance.`,
       })
-      .then((answers) => {
+      .then(async (answers) => {
+        if (!answers.hdrApiKey) {
+          return;
+        }
         resolvedConfig.hdrApiKey = answers.hdrApiKey;
-      });
-      await toolbox.prompt
+        await toolbox.prompt
       .ask({
         type: 'confirm',
         name: 'save',
@@ -197,6 +199,7 @@ Doing so integrates collective memory for this session, which improves agentic r
         if (answers.save) {
             writeToNolitarc('hdrApiKey', resolvedConfig.hdrApiKey);
         }
+      });
       });
   }
   const spinner = toolbox.print.spin();
