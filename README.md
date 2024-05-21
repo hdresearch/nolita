@@ -1,44 +1,18 @@
 # nolita
 
-A framework for quickly building and running web-enabled agentic applications.
+A web-enabled agentic framework. 
 
-## Installation
+Interact with the web with an AI model of your choice and build quick runners, pipe into your scripts, or scaffold full-stack applications.
 
-```bash
-npm i --save nolita
+Nolita uses the on-device Chrome instance and supports a variety of AI models, with more on the way.
+
+## Use for quick tasks
+
+```sh
+npx nolita
 ```
 
-Execute directly from the terminal with `npx`.
-
-```bash
-npx nolita [flags]
-```
-
-Bootstrap a project with the `create` command:
-
-```bash
-npx nolita create
-```
-
-Our `dev` branch is the bleeding edge. If you want to use what's coming up, you can run:
-
-```bash
-npx nolita@alpha
-```
-
-When stabilised, we tag and release on `@latest` and merge into `main`.
-
-## Usage
-
-You can use Nolita for running quick tasks, as a persistent server for agentic web browsing, or to bootstrap an agentic product.
-
-### Running quick tasks
-
-The default `nolita` command runs a task in-browser and returns a result based on your desired objective, using a local sandboxed Chrome installation.
-
-```bash
-npx nolita [flags]
-```
+![](https://content.hdr.is/runner.gif)
 
 If you don't include information, we will prompt you for it as we go. The flags you can provide to omit these steps include the following:
 
@@ -69,35 +43,45 @@ If you don't include information, we will prompt you for it as we go. The flags 
 }
 ```
 
-### Running as a server
+## Use as part of your stack
 
-If you don't use TypeScript as your main application language, you can interact with nolita as a server to run tasks within a larger project.
-
-```bash
-npx nolita serve [flags]
+```sh
+npx nolita serve
 ```
 
-We currently support the following flags:
+![](https://content.hdr.is/serve.gif)
 
-- `--port` specifies the port to run on.
+Runs a local API for hitting up your local sandboxed Chrome for objective-first agentic navigation. See the `/doc` folder for the expected JSON payload.
 
-Documentation for the server is mounted at the `/doc` directory.
+Use `--port` to customize the port.
 
-### Bootstrapping a new project
+## Build an app
 
-If you want to configure each part of your project and build a new product from scratch, try the `create` command.
-
-```bash
+```sh
 npx nolita create
 ```
 
+![](https://content.hdr.is/create.gif)
+
 Give it a project name and it bootstraps a template application built on Express, React, TypeScript, and the core Nolita framework for making a user-facing, web-enabled, agentic product.
 
-## Additional information
+## How does it work?
+
+Nolita drives a Puppeteer installation using local Chrome and parses the accessiblity tree, preprocessing ARIA nodes to add additional accessibility information when necessary.
+
+At the core of the framework is a state machine between Puppeteer and your model that enforces action steps with [Zod](https://github.com/colinhacks/zod).
+
+Since we enforce types at runtime, you can also customize the typed response you get from the navigation process! For more about that, see "[Specifying types](#specifying-types)."
+
+## Additional examples
+
+We have various examples of usage in the [examples folder](/examples/).
+
+## Writing applications with Nolita
 
 ### Exported classes
 
-If you want to import pieces of Nolita for your application, you can. We export the following classes:
+If you want to import pieces of Nolita for your application or scripts, you can. We export the following classes:
 
 #### Agent
 
