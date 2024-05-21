@@ -1,0 +1,108 @@
+@font-face {
+  font-family: "Iosevka Aile";
+  src: url("https://content.hdr.is/aile%2Fiosevka-aile-regular.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Iosevka Aile";
+  src: url("https://content.hdr.is/aile%2Fiosevka-aile-italic.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Iosevka Aile";
+  src: url("https://content.hdr.is/aile%2Fiosevka-aile-bold.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Iosevka Aile";
+  src: url("https://content.hdr.is/aile%2Fiosevka-aile-bolditalic.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Iosevka Aile";
+  src: url("https://content.hdr.is/aile%2Fiosevka-aile-light.woff2")
+    format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Iosevka Aile";
+  src: url("https://content.hdr.is/aile%2Fiosevka-aile-lightitalic.woff2")
+    format("woff2");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Iosevka Aile";
+  src: url("https://content.hdr.is/aile%2Fiosevka-aile-medium.woff2")
+    format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Iosevka Aile";
+  src: url("https://content.hdr.is/aile%2Fiosevka-aile-mediumitalic.woff2")
+    format("woff2");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* berkeley */
+
+@font-face {
+  font-family: "Berkeley Mono";
+  src: url("https://content.hdr.is/font/BerkeleyMono-Regular.woff")
+    format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berkeley Mono";
+  src: url("https://content.hdr.is/font/BerkeleyMono-Italic.woff")
+    format("woff");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berkeley Mono";
+  src: url("https://content.hdr.is/font/BerkeleyMono-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berkeley Mono";
+  src: url("https://content.hdr.is/font/BerkeleyMono-BoldItalic.woff")
+    format("woff");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
