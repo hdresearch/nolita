@@ -4,7 +4,7 @@ A web-enabled agentic framework.
 
 Interact with the web with an AI model of your choice and build quick runners, pipe into your scripts, or scaffold full-stack applications.
 
-Nolita uses the on-device Chrome instance and supports a variety of AI models, with more on the way.
+Nolita uses a sandboxed, on-device Chrome instance and supports a variety of AI models, with more on the way.
 
 ## Use for quick tasks
 
@@ -51,7 +51,7 @@ npx nolita serve
 
 ![](https://content.hdr.is/serve.gif)
 
-Runs a local API for hitting up your local sandboxed Chrome for objective-first agentic navigation. See the `/doc` folder for the expected JSON payload.
+Runs a local API for objective-first agentic navigation of a local Chrome instance. After starting the server, you can see the `/doc` folder for the expected JSON payload.
 
 Use `--port` to customize the port.
 
@@ -63,7 +63,7 @@ npx nolita create
 
 ![](https://content.hdr.is/create.gif)
 
-Give it a project name and it bootstraps a template application built on Express, React, TypeScript, and the core Nolita framework for making a user-facing, web-enabled, agentic product.
+Bootstraps a template application built on Express, React, TypeScript, and the core Nolita framework for making a user-facing, web-enabled, agentic product. For more information on using the template, see [its documentation](/docs/create).
 
 ## How does it work?
 
@@ -73,115 +73,11 @@ At the core of the framework is a state machine between Puppeteer and your model
 
 Since we enforce types at runtime, you can also customize the typed response you get from the navigation process! For more about that, see "[Specifying types](#specifying-types)."
 
-## Additional examples
+## Documentation and examples
 
-We have various examples of usage in the [examples folder](/examples/).
+To read the complete documentation for Nolita, you can go to the `docs` folder in this repository or access [docs.nolita.ai](https://docs.nolita.ai). 
 
-## Writing applications with Nolita
-
-### Exported classes
-
-If you want to import pieces of Nolita for your application or scripts, you can. We export the following classes:
-
-#### Agent
-
-Wraps an LLM and creates a class for participating with the browser in state machine loops and a predefined prompt. You can wrap an LLM that is parsed by `llm-api` with our `completionApiBuilder`.
-
-```ts
-const providerOptions = {
-  apiKey: process.env.PROVIDER_API_KEY,
-  provider: process.env.MODEL_PROVIDER,
-};
-
-const modelApi = completionApiBuilder(providerOptions, {
-  model: process.env.MODEL,
-});
-
-const agent = new Agent({ modelApi });
-```
-
-You can optionally change the system prompt.
-
-```ts
-const agent = new Agent({ modelApi, systemPrompt: "You are a little mean and sassy." });
-```
-
-#### Browser
-
-We wrap Puppeteer, incorporating state machine hooks and a lot of accessibility preprocessing.
-
-```ts
-const browser = await Browser.create(true);
-```
-
-It takes one boolean for `headless` mode. If `false,` Chrome will open graphically.
-
-
-#### Logger
-
-Our logger enforces a log level with an optional callback. You can use this to surface objective progress.
-
-```ts
-const logger = new Logger("info", (msg) => {
-    return console.log(`${msg}`);
-  });
-```
-
-#### Inventory
-
-The Inventory class constructs keys and values to mask outside the prompt itself, ie. when using collective memory or subsequent tasks.
-
-```ts
-
-const ourInventory = {
-    "inventory": [
-        { 
-            "value": "student",
-            "name": "Username",
-            "type": "string" 
-        },
-        { 
-            "value": "Password123",
-            "name": "Password",
-            "type": "string"
-        }
-    ]
-}
-
-const inventory = new Inventory(ourInventory || []);
-```
-
-#### ModelResponseSchema
-
-Our base typed response for the agent's state machine. It can be extended with `zod`. See "specifying types," below.
-
-#### AgentBrowser
-
-This class unifies all prior classes and includes the state machine logic.
-
-```ts
-const answer = await agentBrowser.browse(
-    {
-      startUrl: req.query.url as string,
-      objective: [req.query.objective as string],
-      maxIterations: parseInt(req.query.maxIterations as string) || 10,
-    },
-    ModelResponseSchema,
-  );
-```
-
-### Specifying types
-
-We use `zod` under the hood to enforce typed responses from the agent. You can use this to enforce predictable output for your application.
-
-For example, in the example repository we include the following in `extensions/schema.ts`:
-
-```ts
-export const CustomSchema = ModelResponseSchema(ObjectiveComplete.extend({
-  restaurants: z.array(
-    z.string().optional().describe("The name of a restaurant")
-)}));
-```
+There are also various examples of usage in the [examples folder](/examples/).
 
 ## Contributing
 
