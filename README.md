@@ -63,7 +63,7 @@ npx nolita create
 
 ![](https://content.hdr.is/create.gif)
 
-Bootstraps a template application built on Express, React, TypeScript, and the core Nolita framework for making a user-facing, web-enabled, agentic product. For more information on using the template, see [its documentation](/docs/create).
+Bootstraps a template application built on Express, React, TypeScript, and the core Nolita framework for making a user-facing, web-enabled, agentic product. For more information on using the template, see [its documentation](/docs/src/create.md).
 
 ## How does it work?
 
