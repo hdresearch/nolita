@@ -1,6 +1,6 @@
-# nolita
+# Nolita
 
-A web-enabled agentic framework. 
+A web-enabled agentic framework by [High Dimensional Research](https://hdr.is). 
 
 Interact with the web with an AI model of your choice and build quick runners, pipe into your scripts, or scaffold full-stack applications.
 
@@ -71,7 +71,7 @@ Nolita drives a Puppeteer installation using local Chrome and parses the accessi
 
 At the core of the framework is a state machine between Puppeteer and your model that enforces action steps with [Zod](https://github.com/colinhacks/zod).
 
-Since we enforce types at runtime, you can also customize the typed response you get from the navigation process! For more about that, see "[Specifying types](#specifying-types)."
+Since we enforce types at runtime, you can also customize the typed response you get from the navigation process! For more about that, see "[Specifying types](/docs/src/create/types.md)."
 
 ## Documentation and examples
 
