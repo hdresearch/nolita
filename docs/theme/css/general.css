@@ -77,6 +77,14 @@ h1 a.header {
   font-weight: 400;
 }
 
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 400;
+}
+
 .header + .header h3,
 .header + .header h4,
 .header + .header h5 {
