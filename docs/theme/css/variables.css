@@ -10,6 +10,9 @@
   --mono-font: "Berkeley Mono", Consolas, "Ubuntu Mono", Menlo,
     "DejaVu Sans Mono", monospace, monospace;
   --code-font-size: 0.875em; /* please adjust the ace font size accordingly in editor.js */
+  /* duplicated so html imports it */
+  --bg: rgb(21, 21, 24);
+  --fg: rgb(219, 221, 225);
 }
 
 /* Themes */
