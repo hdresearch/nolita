@@ -23,7 +23,8 @@
     - [Browser](./reference/browser.md)
     - [Inventory](./reference/inventory.md)
     - [Logger](./reference/logger.md)
-    - [Page](./reference/page.md)
+    - [AgentBrowser](./reference/agentbrowser.md)
+    <!-- - [Page](./reference/page.md) -->
 - [Exported types](./reference/types.md)
     - [ModelResponseSchema](./reference/modelresponse.md)
     - [ObjectiveComplete](./reference/objectivecomplete.md)
