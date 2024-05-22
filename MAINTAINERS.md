@@ -20,6 +20,17 @@ git push
 
 `dev` is continually deployed as `nolita@alpha`. `main` gets tagged and deployed by hand.
 
+## Preparing documentation changes
+
+Documentation is deployed with [mdBook](https://github.com/rust-lang/mdBook). You can preview your changes by [installing it](https://rust-lang.github.io/mdBook/guide/installation.html) and running
+
+```sh
+cd docs
+mdbook serve --open
+```
+
+Documentation should reflect the interfaces and methods of the branch it is on, not future or legacy changes.
+
 ## Deploying the npm package
 
 - Change the version in `package.json` using semantic versioning. Add the version to `CHANGELOG.md` describing the release.
