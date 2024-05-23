@@ -8,6 +8,8 @@ Nolita uses a sandboxed, on-device Chrome instance and supports a variety of AI 
 
 ## Use for quick tasks
 
+If you if you have [Node.js installed](https://nodejs.org/en), it's as easy as running
+
 ```sh
 npx nolita
 ```
@@ -82,6 +84,19 @@ There are also various examples of usage in the [examples folder](/examples/).
 ## Contributing
 
 Before contributing to this project, please review [CONTRIBUTING](/CONTRIBUTING).
+
+### Building from source
+
+If you want to work from this repo, you can build Nolita with [pnpm](https://github.com/pnpm/pnpm):
+
+```sh
+pnpm i
+pnpm run build
+```
+
+The build outputs to the `dist` folder.
+
+### Community server
 
 To connect with others building with Nolita, feel free to join our [Discord community](https://discord.gg/SpE7urUEmH).
 

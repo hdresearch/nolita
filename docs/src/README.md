@@ -2,6 +2,12 @@
 
 Welcome to the documentation for [Nolita](https://nolita.ai)! Nolita is a framework for building web-enabled agentic applications and workflows.
 
+## What do I need to use Nolita?
+
+Before using Nolita you'll want to install [Node.js](https://nodejs.org), preferably version 20, and [Google Chrome](https://www.google.com/chrome/). If you want to work on the source code, you'll want [pnpm](https://github.com/pnpm/pnpm) too.
+
+You don't need to install Nolita itself at all. You can run it directly with `npx` or import it into a Node.js project with `npm i nolita`. More information is available on the following pages on usage.
+
 ## How does it work?
 
 Nolita drives a Puppeteer installation using a local instance of Chrome and parses the accessiblity tree, preprocessing ARIA nodes to add additional accessibility information when necessary.
