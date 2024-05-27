@@ -28,7 +28,7 @@ In contrast, agentic software possesses the ability to evaluate its environment,
 
 That being said, agents are an emerging art form. Agentic software based upon large language models to drive state machines are inherently probabilistic, and therefore not well-suited to production environments.
 
-Nolita was written from the start to integrate with High Dimensional Research's Collective Memory Index. By working in concert, agentic actions are requested only for new and unfamiliar situations; if you imagine a webpage as a graph, then you can probably guess that most pages share structural similarities. We use a combination of accessibility tree preprocessing and graph comparison algorithms to then search for the most appropriate step in the browser state machine to execute, increasing the determinism and speed of the task, and leaving the agent to reason where it needs to.
+Nolita was written from the start to integrate with High Dimensional Research's [Collective Memory Index](https://hdr.is/memory). By working in concert, agentic actions are requested only for new and unfamiliar situations; if you imagine a webpage as a graph, then you can probably guess that most pages share structural similarities. We use a combination of accessibility tree preprocessing and graph comparison algorithms to then search for the most appropriate step in the browser state machine to execute, increasing the determinism and speed of the task, and leaving the agent to reason where it needs to.
 
 ## What can I do with Nolita?
 

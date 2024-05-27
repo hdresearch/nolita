@@ -18,7 +18,7 @@ If you don't include information, we will prompt you for it at runtime.
 - `--objective` specifies what we want our agent to accomplish for us.
 - `--agentProvider` sets who is providing the LLM for the task (currently supporting `anthropic` and `openai`).
 - `--agentModel` specifies the model in question by the provider.
-- `--hdrApiKey` takes your HDR key for persistent memory integration, improving the performance and reliability of tasks.
+- `--hdrApiKey` takes your HDR key for persistent [memory integration](https://hdr.is/memory), improving the performance and reliability of tasks.
 - `--headless` specifies whether you want the browser to run in headless mode or not. We default to `true`, but you can set it to `false` to see the browser run.
 - `--config` takes a JSON file with the previous flags, if you want to provide them. You can also specify an **inventory** of personal data to use for the objective, like usernames and passwords.
 

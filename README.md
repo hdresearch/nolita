@@ -102,4 +102,4 @@ To connect with others building with Nolita, feel free to join our [Discord comm
 
 ## Other licenses
 
-By default, Nolita sends anonymised, abstracted telemetry to our collective memory, which is governed [by its own license agreement](https://hdr.is/terms) and our [privacy policy](https://hdr.is/privacy).
+By default, Nolita sends anonymised, abstracted telemetry to our [collective memory](https://hdr.is/memory), which is governed [by its own license agreement](https://hdr.is/terms) and our [privacy policy](https://hdr.is/privacy).
