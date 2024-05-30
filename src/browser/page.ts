@@ -473,22 +473,16 @@ export class Page {
     return result;
   }
 
-  async auto(
-    request: string,
-    opts: {
-      agent?: Agent;
-      progress?: string[];
-      maxTurns: number;
-      currentTurn: number;
-    } = { maxTurns: 20, currentTurn: 0 }
-  ) {
-    await this.do(request, opts);
-    return await this.get(request, z.any(), opts);
-  }
-
   /**
    * Browses the page based on the request and return type.
-   *
+   * @param {string} request The request or objective.
+   * @param {z.ZodSchema} outputSchema The Zod schema for the return type.
+   * @param {Object} opts Additional options.
+   * @param {Agent} opts.agent The agent to use (optional).
+   * @param {string[]} opts.progress The progress towards the objective (optional).
+   * @param {Inventory} opts.inventory The inventory object (optional).
+   * @param {number} opts.maxTurns The maximum number of turns to browse.
+   * @returns {z.ZodSchema} A promise that resolves to the retrieved data.
    */
   async browse(
     request: string,
@@ -498,17 +492,15 @@ export class Page {
       progress?: string[];
       inventory?: Inventory;
       maxTurns: number;
-      currentTurn: number;
     } = {
       maxTurns: 20,
-      currentTurn: 0,
     }
   ): Promise<z.infer<typeof outputSchema>> {
     const responseSchema = ModelResponseSchema(
       ObjectiveComplete.extend({ outputSchema })
     );
-
-    while (opts.currentTurn < opts.maxTurns) {
+    let currentTurn = 0;
+    while (currentTurn < opts.maxTurns) {
       const result = await this.generateCommand(request, {
         agent: opts.agent,
         progress: opts.progress,
@@ -523,7 +515,7 @@ export class Page {
         return result;
       }
 
-      opts.currentTurn++;
+      currentTurn++;
     }
   }
 
