@@ -472,6 +472,38 @@ export class Page {
     this.log(JSON.stringify(result));
     return result;
   }
+  /**
+   * Take the next step towards the objective.
+   * @param {string} request The request or objective.
+   * @param {z.ZodSchema} outputSchema The Zod schema for the return type.
+   * @param {Object} opts Additional options.
+   * @param {Agent} opts.agent The agent to use (optional).
+   * @param {string[]} opts.progress The progress towards the objective (optional).
+   * @param {Inventory} opts.inventory The inventory object (optional).
+   * @returns {z.ZodSchema} A promise that resolves to the retrieved data.
+   */
+  async step(
+    request: string,
+    outputSchema: z.ZodSchema<any>,
+    opts?: { agent?: Agent; progress?: string[]; inventory?: Inventory }
+  ) {
+    const responseSchema = ModelResponseSchema(
+      ObjectiveComplete.extend({ outputSchema })
+    );
+    const result = await this.generateCommand(request, {
+      agent: opts?.agent ?? this.agent,
+      progress: opts?.progress,
+      schema: responseSchema,
+    });
+
+    if (result.command) {
+      this.log(JSON.stringify(result));
+      await this.performManyActions(result.command);
+    } else if (result.objectiveComplete) {
+      this.log(JSON.stringify(result));
+      return result;
+    }
+  }
 
   /**
    * Browses the page based on the request and return type.
@@ -496,22 +528,14 @@ export class Page {
       maxTurns: 20,
     }
   ): Promise<z.infer<typeof outputSchema>> {
-    const responseSchema = ModelResponseSchema(
-      ObjectiveComplete.extend({ outputSchema })
-    );
+    // const responseSchema = ModelResponseSchema(
+    //   ObjectiveComplete.extend({ outputSchema })
+    // );
     let currentTurn = 0;
     while (currentTurn < opts.maxTurns) {
-      const result = await this.generateCommand(request, {
-        agent: opts.agent,
-        progress: opts.progress,
-        schema: responseSchema,
-      });
+      const result = await this.step(request, outputSchema, opts);
 
-      if (result.command) {
-        this.log(JSON.stringify(result));
-        await this.performManyActions(result.command);
-      } else if (result.objectiveComplete) {
-        this.log(JSON.stringify(result));
+      if (result) {
         return result;
       }
 
