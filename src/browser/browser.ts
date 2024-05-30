@@ -90,7 +90,6 @@ export class Browser {
 
   /**
    * Closes all pages and the browser instance.
-   *
    * @returns {Promise<void>} A promise that resolves when all pages and the browser have been closed.
    */
   async close() {
