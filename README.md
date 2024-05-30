@@ -1,44 +1,20 @@
-# nolita
+# Nolita
 
-A framework for quickly building and running web-enabled agentic applications.
+A web-enabled agentic framework by [High Dimensional Research](https://hdr.is). 
 
-## Installation
+Interact with the web with an AI model of your choice and build quick runners, pipe into your scripts, or scaffold full-stack applications.
 
-```bash
-npm i --save nolita
+Nolita uses a sandboxed, on-device Chrome instance and supports a variety of AI models, with more on the way.
+
+## Use for quick tasks
+
+If you if you have [Node.js installed](https://nodejs.org/en), it's as easy as running
+
+```sh
+npx nolita
 ```
 
-Execute directly from the terminal with `npx`.
-
-```bash
-npx nolita [flags]
-```
-
-Bootstrap a project with the `create` command:
-
-```bash
-npx nolita create
-```
-
-Our `dev` branch is the bleeding edge. If you want to use what's coming up, you can run:
-
-```bash
-npx nolita@alpha
-```
-
-When stabilised, we tag and release on `@latest` and merge into `main`.
-
-## Usage
-
-You can use Nolita for running quick tasks, as a persistent server for agentic web browsing, or to bootstrap an agentic product.
-
-### Running quick tasks
-
-The default `nolita` command runs a task in-browser and returns a result based on your desired objective, using a local sandboxed Chrome installation.
-
-```bash
-npx nolita [flags]
-```
+![](https://content.hdr.is/runner.gif)
 
 If you don't include information, we will prompt you for it as we go. The flags you can provide to omit these steps include the following:
 
@@ -69,142 +45,61 @@ If you don't include information, we will prompt you for it as we go. The flags 
 }
 ```
 
-### Running as a server
+## Use as part of your stack
 
-If you don't use TypeScript as your main application language, you can interact with nolita as a server to run tasks within a larger project.
-
-```bash
-npx nolita serve [flags]
+```sh
+npx nolita serve
 ```
 
-We currently support the following flags:
+![](https://content.hdr.is/serve.gif)
 
-- `--port` specifies the port to run on.
+Runs a local API for objective-first agentic navigation of a local Chrome instance. After starting the server, you can see the `/doc` folder for the expected JSON payload.
 
-Documentation for the server is mounted at the `/doc` directory.
+Use `--port` to customize the port.
 
-### Bootstrapping a new project
+## Build an app
 
-If you want to configure each part of your project and build a new product from scratch, try the `create` command.
-
-```bash
+```sh
 npx nolita create
 ```
 
-Give it a project name and it bootstraps a template application built on Express, React, TypeScript, and the core Nolita framework for making a user-facing, web-enabled, agentic product.
+![](https://content.hdr.is/create.gif)
 
-## Additional information
+Bootstraps a template application built on Express, React, TypeScript, and the core Nolita framework for making a user-facing, web-enabled, agentic product. For more information on using the template, see [its documentation](/docs/src/create.md).
 
-### Exported classes
+## How does it work?
 
-If you want to import pieces of Nolita for your application, you can. We export the following classes:
+Nolita drives a Puppeteer installation using local Chrome and parses the accessiblity tree, preprocessing ARIA nodes to add additional accessibility information when necessary.
 
-#### Agent
+At the core of the framework is a state machine between Puppeteer and your model that enforces action steps with [Zod](https://github.com/colinhacks/zod).
 
-Wraps an LLM and creates a class for participating with the browser in state machine loops and a predefined prompt. You can wrap an LLM that is parsed by `llm-api` with our `completionApiBuilder`.
+Since we enforce types at runtime, you can also customize the typed response you get from the navigation process! For more about that, see "[Specifying types](/docs/src/create/types.md)."
 
-```ts
-const providerOptions = {
-  apiKey: process.env.PROVIDER_API_KEY,
-  provider: process.env.MODEL_PROVIDER,
-};
+## Documentation and examples
 
-const modelApi = completionApiBuilder(providerOptions, {
-  model: process.env.MODEL,
-});
+To read the complete documentation for Nolita, you can go to the `docs` folder in this repository or access [docs.nolita.ai](https://docs.nolita.ai). 
 
-const agent = new Agent({ modelApi });
-```
-
-You can optionally change the system prompt.
-
-```ts
-const agent = new Agent({ modelApi, systemPrompt: "You are a little mean and sassy." });
-```
-
-#### Browser
-
-We wrap Puppeteer, incorporating state machine hooks and a lot of accessibility preprocessing.
-
-```ts
-const browser = await Browser.create(true);
-```
-
-It takes one boolean for `headless` mode. If `false,` Chrome will open graphically.
-
-
-#### Logger
-
-Our logger enforces a log level with an optional callback. You can use this to surface objective progress.
-
-```ts
-const logger = new Logger("info", (msg) => {
-    return console.log(`${msg}`);
-  });
-```
-
-#### Inventory
-
-The Inventory class constructs keys and values to mask outside the prompt itself, ie. when using collective memory or subsequent tasks.
-
-```ts
-
-const ourInventory = {
-    "inventory": [
-        { 
-            "value": "student",
-            "name": "Username",
-            "type": "string" 
-        },
-        { 
-            "value": "Password123",
-            "name": "Password",
-            "type": "string"
-        }
-    ]
-}
-
-const inventory = new Inventory(ourInventory || []);
-```
-
-#### ModelResponseSchema
-
-Our base typed response for the agent's state machine. It can be extended with `zod`. See "specifying types," below.
-
-#### AgentBrowser
-
-This class unifies all prior classes and includes the state machine logic.
-
-```ts
-const answer = await agentBrowser.browse(
-    {
-      startUrl: req.query.url as string,
-      objective: [req.query.objective as string],
-      maxIterations: parseInt(req.query.maxIterations as string) || 10,
-    },
-    ModelResponseSchema,
-  );
-```
-
-### Specifying types
-
-We use `zod` under the hood to enforce typed responses from the agent. You can use this to enforce predictable output for your application.
-
-For example, in the example repository we include the following in `extensions/schema.ts`:
-
-```ts
-export const CustomSchema = ModelResponseSchema(ObjectiveComplete.extend({
-  restaurants: z.array(
-    z.string().optional().describe("The name of a restaurant")
-)}));
-```
+There are also various examples of usage in the [examples folder](/examples/).
 
 ## Contributing
 
 Before contributing to this project, please review [CONTRIBUTING](/CONTRIBUTING).
 
+### Building from source
+
+If you want to work from this repo, you can build Nolita with [pnpm](https://github.com/pnpm/pnpm):
+
+```sh
+pnpm i
+pnpm run build
+```
+
+The build outputs to the `dist` folder.
+
+### Community server
+
 To connect with others building with Nolita, feel free to join our [Discord community](https://discord.gg/SpE7urUEmH).
 
 ## Other licenses
 
-By default, Nolita sends anonymised, abstracted telemetry to our collective memory, which is governed [by its own license agreement](https://hdr.is/terms) and our [privacy policy](https://hdr.is/privacy).
+By default, Nolita sends anonymised, abstracted telemetry to our [collective memory](https://hdr.is/memory), which is governed [by its own license agreement](https://hdr.is/terms) and our [privacy policy](https://hdr.is/privacy).
