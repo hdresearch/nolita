@@ -30,6 +30,7 @@ module.exports = {
             maxConcurrentProcesses: 6,
         }).clone('git@github.com:hdresearch/create.git', name)
         filesystem.remove(`${name}/.git`)
+        filesystem.remove(`${name}/LICENSE`)
         filesystem.move(`${name}/extensions/.inventory.example`, `${name}/extensions/.inventory`)
         toolbox.print.success(`Created ${name} project`)
         toolbox.system.run(`cd ${name} && npm install`)
