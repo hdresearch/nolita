@@ -18,6 +18,9 @@ import { Logger } from "../utils";
  * @property {string} userDataDir - The directory path for storing user data. Defaults to "/tmp".
  */
 export class Browser {
+  private apiKey: string | undefined;
+  private endpoint: string | undefined;
+
   browser: PuppeteerBrowser;
   mode: BrowserMode;
   agent: Agent;
@@ -35,13 +38,16 @@ export class Browser {
   constructor(
     browser: PuppeteerBrowser,
     agent: Agent,
-    mode: BrowserMode,
-    logger?: Logger
+    logger?: Logger,
+    opts?: { mode?: BrowserMode; apiKey?: string; endpoint?: string }
   ) {
     this.agent = agent;
     this.browser = browser;
-    this.mode = mode;
+    this.mode = opts?.mode || BrowserMode.text;
     this.logger = logger;
+
+    this.apiKey = opts?.apiKey || process.env.HDR_API_KEY;
+    this.endpoint = opts?.endpoint || process.env.HDR_ENDPOINT;
   }
 
   /**
@@ -61,13 +67,13 @@ export class Browser {
     logger?: Logger,
     browserWSEndpoint?: string,
     browserLaunchArgs?: string[],
-    mode: BrowserMode = BrowserMode.text
+    opts?: { mode?: BrowserMode; apiKey?: string; endpoint?: string }
   ): Promise<Browser> {
     const browser = new Browser(
       await browserContext(headless, browserWSEndpoint, browserLaunchArgs),
       agent,
-      mode,
-      logger
+      logger,
+      opts
     );
 
     return browser;
@@ -85,7 +91,12 @@ export class Browser {
     if (device) {
       await basePage.emulate(device);
     }
-    return new Page(basePage, this.agent, { pageId, logger: this.logger });
+    return new Page(basePage, this.agent, {
+      pageId,
+      logger: this.logger,
+      apiKey: this.apiKey,
+      endpoint: this.endpoint,
+    });
   }
 
   /**

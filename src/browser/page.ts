@@ -6,6 +6,10 @@ import {
   Protocol,
 } from "puppeteer";
 
+// Do not touch this. We're using undocumented puppeteer APIs
+// @ts-ignore
+import { MAIN_WORLD } from "puppeteer";
+
 import { z } from "zod";
 import Turndown from "turndown";
 
@@ -13,17 +17,18 @@ import {
   AccessibilityTree,
   ObjectiveState,
 } from "../types/browser/browser.types";
-
 import { Logger, debug, generateUUID } from "../utils";
 import { BrowserAction } from "../types/browser/actions.types";
 import { Inventory } from "../inventory";
 import { Agent } from "../agent";
 import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 
-// Do not touch this. We're using undocumented puppeteer APIs
-// @ts-ignore
-import { MAIN_WORLD } from "puppeteer";
 import { memorize } from "../collectiveMemory";
+import {
+  fetchMemorySequence,
+  findRoute,
+  remember,
+} from "../collectiveMemory/remember";
 import { ModelResponseSchema, ModelResponseType } from "../types";
 import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
 
@@ -35,6 +40,8 @@ export class Page {
   private idMapping: Map<number, any> = new Map();
   private _state: ObjectiveState | undefined = undefined;
   private inventory: Inventory | undefined;
+  private apiKey: string | undefined;
+  private endpoint: string | undefined;
 
   pageId: string;
   agent: Agent;
@@ -51,6 +58,8 @@ export class Page {
    * @param {string} [opts.pageId] - An optional unique identifier for the page; if not provided, a UUID will be generated.
    * @param {Logger} [opts.logger] - An optional logger for logging events; if not provided, logging may be absent.
    * @param {Inventory} [opts.inventory] - An optional inventory object for storing and retrieving user data.
+   * @param {string} [opts.apiKey] - An optional API key for accessing collective memory.
+   * @param {string} [opts.endpoint] - An optional endpoint for collective memory.
    */
   constructor(
     page: PuppeteerPage,
@@ -59,6 +68,8 @@ export class Page {
       pageId?: string;
       logger?: Logger;
       inventory?: Inventory;
+      apiKey?: string;
+      endpoint?: string;
     }
   ) {
     this.page = page;
@@ -66,6 +77,8 @@ export class Page {
     this.pageId = opts?.pageId ?? generateUUID();
     this.logger = opts?.logger;
     this.inventory = opts?.inventory;
+    this.apiKey = opts?.apiKey;
+    this.endpoint = opts?.endpoint;
   }
 
   /**
@@ -400,7 +413,11 @@ export class Page {
       opts?.progress ?? this.progress
     )) as ObjectiveState;
     const agent = opts?.agent ?? this.agent;
-    const prompt = agent.prompt(state, DEFAULT_STATE_ACTION_PAIRS);
+    const memories = await remember(state, {
+      apiKey: this.apiKey,
+      endpoint: this.endpoint,
+    });
+    const prompt = agent.prompt(state, memories);
 
     return prompt;
   }
@@ -472,6 +489,7 @@ export class Page {
     this.log(JSON.stringify(result));
     return result;
   }
+
   /**
    * Take the next step towards the objective.
    * @param {string} request The request or objective.
