@@ -43,4 +43,13 @@ describe("Browser", () => {
 
     await browser.close();
   });
+
+  it("should list pages", async () => {
+    const browser = await Browser.launch(true, agent);
+    const page = await browser.newPage();
+    const pages = await browser.pages();
+    expect(pages).toContain(page);
+
+    await browser.close();
+  });
 });
