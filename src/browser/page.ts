@@ -78,7 +78,7 @@ export class Page {
     this.logger = opts?.logger;
     this.inventory = opts?.inventory;
     this.apiKey = opts?.apiKey;
-    this.endpoint = opts?.endpoint;
+    this.endpoint = opts?.endpoint ?? "https://api.hdr.is";
   }
 
   /**
@@ -100,8 +100,8 @@ export class Page {
   /**
    * Sets the viewport size of the page.
    * @param {number} width The width of the viewport.
-   * @param height The height of the viewport.
-   * @param deviceScaleFactor The device scale factor (default: 1).
+   * @param {number} height The height of the viewport.
+   * @param {number} deviceScaleFactor The device scale factor (default: 1).
    */
   async setViewport(
     width: number,
@@ -182,10 +182,10 @@ export class Page {
 
   /**
    * Queries the accessibility tree of an element.
-   * @param client The CDP session client.
-   * @param element The element to query.
-   * @param accessibleName The accessible name of the element.
-   * @param role The role of the element.
+   * @param {CDPSession} client The CDP session client.
+   * @param {ElementHandle<Node>} element The element to query.
+   * @param {string} accessibleName The accessible name of the element.
+   * @param {string} role The role of the element.
    * @returns A promise that resolves to the accessibility tree of the element.
    * @private
    */
@@ -210,7 +210,7 @@ export class Page {
 
   /**
    * Finds an element by its index in the ID mapping.
-   * @param {index} index The index of the element in the ID mapping.
+   * @param {number} index The index of the element in the ID mapping.
    * @returns A promise that resolves to the found element handle.
    */
   private async findElement(index: number): Promise<ElementHandle<Element>> {
@@ -246,7 +246,7 @@ export class Page {
 
   /**
    * Simplifies the accessibility tree by converting it to an AccessibilityTree structure.
-   * @param node The serialized accessibility node to simplify.
+   * @param {SerializedAXNode} node The serialized accessibility node to simplify.
    * @returns The simplified accessibility tree.
    */
   private simplifyTree(node: SerializedAXNode): AccessibilityTree {
@@ -291,8 +291,8 @@ export class Page {
 
   /**
    * Retrieves the current state of the page based on the objective and progress.
-   * @param objective The objective of the page.
-   * @param objectiveProgress The progress of the objective.
+   * @param {string} objective The objective of the page.
+   * @param {string[]} objectiveProgress The progress of the objective.
    * @returns A promise that resolves to the objective state of the page.
    */
   async state(
@@ -322,13 +322,14 @@ export class Page {
 
   /**
    * Performs a browser action on the page.
-   * @param command The browser action to perform.
-   * @param inventory The inventory object (optional).
-   * @param delay The delay in milliseconds after performing the action (default: 100).
+   * @param {z.ZodSchema} command The browser action to perform.
+   * @param {Object} opts Additional options.
+   * @param {number} opts.delay The delay in milliseconds after performing the action (default: 100).
+   * @param {Inventory} opts.inventory The inventory object (optional).
    */
   async performAction(
     command: BrowserAction,
-    opts?: { inventory?: Inventory; delay?: number }
+    opts?: { delay?: number; inventory?: Inventory }
   ) {
     const inventory = opts?.inventory ?? this.inventory;
     const delay = opts?.delay ?? 100;
@@ -385,7 +386,9 @@ export class Page {
   /**
    * Performs multiple browser actions on the page.
    * @param commands An array of browser actions to perform.
-   * @param inventory The inventory object (optional).
+   * @param {Object} opts Additional options.
+   * @param {number} opts.delay The delay in milliseconds after performing the action (default: 100).
+   * @param {Inventory} opts.inventory The inventory object (optional).
    */
   async performManyActions(
     commands: BrowserAction[],
@@ -400,9 +403,9 @@ export class Page {
    * Creates a prompt for the agent based on the request and current state.
    * @param request The request or objective.
    * @param {Object} [opts] The navigation options.
-   * @param agent The agent to create the prompt for.
-   * @param progress The progress of the objective (optional).
-   * @returns A promise that resolves to the created prompt.
+   * @param {Agent} opts.agent The agent to create the prompt for.
+   * @param {string[]} opts.progress The progress of the objective (optional).
+   * @returns {Promise<string>} A promise that resolves to the created prompt.
    */
   async makePrompt(
     request: string,
@@ -427,7 +430,11 @@ export class Page {
   /**
    * Generates a command based on the request and current state.
    * @param request The request or objective.
-   * @param opts Additional options.
+   * @param {Object} opts Additional options.
+   * @param {string[]} opts.progress The progress towards the objective (optional).
+   * @param {Agent} opts.agent The agent to use (optional).
+   * @param {z.ZodSchema} opts.schema The Zod schema for the return type.
+   * @param {Inventory} opts.inventory The inventory object (optional).
    */
   async generateCommand<T extends z.ZodSchema<any>>(
     request: string,
@@ -453,12 +460,12 @@ export class Page {
   /**
    * Performs a request on the page.
    * @param request The request or objective.
-   * @param opts Additional options.
-   * @param opts.agent The agent to use (optional).
-   * @param opts.inventory The inventory object (optional).
-   * @param opts.progress The progress towards the objective (optional).
-   * @param opts.delay The delay in milliseconds after performing the action (default: 100).
-   * @param opts.schema The Zod schema for the return type.
+   * @param {Object} opts Additional options.
+   * @param {Agent} opts.agent The agent to use (optional).
+   * @param {Inventory} opts.inventory The inventory object (optional).
+   * @param {string[]} opts.progress The progress towards the objective (optional).
+   * @param {number} opts.delay The delay in milliseconds after performing the action (default: 100).
+   * @param {z.ZodSchema} opts.schema The Zod schema for the return type.
    */
   async do(
     request: string,
@@ -471,7 +478,6 @@ export class Page {
     }
   ) {
     const command = await this.generateCommand(request, opts);
-    this.log(JSON.stringify(command));
     memorize(this._state!, command as ModelResponseType, this.pageId, {
       endpoint: process.env.HDR_API_ENDPOINT ?? "https://api.hdr.is",
       apiKey: process.env.HDR_API_KEY ?? "",
@@ -485,7 +491,8 @@ export class Page {
    * @param request The request or objective.
    * @param outputSchema The Zod schema for the return type.
    * @param opts Additional options.
-   * @param opts.agent The agent to use (optional).
+   * @param {Agent} opts.agent The agent to use (optional).
+   * @param {string[]} opts.progress The progress towards the objective (optional).
    * @returns A promise that resolves to the retrieved data.
    */
   async get<T extends z.ZodSchema<any>>(
@@ -556,12 +563,12 @@ export class Page {
       maxTurns: 20,
     }
   ): Promise<z.infer<typeof outputSchema>> {
-    // const responseSchema = ModelResponseSchema(
-    //   ObjectiveComplete.extend({ outputSchema })
-    // );
+    const responseSchema = ModelResponseSchema(
+      ObjectiveComplete.extend({ outputSchema })
+    );
     let currentTurn = 0;
     while (currentTurn < opts.maxTurns) {
-      const result = await this.step(request, outputSchema, opts);
+      const result = await this.step(request, responseSchema, opts);
 
       if (result) {
         return result;
