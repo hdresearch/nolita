@@ -215,6 +215,12 @@ export class Agent {
     return response;
   }
 
+  /**  
+  Generate a command response from the model and return the parsed data
+  @param prompt - The prompt to send to the model
+  @param commandSchema - The schema to validate the response
+  @returns The parsed response data as @commandSchema
+  */
   async actionCall<T extends z.ZodSchema<any>>(
     prompt: ChatRequestMessage[],
     commandSchema: T
@@ -227,6 +233,12 @@ export class Agent {
     return response.data;
   }
 
+  /**  
+  Get information from the model and return the parsed data
+  @param prompt - The prompt to send to the model
+  @param responseSchema - The schema to validate the response
+  @returns The parsed response data as @responseSchema
+  */
   async returnCall<T extends z.ZodSchema<any>>(
     prompt: ChatRequestMessage[],
     responseSchema: T
