@@ -1,9 +1,9 @@
 import { describe, expect, it } from "@jest/globals";
-import { Inventory, InventoryValue } from "../../src/inventory/index";
+import { Inventory } from "../../src/inventory/index";
 
 describe("Inventory", () => {
   it("should mask values", () => {
-    const inventory: InventoryValue[] = [
+    const inventory = [
       { name: "password", value: "password", type: "string" },
       { name: "age", value: 123, type: "number" },
     ];
@@ -14,7 +14,7 @@ describe("Inventory", () => {
   });
 
   it("should replace mask", () => {
-    const inventory: InventoryValue[] = [
+    const inventory = [
       { name: "password", value: "password", type: "string" },
       { name: "age", value: 123, type: "number" },
     ];
@@ -24,7 +24,7 @@ describe("Inventory", () => {
   });
 
   it("should censor", () => {
-    const inventory: InventoryValue[] = [
+    const inventory = [
       { name: "age", value: 123, type: "number" },
       { name: "password", value: "aSuperStrongPassword", type: "string" },
     ];

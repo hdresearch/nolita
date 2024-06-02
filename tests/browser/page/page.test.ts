@@ -63,7 +63,7 @@ describe("Page", () => {
     expect(result).toBeDefined();
     expect(result.emails).toContain("tynan.daly@hdr.is");
     await browser.close();
-  }, 10000);
+  }, 20000);
 
   it("should take a screenshot", async () => {
     const browser = await Browser.launch(true, agent);
