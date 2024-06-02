@@ -190,4 +190,17 @@ describe("Agent", () => {
     // @ts-ignore
     expect(response?.command[0].index).toStrictEqual(20);
   });
+
+  it("Should generate a command", async () => {
+    const prompt = await agent.prompt(objectiveStateExample1, [
+      stateActionPair1,
+    ]);
+    const response = await agent.actionCall(
+      prompt,
+      ModelResponseSchema(ObjectiveComplete)
+    );
+    console.log("Response:", JSON.stringify(response));
+
+    expect(response?.command[0].index).toStrictEqual(5);
+  });
 });

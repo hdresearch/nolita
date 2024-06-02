@@ -406,7 +406,7 @@ export class Page {
    */
   async makePrompt(
     request: string,
-    opts?: { progress?: string[]; agent?: Agent }
+    opts?: { progress?: string[]; agent?: Agent; inventory?: Inventory }
   ) {
     const state = (await this.state(
       request,
@@ -417,7 +417,9 @@ export class Page {
       apiKey: this.apiKey,
       endpoint: this.endpoint,
     });
-    const prompt = agent.prompt(state, memories);
+    const prompt = agent.prompt(state, memories, {
+      inventory: opts?.inventory,
+    });
 
     return prompt;
   }
@@ -429,11 +431,20 @@ export class Page {
    */
   async generateCommand<T extends z.ZodSchema<any>>(
     request: string,
-    opts?: { progress?: string[]; agent?: Agent; schema?: T }
+    opts?: {
+      progress?: string[];
+      agent?: Agent;
+      schema?: T;
+      inventory?: Inventory;
+    }
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
     const prompt = await this.makePrompt(request, opts);
-    const schema = opts?.schema ?? z.array(BrowserAction).min(1);
+    const schema = z.object({
+      command: opts?.schema ?? z.array(BrowserAction).min(1),
+      progressAssessment: z.string(),
+      description: z.string(),
+    });
 
     const command = await agent.actionCall(prompt, schema);
     return command;
@@ -445,6 +456,9 @@ export class Page {
    * @param opts Additional options.
    * @param opts.agent The agent to use (optional).
    * @param opts.inventory The inventory object (optional).
+   * @param opts.progress The progress towards the objective (optional).
+   * @param opts.delay The delay in milliseconds after performing the action (default: 100).
+   * @param opts.schema The Zod schema for the return type.
    */
   async do(
     request: string,
@@ -456,17 +470,13 @@ export class Page {
       schema?: z.ZodSchema<any>;
     }
   ) {
-    const inventory = opts?.inventory;
     const command = await this.generateCommand(request, opts);
     this.log(JSON.stringify(command));
     memorize(this._state!, command as ModelResponseType, this.pageId, {
       endpoint: process.env.HDR_API_ENDPOINT ?? "https://api.hdr.is",
       apiKey: process.env.HDR_API_KEY ?? "",
     });
-    await this.performManyActions(command.command, {
-      inventory,
-      delay: opts?.delay,
-    });
+    await this.performManyActions(command.command, opts);
   }
 
   /**
