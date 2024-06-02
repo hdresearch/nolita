@@ -29,6 +29,15 @@ export class Agent {
     this.systemPrompt = agentArgs.systemPrompt;
   }
 
+  /**
+   * Generate a prompt for the user to complete an objective
+   * @param currentState - The current state of the objective
+   * @param memories - The memories to use as examples
+   * @param config - Configuration options for the prompt
+   * @param config.inventory - The inventory to use for the prompt
+   * @param config.systemPrompt - The system prompt to use for the prompt
+   * @returns string - The prompt for the user to complete the objective
+   */
   prompt(
     currentState: ObjectiveState,
     memories: Memory[],
