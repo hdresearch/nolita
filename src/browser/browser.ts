@@ -20,6 +20,7 @@ import { Logger } from "../utils";
 export class Browser {
   private apiKey: string | undefined;
   private endpoint: string | undefined;
+  private _pages: Page[] = [];
 
   browser: PuppeteerBrowser;
   mode: BrowserMode;
@@ -91,12 +92,24 @@ export class Browser {
     if (device) {
       await basePage.emulate(device);
     }
-    return new Page(basePage, this.agent, {
+    const page = new Page(basePage, this.agent, {
       pageId,
       logger: this.logger,
       apiKey: this.apiKey,
       endpoint: this.endpoint,
     });
+
+    this._pages.push(page);
+
+    return page;
+  }
+
+  /**
+   * Gets the pages associated with the browser.
+   * @returns {Promise<Page[]>} A promise that resolves to an array of Page instances.
+   */
+  async pages(): Promise<Page[]> {
+    return this._pages;
   }
 
   /**
@@ -104,7 +117,7 @@ export class Browser {
    * @returns {Promise<void>} A promise that resolves when all pages and the browser have been closed.
    */
   async close() {
-    const pages = await this.browser.pages();
+    const pages = await this.pages();
     await Promise.all(pages.map((page) => page.close()));
     await this.browser.close();
   }
