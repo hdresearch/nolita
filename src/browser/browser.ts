@@ -35,8 +35,12 @@ export class Browser {
    *
    * @param {PuppeteerBrowser} browser - The Puppeteer browser instance.
    * @param {Agent} agent - The agent instance that interacts with the browser.
-   * @param {BrowserMode} mode - The mode of the browser (e.g., headless).
    * @param {Logger} [logger] - Optional logger for logging browser activities.
+   * @param {Object} [opts] - Optional configuration options for the browser.
+   * @param {string} [opts.apiKey] - The API key for the browser.
+   * @param {string} [opts.endpoint] - The HDR collective memory endpoint.
+   * @param {Inventory} [opts.inventory] - The inventory to use for the browser.
+   * @param {BrowserMode} [opts.mode=BrowserMode.text] - The mode of the browser (e.g., text).
    */
   constructor(
     browser: PuppeteerBrowser,

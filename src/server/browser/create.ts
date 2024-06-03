@@ -66,9 +66,9 @@ const route = createRoute({
   },
 });
 
-export const browserApp = new OpenAPIHono();
+export const createRouter = new OpenAPIHono();
 
-browserApp.openapi(route, async (c) => {
+createRouter.openapi(route, async (c) => {
   const {
     agent: agentArgs,
     inventory: inventoryArgs,

@@ -149,6 +149,10 @@ export class Page {
     await this.page.close();
   }
 
+  /**
+   * Returns the title of the page.
+   * @returns {string} The title of the page.
+   */
   title() {
     return this.page.title();
   }

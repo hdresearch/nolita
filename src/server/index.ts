@@ -16,6 +16,7 @@ import { jsonToZod } from "./utils";
 import { ErrorSchema, apiSchema } from "./schema";
 import { completionApiBuilder } from "../agent";
 import { pageRouter } from "./pages";
+import { browserRouter } from "./browser";
 
 export const setupServer = () => {
   const app = new OpenAPIHono();
@@ -147,6 +148,7 @@ export const setupServer = () => {
     },
   });
   app.route("/", pageRouter);
+  app.route("/", browserRouter);
 
   app.get("/", swaggerUI({ url: "/doc" }));
   return app;
