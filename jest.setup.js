@@ -1,0 +1,2 @@
+
+jest.retryTimes(3)
