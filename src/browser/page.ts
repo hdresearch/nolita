@@ -149,6 +149,10 @@ export class Page {
     await this.page.close();
   }
 
+  title() {
+    return this.page.title();
+  }
+
   /**
    * Logs a message to the logger.
    * @param {string} msg The message to log.

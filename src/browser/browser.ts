@@ -5,6 +5,7 @@ import { BrowserMode } from "../types/browser/browser.types";
 import { browserContext } from "./browserUtils";
 import { Agent } from "../agent";
 import { Logger } from "../utils";
+import { Inventory } from "../inventory";
 
 /**
  * Represents a browser session using Puppeteer.
@@ -20,7 +21,8 @@ import { Logger } from "../utils";
 export class Browser {
   private apiKey: string | undefined;
   private endpoint: string | undefined;
-  private _pages: Page[] = [];
+  pages: Map<string, Page> = new Map<string, Page>();
+  private inventory: Inventory | undefined;
 
   browser: PuppeteerBrowser;
   mode: BrowserMode;
@@ -40,15 +42,22 @@ export class Browser {
     browser: PuppeteerBrowser,
     agent: Agent,
     logger?: Logger,
-    opts?: { mode?: BrowserMode; apiKey?: string; endpoint?: string }
+    opts?: {
+      mode?: BrowserMode;
+      apiKey?: string;
+      endpoint?: string;
+      inventory?: Inventory;
+    }
   ) {
+    this.apiKey = opts?.apiKey || process.env.HDR_API_KEY;
+    this.endpoint = opts?.endpoint || process.env.HDR_ENDPOINT;
+
     this.agent = agent;
     this.browser = browser;
     this.mode = opts?.mode || BrowserMode.text;
     this.logger = logger;
 
-    this.apiKey = opts?.apiKey || process.env.HDR_API_KEY;
-    this.endpoint = opts?.endpoint || process.env.HDR_ENDPOINT;
+    this.inventory = opts?.inventory;
   }
 
   /**
@@ -57,21 +66,33 @@ export class Browser {
    * @param {boolean} headless - Specifies if the browser should be launched in headless mode.
    * @param {Agent} agent - The agent that will interact with the browser.
    * @param {Logger} [logger] - Optional logger to pass for browser operation logs.
-   * @param {string} [browserWSEndpoint] - The WebSocket endpoint to connect to a browser instance.
-   * @param {string[]} [browserLaunchArgs] - Additional arguments for launching the browser.
-   * @param {BrowserMode} [mode=BrowserMode.text] - The mode of the browser, defaults to text.
+   * @param {object} [opts] - Optional configuration options for launching the browser.
+   * @param {string} [opts.browserWSEndpoint] - The WebSocket endpoint to connect to a browser instance.
+   * @param {string[]} [opts.browserLaunchArgs] - Additional arguments for launching the browser.
+   * @param {BrowserMode} [opts.mode=BrowserMode.text] - The mode of the browser, defaults to text.
+   * @param {string} [opts.apiKey] - The API key for the browser.
+   * @param {string} [opts.endpoint] - The HDR collective memory endpoint.
    * @returns {Promise<Browser>} A promise that resolves to an instance of Browser.
    */
   static async launch(
     headless: boolean,
     agent: Agent,
     logger?: Logger,
-    browserWSEndpoint?: string,
-    browserLaunchArgs?: string[],
-    opts?: { mode?: BrowserMode; apiKey?: string; endpoint?: string }
+    opts?: {
+      browserWSEndpoint?: string;
+      browserLaunchArgs?: string[];
+      mode?: BrowserMode;
+      apiKey?: string;
+      endpoint?: string;
+      inventory?: Inventory;
+    }
   ): Promise<Browser> {
     const browser = new Browser(
-      await browserContext(headless, browserWSEndpoint, browserLaunchArgs),
+      await browserContext(
+        headless,
+        opts?.browserWSEndpoint,
+        opts?.browserLaunchArgs
+      ),
       agent,
       logger,
       opts
@@ -87,29 +108,25 @@ export class Browser {
    * @param {Device} [device] - Optional device to emulate in the new page.
    * @returns {Promise<Page>} A promise that resolves to the newly created Page instance.
    */
-  async newPage(pageId?: string, device?: Device): Promise<Page> {
+  async newPage(
+    pageId?: string,
+    opts?: { device: Device; inventory?: Inventory }
+  ): Promise<Page> {
     const basePage = await this.browser.newPage();
-    if (device) {
-      await basePage.emulate(device);
+    if (opts?.device) {
+      await basePage.emulate(opts.device);
     }
     const page = new Page(basePage, this.agent, {
       pageId,
       logger: this.logger,
       apiKey: this.apiKey,
       endpoint: this.endpoint,
+      inventory: opts?.inventory ?? this.inventory,
     });
 
-    this._pages.push(page);
+    this.pages.set(page.pageId, page);
 
     return page;
-  }
-
-  /**
-   * Gets the pages associated with the browser.
-   * @returns {Promise<Page[]>} A promise that resolves to an array of Page instances.
-   */
-  async pages(): Promise<Page[]> {
-    return this._pages;
   }
 
   /**
@@ -117,8 +134,9 @@ export class Browser {
    * @returns {Promise<void>} A promise that resolves when all pages and the browser have been closed.
    */
   async close() {
-    const pages = await this.pages();
+    const pages = await [...this.pages.values()];
     await Promise.all(pages.map((page) => page.close()));
+
     await this.browser.close();
   }
 }
