@@ -1,0 +1,13 @@
+[book]
+authors = ["High Dimensional Research and contributors"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Documentation - Nolita"
+
+[output.html]
+theme = "theme"
+default-theme = "theme"
+preferred-dark-theme = "theme"
+git-repository-url = "https://github.com/hdresearch/nolita"
+edit-url-template = "https://github.com/hdresearch/nolita/edit/main/docs/{path}"
