@@ -1,4 +1,6 @@
-import path from "path";
+import * as path from "path";
+import * as os from "os";
+import * as fs from "fs";
 import { AgentBrowser } from "../agentBrowser";
 import { Browser } from "../browser";
 import { Agent } from "../agent/agent";
@@ -9,7 +11,67 @@ import { completionApiBuilder } from "../agent/config";
 import { GluegunToolbox } from "gluegun";
 import "dotenv/config";
 const MAX_ITERATIONS = 10;
-let iteration = 0;
+
+const loadConfigFile = (filePath: string): any => {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, "utf8"));
+  } catch (error) {
+    return {};
+  }
+};
+
+const loadConfigs = (config: string | undefined): any => {
+  const commandLineConfig = loadConfigFile(
+    path.resolve(process.cwd(), config || ""),
+  );
+  const homeConfig = loadConfigFile(path.resolve(os.homedir(), ".nolitarc"));
+  const mergedConfig = { ...homeConfig, ...commandLineConfig };
+
+  return mergedConfig;
+};
+
+const getConfig = (
+  mergedConfig: any,
+  startUrl: string | undefined,
+  objective: string | undefined,
+  agentProvider: string | undefined,
+  agentModel: string | undefined,
+  agentApiKey: string | undefined,
+  agentEndpoint: string | undefined,
+  hdrApiKey: string | undefined,
+  headless: boolean | string | undefined,
+): any => ({
+  startUrl: startUrl || mergedConfig.startUrl,
+  objective: objective || mergedConfig.objective,
+  agentProvider:
+    agentProvider ||
+    mergedConfig.agentProvider ||
+    process.env.HDR_AGENT_PROVIDER,
+  agentModel:
+    agentModel || mergedConfig.agentModel || process.env.HDR_AGENT_MODEL,
+  agentApiKey:
+    agentApiKey || mergedConfig.agentApiKey || process.env.HDR_AGENT_API_KEY,
+  agentEndpoint:
+    agentEndpoint ||
+    mergedConfig.agentEndpoint ||
+    process.env.HDR_AGENT_ENDPOINT,
+  hdrApiKey: hdrApiKey || mergedConfig.hdrApiKey || process.env.HDR_API_KEY,
+  headless: headless ?? mergedConfig.headless ?? process.env.HDR_HEADLESS,
+  inventory: mergedConfig.inventory || [],
+});
+
+const writeToNolitarc = (key: string, value: string): void => {
+  const nolitarcPath = path.resolve(os.homedir(), ".nolitarc");
+  let nolitarc = {};
+  try {
+    const nolitarcContent = fs.readFileSync(nolitarcPath, "utf8");
+    nolitarc = JSON.parse(nolitarcContent);
+  } catch (error) {
+    // File does not exist or is not valid JSON
+  }
+  nolitarc = { ...nolitarc, [key]: value };
+  fs.writeFileSync(nolitarcPath, JSON.stringify(nolitarc));
+};
 
 export const run = async (toolbox: GluegunToolbox) => {
   let {
@@ -23,35 +85,22 @@ export const run = async (toolbox: GluegunToolbox) => {
     headless,
     config,
   } = toolbox.parameters.options;
-  let inventory: { value: string; name: string; type: string }[] = [];
-  // if a config file is provided, parse it
-  if (config) {
-    const importedConfig = require(path.resolve(process.cwd(), config));
-    startUrl = startUrl || importedConfig.startUrl;
-    objective = objective || importedConfig.objective;
-    agentProvider =
-      agentProvider ||
-      importedConfig.agentProvider ||
-      process.env.HDR_AGENT_PROVIDER;
-    agentModel =
-      agentModel || importedConfig.agentModel || process.env.HDR_AGENT_MODEL;
-    agentApiKey =
-      agentApiKey ||
-      importedConfig.agentApiKey ||
-      process.env.HDR_AGENT_API_KEY;
-    agentEndpoint =
-      agentEndpoint ||
-      importedConfig.agentEndpoint ||
-      process.env.HDR_AGENT_ENDPOINT;
-    hdrApiKey =
-      hdrApiKey || importedConfig.hdrApiKey || process.env.HDR_API_KEY;
-    headless = headless ?? importedConfig.headless ?? process.env.HDR_HEADLESS;
-    inventory = importedConfig.inventory || [];
-  }
 
-  headless = headless == "false" ? false : true;
-  
-  if (!startUrl) {
+  const mergedConfig = loadConfigs(config);
+  const resolvedConfig = getConfig(
+    mergedConfig,
+    startUrl,
+    objective,
+    agentProvider,
+    agentModel,
+    agentApiKey,
+    agentEndpoint,
+    hdrApiKey,
+    headless,
+  );
+  resolvedConfig.headless = resolvedConfig.headless !== "false";
+
+  if (!resolvedConfig.startUrl) {
     await toolbox.prompt
       .ask({
         type: "input",
@@ -60,11 +109,11 @@ export const run = async (toolbox: GluegunToolbox) => {
         initial: "https://",
       })
       .then((answers) => {
-        startUrl = answers.startUrl;
+        resolvedConfig.startUrl = answers.startUrl;
       });
   }
 
-  if (!objective) {
+  if (!resolvedConfig.objective) {
     await toolbox.prompt
       .ask({
         type: "input",
@@ -72,11 +121,11 @@ export const run = async (toolbox: GluegunToolbox) => {
         message: "What is the objective of this session?",
       })
       .then((answers) => {
-        objective = answers.objective;
+        resolvedConfig.objective = answers.objective;
       });
   }
 
-  if (!agentProvider) {
+  if (!resolvedConfig.agentProvider) {
     await toolbox.prompt
       .ask({
         type: "select",
@@ -85,14 +134,14 @@ export const run = async (toolbox: GluegunToolbox) => {
         choices: ["openai", "anthropic"],
       })
       .then((answers) => {
-        agentProvider = answers.agentProvider;
+        resolvedConfig.agentProvider = answers.agentProvider;
       });
   }
 
   if (
-    !agentApiKey &&
-    agentProvider !== "custom" &&
-    agentProvider !== "ollama"
+    !resolvedConfig.agentApiKey &&
+    resolvedConfig.agentProvider !== "custom" &&
+    resolvedConfig.agentProvider !== "ollama"
   ) {
     await toolbox.prompt
       .ask({
@@ -100,21 +149,32 @@ export const run = async (toolbox: GluegunToolbox) => {
         name: "agentApiKey",
         message: "An API key for your provider is required",
       })
-      .then((answers) => {
-        agentApiKey = answers.agentApiKey;
+      .then(async (answers) => {
+        resolvedConfig.agentApiKey = answers.agentApiKey;
+        await toolbox.prompt
+          .ask({
+            type: "confirm",
+            name: "save",
+            message: "Would you like to save the API key for future use?",
+          })
+          .then((answers) => {
+            if (answers.save) {
+              writeToNolitarc("agentApiKey", resolvedConfig.agentApiKey);
+            }
+          });
       });
   }
 
-  if (!agentModel) {
+  if (!resolvedConfig.agentModel) {
     await toolbox.prompt
       .ask({
         type: "input",
         name: "agentModel",
         message: "Please specify an LLM model for the agent",
         initial: () => {
-          if (agentProvider === "openai") {
+          if (resolvedConfig.agentProvider === "openai") {
             return "gpt-4";
-          } else if (agentProvider === "anthropic") {
+          } else if (resolvedConfig.agentProvider === "anthropic") {
             return "claude-2.1";
           } else {
             return "";
@@ -122,21 +182,33 @@ export const run = async (toolbox: GluegunToolbox) => {
         },
       })
       .then((answers) => {
-        agentModel = answers.agentModel;
+        resolvedConfig.agentModel = answers.agentModel;
       });
   }
 
-  if (!hdrApiKey) {
+  if (!resolvedConfig.hdrApiKey) {
     await toolbox.prompt
       .ask({
         type: "input",
         name: "hdrApiKey",
-        message: `Do you have an HDR API key? If so, please provide it. If not, you can sign up for a free account at https://dashboard.hdr.is.
-
-Doing so integrates collective memory for this session, which improves agentic reliability and performance.`,
+        message: `Do you have an HDR API key? If so, you can enter it here:`,
       })
-      .then((answers) => {
-        hdrApiKey = answers.hdrApiKey;
+      .then(async (answers) => {
+        if (!answers.hdrApiKey) {
+          return;
+        }
+        resolvedConfig.hdrApiKey = answers.hdrApiKey;
+        await toolbox.prompt
+          .ask({
+            type: "confirm",
+            name: "save",
+            message: "Would you like to save the HDR API key for future use?",
+          })
+          .then((answers) => {
+            if (answers.save) {
+              writeToNolitarc("hdrApiKey", resolvedConfig.hdrApiKey);
+            }
+          });
       });
   }
   const spinner = toolbox.print.spin();
@@ -147,6 +219,7 @@ Doing so integrates collective memory for this session, which improves agentic r
     if (parsedInput?.result) {
       if (parsedInput?.kind === "ObjectiveComplete") {
         spinner.succeed(parsedInput?.result?.objectiveComplete?.result);
+        console.log(parsedInput?.result?.objectiveComplete?.result);
       } else if (parsedInput.result.kind === "ObjectiveFailed") {
         spinner.fail(parsedInput?.result?.result);
       }
@@ -154,12 +227,12 @@ Doing so integrates collective memory for this session, which improves agentic r
   });
 
   const providerOptions = {
-    apiKey: agentApiKey!,
-    provider: agentProvider,
-    endpoint: agentEndpoint,
+    apiKey: resolvedConfig.agentApiKey!,
+    provider: resolvedConfig.agentProvider,
+    endpoint: resolvedConfig.agentEndpoint,
   };
   const chatApi = completionApiBuilder(providerOptions, {
-    model: agentModel,
+    model: resolvedConfig.agentModel,
   });
 
   if (!chatApi) {
@@ -174,14 +247,17 @@ Doing so integrates collective memory for this session, which improves agentic r
 
   const args = {
     agent,
-    browser: await Browser.create(headless, agent),
+    browser: await Browser.launch(resolvedConfig.headless, agent),
     logger,
-    inventory: inventory.length > 0 ? new Inventory(inventory) : undefined,
-    ...(hdrApiKey
+    inventory:
+      resolvedConfig.inventory.length > 0
+        ? new Inventory(resolvedConfig.inventory)
+        : undefined,
+    ...(resolvedConfig.hdrApiKey
       ? {
           collectiveMemoryConfig: {
             endpoint: process.env.HDR_ENDPOINT || "https://api.hdr.is",
-            apiKey: hdrApiKey,
+            apiKey: resolvedConfig.hdrApiKey,
           },
         }
       : {}),
@@ -191,8 +267,8 @@ Doing so integrates collective memory for this session, which improves agentic r
   spinner.start("Session starting...");
   await agentBrowser.browse(
     {
-      startUrl,
-      objective: [objective],
+      startUrl: resolvedConfig.startUrl,
+      objective: [resolvedConfig.objective],
       maxIterations: MAX_ITERATIONS,
     },
     ModelResponseSchema(ObjectiveComplete),
