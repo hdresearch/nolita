@@ -247,7 +247,7 @@ export const run = async (toolbox: GluegunToolbox) => {
 
   const args = {
     agent,
-    browser: await Browser.create(resolvedConfig.headless, agent),
+    browser: await Browser.launch(resolvedConfig.headless, agent),
     logger,
     inventory:
       resolvedConfig.inventory.length > 0
