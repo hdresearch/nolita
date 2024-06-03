@@ -1,3 +1,3 @@
-import { Inventory } from "./inventory";
+import { Inventory, InventoryValue } from "./inventory";
 
-export { Inventory };
+export { Inventory, InventoryValue };
