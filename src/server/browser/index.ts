@@ -4,5 +4,5 @@ import { createRouter } from "./create";
 import { closeRouter } from "./close";
 
 export const browserRouter = new OpenAPIHono();
-browserRouter.route("/", createRouter);
-browserRouter.route("/", closeRouter);
+browserRouter.route("/browser", createRouter);
+browserRouter.route("/browser", closeRouter);

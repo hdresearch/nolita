@@ -4,28 +4,23 @@ import { z } from "zod";
 import { BROWSERS } from "../browser/create";
 import { PageParamsSchema } from "../schemas/pageSchemas";
 
-const goToRequestSchema = z.object({
-  url: z.string().url().openapi({ example: "https://example.com" }),
+const PageInfoReturnSchema = z.object({
+  id: z.string().openapi({ example: "pageId" }),
+  url: z.string().openapi({ example: "https://example.com" }),
+  title: z.string().openapi({ example: "Example Domain" }),
 });
 
 const route = createRoute({
-  method: "post",
-  path: "/{browserSession}/page/{pageId}/goto",
+  method: "get",
+  path: "/{browserSession}/page/{pageId}",
   request: {
     params: PageParamsSchema,
-    body: {
-      content: {
-        "application/json": {
-          schema: goToRequestSchema.openapi("RequestBody"),
-        },
-      },
-    },
   },
   responses: {
     200: {
       content: {
         "application/json": {
-          schema: z.object({ message: z.string() }),
+          schema: PageInfoReturnSchema,
         },
       },
       description: "The response from the server",
@@ -38,12 +33,20 @@ const route = createRoute({
       },
       description: "Returns an error",
     },
+    500: {
+      content: {
+        "application/json": {
+          schema: z.object({ message: z.string() }),
+        },
+      },
+      description: "Returns an error",
+    },
   },
 });
 
-export const gotoRouter = new OpenAPIHono();
+export const infoRouter = new OpenAPIHono();
 
-gotoRouter.openapi(route, async (c) => {
+infoRouter.openapi(route, async (c) => {
   const { browserSession, pageId } = c.req.valid("param");
   const browser = BROWSERS.get(browserSession);
 
@@ -57,9 +60,9 @@ gotoRouter.openapi(route, async (c) => {
     return c.json({ message: "Page not found" }, 400);
   }
 
-  const { url } = c.req.valid("json");
-
-  await page.goto(url);
-
-  return c.json({ message: `Navigating to page ${url}` });
+  return c.json({
+    id: page.pageId,
+    url: page.url(),
+    title: await page.title(),
+  });
 });

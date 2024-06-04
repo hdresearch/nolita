@@ -3,29 +3,29 @@ import { z } from "zod";
 
 import { BROWSERS } from "../browser/create";
 import { PageParamsSchema } from "../schemas/pageSchemas";
-import { ObjectiveState } from "../../types/browser";
-import { objectiveStateExample1 } from "../../collectiveMemory/examples";
-import { Inventory } from "../../inventory";
-import { InventoryValue } from "../../inventory/inventory";
-
-const doRequestSchema = z.object({
-  command: z.string().openapi({ example: "Click on the login button" }),
-  inventory: z
-    .record(z.string(), z.string())
-    .optional()
-    .openapi({ example: { name: "YOUR NAME", creditCard: "555555555555" } }),
-  delay: z.number().optional().openapi({ example: 100 }),
-});
+import { Inventory, InventoryValue } from "../../inventory";
 
 const route = createRoute({
-  method: "post",
-  path: "/{browserSession}/page/{pageId}/do",
+  method: "get",
+  path: "/{browserSession}/page/{pageId}/browse",
   request: {
     params: PageParamsSchema,
     body: {
       content: {
         "application/json": {
-          schema: doRequestSchema.openapi("RequestBody"),
+          schema: z.object({
+            command: z
+              .string()
+              .openapi({ example: "Find all the email addresses on the page" }),
+            schema: z.any().openapi({}),
+            maxTurns: z.number().default(20).openapi({ example: 20 }),
+            inventory: z
+              .record(z.string(), z.string())
+              .optional()
+              .openapi({
+                example: { name: "YOUR NAME", creditCard: "555555555555" },
+              }),
+          }),
         },
       },
     },
@@ -34,7 +34,7 @@ const route = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: ObjectiveState.openapi({ example: objectiveStateExample1 }),
+          schema: z.object({ image: z.string() }),
         },
       },
       description: "The response from the server",
@@ -47,14 +47,21 @@ const route = createRoute({
       },
       description: "Returns an error",
     },
+    500: {
+      content: {
+        "application/json": {
+          schema: z.object({ message: z.string() }),
+        },
+      },
+      description: "Returns an error",
+    },
   },
 });
 
-export const doRouter = new OpenAPIHono();
+export const browseRouter = new OpenAPIHono();
 
-doRouter.openapi(route, async (c) => {
+browseRouter.openapi(route, async (c) => {
   const { browserSession, pageId } = c.req.valid("param");
-  const { command, inventory: inventoryArgs, delay } = c.req.valid("json");
   const browser = BROWSERS.get(browserSession);
 
   if (!browser) {
@@ -67,6 +74,13 @@ doRouter.openapi(route, async (c) => {
     return c.json({ message: "Page not found" }, 400);
   }
 
+  const {
+    command,
+    schema,
+    maxTurns,
+    inventory: inventoryArgs,
+  } = c.req.valid("json");
+
   const inventory = inventoryArgs
     ? new Inventory(
         Object.entries(inventoryArgs).map(
@@ -75,7 +89,7 @@ doRouter.openapi(route, async (c) => {
       )
     : undefined;
 
-  await page.do(command, { inventory, delay });
+  const result = await page.browse(command, schema, { maxTurns, inventory });
 
-  return c.json(await page.state(command, page.progress));
+  return c.json(result);
 });
