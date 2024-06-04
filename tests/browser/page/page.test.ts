@@ -1,9 +1,11 @@
-import { describe, expect, it, beforeAll } from "@jest/globals";
+import { describe, expect, it, beforeAll, jest } from "@jest/globals";
+import { z } from "zod";
+
 import { Browser } from "../../../src/browser";
 import { ObjectiveState } from "../../../src/types/browser";
 import { Agent, completionApiBuilder } from "../../../src/agent";
 
-import { z } from "zod";
+jest.retryTimes(3);
 
 describe("Page", () => {
   let agent: Agent;

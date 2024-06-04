@@ -6,7 +6,7 @@ import { PageParamsSchema } from "../schemas/pageSchemas";
 import { Inventory, InventoryValue } from "../../inventory";
 
 const route = createRoute({
-  method: "get",
+  method: "post",
   path: "/{browserSession}/page/{pageId}/browse",
   request: {
     params: PageParamsSchema,
@@ -17,7 +17,7 @@ const route = createRoute({
             command: z
               .string()
               .openapi({ example: "Find all the email addresses on the page" }),
-            schema: z.any().openapi({}),
+            schema: z.any().optional().openapi({}),
             maxTurns: z.number().default(20).openapi({ example: 20 }),
             inventory: z
               .record(z.string(), z.string())

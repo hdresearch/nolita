@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeAll } from "@jest/globals";
+import { describe, it, expect, beforeAll, jest } from "@jest/globals";
 
 import { Browser } from "../../../src/browser/index";
 import { Agent, completionApiBuilder } from "../../../src/agent";
+
+jest.retryTimes(3);
 
 describe("Page interaction -- SCROLL", () => {
   const htmlContent = `

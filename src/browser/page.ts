@@ -153,8 +153,8 @@ export class Page {
    * Returns the title of the page.
    * @returns {string} The title of the page.
    */
-  title() {
-    return this.page.title();
+  async title() {
+    return await this.page.title();
   }
 
   /**
@@ -447,22 +447,22 @@ export class Page {
    */
   async generateCommand<T extends z.ZodSchema<any>>(
     request: string,
-    opts?: {
+    opts: {
       progress?: string[];
       agent?: Agent;
-      schema?: T;
+      schema: T;
       inventory?: Inventory;
     }
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
     const prompt = await this.makePrompt(request, opts);
-    const schema = z.object({
-      command: opts?.schema ?? z.array(BrowserAction).min(1),
-      progressAssessment: z.string(),
-      description: z.string(),
-    });
+    // const schema = z.object({
+    //   command: opts?.schema ?? z.array(BrowserAction).min(1),
+    //   progressAssessment: z.string(),
+    //   description: z.string(),
+    // });
 
-    const command = await agent.actionCall(prompt, schema);
+    const command = await agent.actionCall(prompt, opts.schema);
     return command;
   }
 
@@ -486,7 +486,12 @@ export class Page {
       schema?: z.ZodSchema<any>;
     }
   ) {
-    const command = await this.generateCommand(request, opts);
+    const schema = z.object({
+      command: opts?.schema ?? z.array(BrowserAction).min(1),
+      progressAssessment: z.string(),
+      description: z.string(),
+    });
+    const command = await this.generateCommand(request, { ...opts, schema });
     memorize(this._state!, command as ModelResponseType, this.pageId, {
       endpoint: process.env.HDR_API_ENDPOINT ?? "https://api.hdr.is",
       apiKey: process.env.HDR_API_KEY ?? "",
@@ -506,12 +511,15 @@ export class Page {
    */
   async get<T extends z.ZodSchema<any>>(
     request: string,
-    outputSchema: T,
+    outputSchema?: T,
     opts?: { agent?: Agent; progress?: string[] }
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
     const prompt = await this.makePrompt(request, opts);
-    const result = await agent.returnCall(prompt, outputSchema);
+    const schema = outputSchema
+      ? ObjectiveComplete.extend({ outputSchema })
+      : ObjectiveComplete;
+    const result = await agent.returnCall(prompt, schema);
     this.log(JSON.stringify(result));
     return result;
   }
@@ -527,8 +535,8 @@ export class Page {
    * @returns {z.ZodSchema} A promise that resolves to the retrieved data.
    */
   async step(
-    request: string,
-    outputSchema: z.ZodSchema<any>,
+    objective: string,
+    outputSchema?: z.ZodSchema<any>,
     opts?: {
       agent?: Agent;
       progress?: string[];
@@ -536,22 +544,27 @@ export class Page {
       delay?: number;
     }
   ) {
-    const responseSchema = ModelResponseSchema(
-      ObjectiveComplete.extend({ outputSchema })
-    );
-    const result = await this.generateCommand(request, {
+    const responseSchema = outputSchema
+      ? ModelResponseSchema(ObjectiveComplete.extend({ outputSchema }))
+      : ModelResponseSchema(ObjectiveComplete);
+    const step = await this.generateCommand(objective, {
       agent: opts?.agent ?? this.agent,
       progress: opts?.progress,
       schema: responseSchema,
     });
-    if (result.objectiveComplete) {
-      if (result.command) {
-        await this.performManyActions(result.command, opts);
+
+    console.log("STEP", JSON.stringify(step));
+
+    if (step.objectiveComplete) {
+      if (step.command) {
+        await this.performManyActions(step.command, opts);
       }
-      this.log(JSON.stringify(result));
-      return result;
+      this.log(JSON.stringify(step));
+      return step;
     }
-    await this.performManyActions(result.command);
+    if (step.command) {
+      await this.performManyActions(step.command);
+    }
   }
 
   /**

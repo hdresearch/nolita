@@ -5,6 +5,7 @@ import * as fs from "fs";
 import { ErrorSchema } from "./schema";
 
 import { BROWSERS } from "./browser/launch";
+import { Browser } from "../browser";
 
 export async function jsonToZod(jsonObject: any): Promise<any> {
   const _module = jsonSchemaToZod(jsonObject, { module: "cjs" });
@@ -41,4 +42,33 @@ export async function getPage(browserSession: string, pageId: string) {
   }
 
   return page;
+}
+
+export class BrowserStore {
+  browsers: Map<string, Browser>;
+
+  constructor() {
+    this.browsers = new Map<string, Browser>();
+  }
+
+  async get(browserSession: string) {
+    const browser = this.browsers.get(browserSession);
+
+    if (!browser) {
+      throw ErrorSchema.parse({
+        message: "Browser session not found",
+        code: 400,
+      });
+    }
+
+    return browser;
+  }
+
+  async set(browserSession: string, browser: any) {
+    this.browsers.set(browserSession, browser);
+  }
+
+  async close() {
+    this.browsers.forEach(async (browser) => await browser.close());
+  }
 }

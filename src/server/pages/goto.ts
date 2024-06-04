@@ -25,7 +25,7 @@ const route = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: z.object({ message: z.string() }),
+          schema: z.object({ message: z.string(), url: z.string().url() }),
         },
       },
       description: "The response from the server",
@@ -61,5 +61,5 @@ gotoRouter.openapi(route, async (c) => {
 
   await page.goto(url);
 
-  return c.json({ message: `Navigating to page ${url}` });
+  return c.json({ message: `Navigating to page`, url: page.url() });
 });

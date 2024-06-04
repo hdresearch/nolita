@@ -20,7 +20,7 @@ const route = createRoute({
             command: z
               .string()
               .openapi({ example: "Find all the email addresses on the page" }),
-            schema: z.any().openapi({}),
+            schema: z.any().optional().openapi({}),
           }),
         },
       },
@@ -64,9 +64,10 @@ getRouter.openapi(route, async (c) => {
 
   const { schema, command } = c.req.valid("json");
 
-  const responseSchema: z.ZodType<any, z.ZodTypeDef, any> = await jsonToZod(
-    schema as JsonSchema
-  );
+  let responseSchema: z.ZodType<any, z.ZodTypeDef, any> | undefined;
+  if (schema) {
+    responseSchema = await jsonToZod(schema as JsonSchema);
+  }
 
   const result = await page.get(command, responseSchema);
   return c.json(result);

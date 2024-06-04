@@ -9,7 +9,6 @@ const route = createRoute({
   request: {
     params: z.object({
       browserSession: z.string(),
-      pageId: z.string(),
     }),
   },
   responses: {
@@ -43,6 +42,7 @@ closeRouter.openapi(route, async (c) => {
   }
 
   await browser.close();
+  BROWSERS.delete(browserSession);
 
   return c.json({ message: "Browser closed" });
 });

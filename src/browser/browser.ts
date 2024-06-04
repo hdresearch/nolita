@@ -139,7 +139,19 @@ export class Browser {
    */
   async close() {
     const pages = await [...this.pages.values()];
-    await Promise.all(pages.map((page) => page.close()));
+    await Promise.all(
+      pages.map(async (page) => {
+        try {
+          return await page.close();
+        } catch (error) {
+          if (
+            (error as Error).message ===
+            "Protocol error: Connection closed. Most likely the page has been closed."
+          ) {
+          }
+        }
+      })
+    );
 
     await this.browser.close();
   }

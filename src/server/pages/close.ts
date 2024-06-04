@@ -48,5 +48,5 @@ closeRouter.openapi(route, async (c) => {
 
   await page.close();
 
-  return c.json({ message: "Page closed" });
+  return c.json({ message: "Page closed", id: pageId });
 });

@@ -10,6 +10,7 @@ import { screenshotRouter } from "./screenshot";
 import { contentRouter } from "./content";
 import { stepRouter } from "./step";
 import { browseRouter } from "./browse";
+import { gotoRouter } from "./goto";
 
 export const pageRouter = new OpenAPIHono();
 
@@ -23,3 +24,4 @@ pageRouter.route("/", screenshotRouter);
 pageRouter.route("/", contentRouter);
 pageRouter.route("/", stepRouter);
 pageRouter.route("/", browseRouter);
+pageRouter.route("/", gotoRouter);

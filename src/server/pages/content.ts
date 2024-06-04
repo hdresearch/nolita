@@ -11,11 +11,12 @@ const PageContentTypeSchema = z
 const PageContentReturnSchema = z.object({
   pageContent: z.string().openapi({ example: "Hello, world!" }),
   type: PageContentTypeSchema,
+  url: z.string().openapi({ example: "https://example.com/" }),
 });
 
 const route = createRoute({
   method: "get",
-  path: "/{browserSession}/page/content/{type}",
+  path: "/{browserSession}/page/{pageId}/content/{type}",
   request: {
     params: PageParamsSchema.extend({ type: PageContentTypeSchema }),
   },
@@ -64,7 +65,6 @@ contentRouter.openapi(route, async (c) => {
   }
 
   let content: string | undefined;
-  let contentType: z.infer<typeof PageContentTypeSchema> | undefined;
 
   if (type === "markdown") {
     content = await page.markdown();
@@ -76,11 +76,17 @@ contentRouter.openapi(route, async (c) => {
     return c.json({ message: "Invalid page content type" }, 400);
   }
 
-  if (!content || !contentType) {
+  console.log(content);
+
+  if (!content) {
     return c.json({ message: "Error retrieving page content" }, 500);
   }
 
   return c.json(
-    PageContentReturnSchema.parse({ pageContent: content, type: contentType })
+    PageContentReturnSchema.parse({
+      pageContent: content,
+      type: type,
+      url: page.url(),
+    })
   );
 });

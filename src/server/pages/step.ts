@@ -6,6 +6,7 @@ import { BROWSERS } from "../browser/launch";
 import { PageParamsSchema } from "../schemas/pageSchemas";
 import { jsonToZod } from "../utils";
 import { Inventory, InventoryValue } from "../../inventory";
+import { ObjectiveState } from "../../types/browser";
 
 const route = createRoute({
   method: "post",
@@ -19,7 +20,7 @@ const route = createRoute({
             command: z
               .string()
               .openapi({ example: "Click on the login button" }),
-            schema: z.any().openapi({}),
+            schema: z.any().optional().openapi({}),
             opts: z
               .object({
                 delay: z.number().optional().openapi({ example: 100 }),
@@ -41,7 +42,10 @@ const route = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: z.object({ result: z.any().optional() }),
+          schema: z.object({
+            result: z.any().optional(),
+            state: ObjectiveState,
+          }),
         },
       },
       description: "The response from the server",
@@ -103,5 +107,8 @@ stepRouter.openapi(route, async (c) => {
 
   const step = await page.step(command, responseSchema, opts);
 
-  return c.json({ result: step });
+  return c.json({
+    result: step,
+    state: await page.state(command, page.progress),
+  });
 });

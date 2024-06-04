@@ -50,14 +50,18 @@ ListRouter.openapi(route, async (c) => {
     return c.json({ message: "Browser session not found" }, 400);
   }
 
-  const pages = await browser.pages.forEach((page, id) => {
-    return ListResponseItem.parse({
-      id: page.pageId,
+  console.log("BROWSER", JSON.stringify(browser.pages));
+  const pages: z.infer<typeof ListResponseItem>[] = [];
+  for (const [id, page] of browser.pages) {
+    pages.push({
+      id,
       url: page.url(),
-      title: page.title(),
+      title: await page.title(),
       progress: page.progress,
     });
-  });
+  }
 
-  return c.json(ListResponseSchema.parse(pages));
+  console.log("PAGES", pages);
+
+  return c.json(pages);
 });
