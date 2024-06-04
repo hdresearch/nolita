@@ -420,6 +420,7 @@ export class Page {
       apiKey: this.apiKey,
       endpoint: this.endpoint,
     });
+
     const prompt = agent.prompt(state, memories, {
       inventory: opts?.inventory,
     });
