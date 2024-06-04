@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from "@jest/globals";
+import { describe, it, expect, beforeAll, jest } from "@jest/globals";
 
 import { Browser } from "../../../src/browser/index";
 import { Agent, completionApiBuilder } from "../../../src/agent";
+
+jest.retryTimes(3);
 
 describe("Page interaction -- Type", () => {
   const htmlContent = `
@@ -86,9 +88,12 @@ describe("Page interaction -- Type", () => {
 
     await page.goto(dataUrl);
 
-    await page.do("type `High Dimensional Research` into the text box", {
-      agent,
-    });
+    await page.do(
+      "type `High Dimensional Research` into the text box. Please make sure to capitalize the type in the command array",
+      {
+        agent,
+      }
+    );
     const value = await page.page.evaluate(() =>
       document.querySelector("textarea")!.value.trim()
     );

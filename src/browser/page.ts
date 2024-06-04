@@ -428,6 +428,7 @@ export class Page {
       apiKey: this.apiKey,
       endpoint: this.endpoint,
     });
+
     const prompt = agent.prompt(state, memories, {
       inventory: opts?.inventory,
     });
@@ -528,7 +529,12 @@ export class Page {
   async step(
     request: string,
     outputSchema: z.ZodSchema<any>,
-    opts?: { agent?: Agent; progress?: string[]; inventory?: Inventory }
+    opts?: {
+      agent?: Agent;
+      progress?: string[];
+      inventory?: Inventory;
+      delay?: number;
+    }
   ) {
     const responseSchema = ModelResponseSchema(
       ObjectiveComplete.extend({ outputSchema })
@@ -538,14 +544,14 @@ export class Page {
       progress: opts?.progress,
       schema: responseSchema,
     });
-
-    if (result.command) {
-      this.log(JSON.stringify(result));
-      await this.performManyActions(result.command);
-    } else if (result.objectiveComplete) {
+    if (result.objectiveComplete) {
+      if (result.command) {
+        await this.performManyActions(result.command, opts);
+      }
       this.log(JSON.stringify(result));
       return result;
     }
+    await this.performManyActions(result.command);
   }
 
   /**

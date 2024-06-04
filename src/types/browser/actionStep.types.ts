@@ -55,7 +55,7 @@ export const ModelResponseSchema = <TObjectiveComplete extends z.AnyZodObject>(
 ) =>
   z.object({
     progressAssessment: z.string(),
-    command: commandSchema.describe("List of browser actions"),
+    command: commandSchema.optional().describe("List of browser actions"),
     objectiveComplete: objectiveCompleteExtension
       ? ObjectiveComplete.merge(objectiveCompleteExtension)
           .optional()

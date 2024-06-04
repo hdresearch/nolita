@@ -66,7 +66,14 @@ export async function remember(
   opts?: { apiKey?: string; endpoint?: string; limit?: number }
 ): Promise<Memory[]> {
   try {
-    return await fetchStateActionPairs(objectiveState, opts);
+    const memories = await fetchStateActionPairs(objectiveState, opts);
+    const filteredMemories = memories.filter(
+      (memory) => memory.actionStep.command !== undefined
+    );
+    if (filteredMemories.length === 0) {
+      return DEFAULT_STATE_ACTION_PAIRS;
+    }
+    return filteredMemories;
   } catch (error) {
     debug.write(`Error calling HDR API: ${error}`);
     return DEFAULT_STATE_ACTION_PAIRS;

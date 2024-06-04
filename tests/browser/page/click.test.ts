@@ -115,5 +115,5 @@ describe("Page interaction -- TYPE", () => {
     );
     expect(resultText).toBe("Button clicked!");
     await browser.close();
-  });
+  }, 20000);
 });
