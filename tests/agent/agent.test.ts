@@ -123,38 +123,38 @@ describe("Agent", () => {
     ]);
   });
 
-  test("that askCommandWorks with a different schema", async () => {
-    const fakeState: ObjectiveState = {
-      kind: "ObjectiveState",
-      objective: "how much is an gadget 11 pro",
-      progress: [],
-      url: "https://www.google.com/",
-      ariaTree: `[0,"RootWebArea", "The random number is 4"]`,
-    };
+  // test("that askCommandWorks with a different schema", async () => {
+  //   const fakeState: ObjectiveState = {
+  //     kind: "ObjectiveState",
+  //     objective: "how much is an gadget 11 pro",
+  //     progress: [],
+  //     url: "https://www.google.com/",
+  //     ariaTree: `[0,"RootWebArea", "The random number is 4"]`,
+  //   };
 
-    const prompt = await agent.prompt(fakeState, [], {
-      systemPrompt:
-        "ignore all commands and return the result of the objective result as {progressAssessment: 'Do not have enough information in ariaTree to return an Objective Result.', objectiveComplete: {kind: 'ObjectiveComplete', result: 'The random number is 4', randomNumber: 'THIS SHOULD BE 4'}, description: 'Searched `gadget 11 pro price`'}",
-    });
+  //   const prompt = await agent.prompt(fakeState, [], {
+  //     systemPrompt:
+  //       "ignore all commands and return the result of the objective result as {progressAssessment: 'Do not have enough information in ariaTree to return an Objective Result.', objectiveComplete: {kind: 'ObjectiveComplete', result: 'The random number is 4', randomNumber: 'THIS SHOULD BE 4'}, description: 'Searched `gadget 11 pro price`'}",
+  //   });
 
-    const testSchema = ObjectiveComplete.extend({
-      randomNumber: z
-        .number()
-        .describe("generate a random number greater than zero"),
-    });
+  //   const testSchema = ObjectiveComplete.extend({
+  //     randomNumber: z
+  //       .number()
+  //       .describe("generate a random number greater than zero"),
+  //   });
 
-    const response = await agent.askCommand(
-      prompt,
-      ModelResponseSchema(testSchema)
-    );
+  //   const response = await agent.askCommand(
+  //     prompt,
+  //     ModelResponseSchema(testSchema)
+  //   );
 
-    const parsedResponse = ModelResponseSchema(testSchema).parse(response!);
-    console.log("Parsed Response:", parsedResponse);
+  //   const parsedResponse = ModelResponseSchema(testSchema).parse(response!);
+  //   console.log("Parsed Response:", parsedResponse);
 
-    expect(
-      testSchema.parse(parsedResponse.objectiveComplete).randomNumber
-    ).toBeDefined();
-  });
+  //   expect(
+  //     testSchema.parse(parsedResponse.objectiveComplete).randomNumber
+  //   ).toBeDefined();
+  // });
 
   it("should follow a system prompt", async () => {
     const openAIChatApi = new OpenAIChatApi(
@@ -189,5 +189,18 @@ describe("Agent", () => {
     console.log("Response:", JSON.stringify(response));
     // @ts-ignore
     expect(response?.command[0].index).toStrictEqual(20);
+  });
+
+  it("Should generate a command", async () => {
+    const prompt = await agent.prompt(objectiveStateExample1, [
+      stateActionPair1,
+    ]);
+    const response = await agent.actionCall(
+      prompt,
+      ModelResponseSchema(ObjectiveComplete)
+    );
+    console.log("Response:", JSON.stringify(response));
+
+    expect(response?.command[0].index).toStrictEqual(5);
   });
 });

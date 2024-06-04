@@ -1,28 +1,39 @@
 import { z } from "zod";
+import { URL } from "url";
+
 import { ObjectiveState } from "../types/browser/browser.types";
 import { DEFAULT_STATE_ACTION_PAIRS } from "./examples";
 import { Memory } from "../types/memory.types";
+import { debug } from "../utils";
 
 export const HDRConfig = z.object({
-  apiKey: z.string(),
-  endpoint: z.string().url().default("https://api.hdr.is"),
+  apiKey: z.string().optional(),
+  endpoint: z.string().url().optional().default("https://api.hdr.is"),
 });
 
 export type HDRConfig = z.infer<typeof HDRConfig>;
 
 export async function fetchStateActionPairs(
   state: ObjectiveState,
-  hdrConfig: HDRConfig,
-  limit: number = 2
+  opts?: { apiKey?: string; endpoint?: string; limit?: number }
 ): Promise<Memory[]> {
-  const { apiKey, endpoint } = hdrConfig;
-
+  const endpoint =
+    opts?.endpoint ?? process.env.HDR_ENDPOINT ?? "https://api.hdr.is";
+  const limit = opts?.limit || 2;
+  const apiKey = opts?.apiKey || process.env.HDR_API_KEY;
+  if (!apiKey) {
+    throw new Error("No HDR API key provided");
+  }
+  if (!endpoint) {
+    throw new Error("No HDR API endpoint provided");
+  }
   const body = JSON.stringify({
     state: ObjectiveState.parse(state),
     limit,
   });
 
-  const response = await fetch(`${endpoint}/memories/remember`, {
+  const rememberEndpoint = new URL("/memories/remember", endpoint);
+  const response = await fetch(rememberEndpoint.href, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -52,29 +63,41 @@ export async function fetchStateActionPairs(
 
 export async function remember(
   objectiveState: ObjectiveState,
-  hdrConfig?: HDRConfig,
-  limit: number = 2
+  opts?: { apiKey?: string; endpoint?: string; limit?: number }
 ): Promise<Memory[]> {
-  const apiKey = hdrConfig?.apiKey || process.env.HDR_API_KEY;
-  if (!apiKey) {
-    return DEFAULT_STATE_ACTION_PAIRS;
-  }
   try {
-    const config = hdrConfig || { apiKey, endpoint: "https://api.hdr.is" };
-    return await fetchStateActionPairs(objectiveState, config, limit);
+    const memories = await fetchStateActionPairs(objectiveState, opts);
+    const filteredMemories = memories.filter(
+      (memory) => memory.actionStep.command !== undefined
+    );
+    if (filteredMemories.length === 0) {
+      return DEFAULT_STATE_ACTION_PAIRS;
+    }
+    return filteredMemories;
   } catch (error) {
-    console.error("Error calling HDR API:", error);
+    debug.write(`Error calling HDR API: ${error}`);
     return DEFAULT_STATE_ACTION_PAIRS;
   }
 }
 
 export async function fetchMemorySequence(
   sequenceId: string,
-  hdrConfig: HDRConfig
+  opts?: { apiKey?: string; endpoint?: string }
 ) {
-  const { apiKey, endpoint } = hdrConfig;
+  const { apiKey, endpoint } = opts
+    ? opts
+    : { apiKey: process.env.HDR_API_KEY, endpoint: process.env.HDR_ENDPOINT };
 
-  const response = await fetch(`${endpoint}/memories/sequence/${sequenceId}`, {
+  if (!apiKey) {
+    throw new Error("No HDR API key provided");
+  }
+  if (!endpoint) {
+    throw new Error("No HDR API endpoint provided");
+  }
+
+  const baseUrl = new URL(`/memories/sequence/${sequenceId}`, endpoint);
+
+  const response = await fetch(baseUrl.href, {
     headers: {
       Authorization: `Bearer ${apiKey}`,
     },
@@ -98,9 +121,9 @@ export async function fetchMemorySequence(
 
 export async function fetchRoute(
   routeParams: { url: string; objective: string },
-  hdrConfig: HDRConfig
+  opts?: { apiKey?: string; endpoint?: string }
 ) {
-  const { apiKey, endpoint } = hdrConfig;
+  const { apiKey, endpoint } = opts!;
 
   const response = await fetch(`${endpoint}/memories/findpath`, {
     method: "POST",
@@ -128,16 +151,17 @@ export async function fetchRoute(
 
 export async function findRoute(
   routeParams: { url: string; objective: string },
-  hdrConfig: HDRConfig
+  opts?: { apiKey?: string; endpoint?: string }
 ): Promise<Memory[] | undefined> {
-  const apiKey = hdrConfig?.apiKey || process.env.HDR_API_KEY;
+  const { apiKey, endpoint } = opts
+    ? opts
+    : { apiKey: process.env.HDR_API_KEY, endpoint: process.env.HDR_ENDPOINT };
   if (!apiKey) {
     return undefined;
   }
 
   try {
-    const config = hdrConfig || { apiKey, endpoint: "https://api.hdr.is" };
-    const route = await fetchRoute(routeParams, config);
+    const route = await fetchRoute(routeParams, { apiKey, endpoint });
 
     return route.map((m: any) => {
       return Memory.parse({

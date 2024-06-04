@@ -6,6 +6,10 @@ import {
   Protocol,
 } from "puppeteer";
 
+// Do not touch this. We're using undocumented puppeteer APIs
+// @ts-ignore
+import { MAIN_WORLD } from "puppeteer";
+
 import { z } from "zod";
 import Turndown from "turndown";
 
@@ -13,17 +17,20 @@ import {
   AccessibilityTree,
   ObjectiveState,
 } from "../types/browser/browser.types";
-import { debug, generateUUID } from "../utils";
+import { Logger, debug, generateUUID } from "../utils";
 import { BrowserAction } from "../types/browser/actions.types";
 import { Inventory } from "../inventory";
 import { Agent } from "../agent";
 import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 
-// Do not touch this. We're using undocumented puppeteer APIs
-// @ts-ignore
-import { MAIN_WORLD } from "puppeteer";
 import { memorize } from "../collectiveMemory";
-import { ModelResponseType } from "../types";
+import {
+  fetchMemorySequence,
+  findRoute,
+  remember,
+} from "../collectiveMemory/remember";
+import { ModelResponseSchema, ModelResponseType } from "../types";
+import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
 
 /**
  * Represents a web page and provides methods to interact with it.
@@ -32,27 +39,51 @@ export class Page {
   page: PuppeteerPage;
   private idMapping: Map<number, any> = new Map();
   private _state: ObjectiveState | undefined = undefined;
+  private inventory: Inventory | undefined;
+  private apiKey: string | undefined;
+  private endpoint: string | undefined;
 
   pageId: string;
   agent: Agent;
+  logger?: Logger;
+  progress: string[] = [];
 
   error: string | undefined;
 
   /**
    * Creates a new Page instance.
-   * @param page The Puppeteer page instance.
-   * @param agent The agent associated with the page.
-   * @param pageId The unique identifier for the page.
+   * @param {PuppeteerPage} page - The PuppeteerPage object representing the browser page.
+   * @param {Agent} agent - The Agent object representing the user agent interacting with the page.
+   * @param {Object} [opts] - Optional parameters for additional configuration.
+   * @param {string} [opts.pageId] - An optional unique identifier for the page; if not provided, a UUID will be generated.
+   * @param {Logger} [opts.logger] - An optional logger for logging events; if not provided, logging may be absent.
+   * @param {Inventory} [opts.inventory] - An optional inventory object for storing and retrieving user data.
+   * @param {string} [opts.apiKey] - An optional API key for accessing collective memory.
+   * @param {string} [opts.endpoint] - An optional endpoint for collective memory.
    */
-  constructor(page: PuppeteerPage, agent: Agent, pageId?: string) {
+  constructor(
+    page: PuppeteerPage,
+    agent: Agent,
+    opts?: {
+      pageId?: string;
+      logger?: Logger;
+      inventory?: Inventory;
+      apiKey?: string;
+      endpoint?: string;
+    }
+  ) {
     this.page = page;
     this.agent = agent;
-    this.pageId = pageId ?? generateUUID();
+    this.pageId = opts?.pageId ?? generateUUID();
+    this.logger = opts?.logger;
+    this.inventory = opts?.inventory;
+    this.apiKey = opts?.apiKey;
+    this.endpoint = opts?.endpoint ?? "https://api.hdr.is";
   }
 
   /**
    * Returns the URL of the page.
-   * @returns The URL of the page.
+   * @returns {string} The URL of the page.
    */
   url(): string {
     return this.page.url();
@@ -60,7 +91,7 @@ export class Page {
 
   /**
    * Returns the text content of the page.
-   * @returns A promise that resolves to the text content of the page.
+   * @returns {Promise<string>} A promise that resolves to the text content of the page.
    */
   async content(): Promise<string> {
     return await this.page.evaluate(() => document.body.innerText);
@@ -68,9 +99,9 @@ export class Page {
 
   /**
    * Sets the viewport size of the page.
-   * @param width The width of the viewport.
-   * @param height The height of the viewport.
-   * @param deviceScaleFactor The device scale factor (default: 1).
+   * @param {number} width The width of the viewport.
+   * @param {number} height The height of the viewport.
+   * @param {number} deviceScaleFactor The device scale factor (default: 1).
    */
   async setViewport(
     width: number,
@@ -119,23 +150,42 @@ export class Page {
   }
 
   /**
-   * Navigates to a URL.
-   * @param url The URL to navigate to.
-   * @param options The navigation options.
+   * Logs a message to the logger.
+   * @param {string} msg The message to log.
+   * @private
    */
-  async goto(url: string, options?: { delay: number }) {
+  private log(msg: string) {
+    if (this.logger) {
+      this.logger.log(
+        JSON.stringify({
+          pageId: this.pageId,
+          timestamp: Date.now(),
+          message: msg,
+        })
+      );
+    }
+  }
+
+  /**
+   * Navigates to a URL.
+   * @param {string} url The URL to navigate to.
+   * @param {Object} [opts] The navigation options.
+   * @param {number} [opts.delay] The delay in milliseconds after navigating to the URL.
+   */
+  async goto(url: string, opts?: { delay: number }) {
+    this.log(`Navigating to ${url}`);
     await this.page.goto(url);
-    if (options?.delay) {
-      await new Promise((resolve) => setTimeout(resolve, options.delay));
+    if (opts?.delay) {
+      await new Promise((resolve) => setTimeout(resolve, opts.delay));
     }
   }
 
   /**
    * Queries the accessibility tree of an element.
-   * @param client The CDP session client.
-   * @param element The element to query.
-   * @param accessibleName The accessible name of the element.
-   * @param role The role of the element.
+   * @param {CDPSession} client The CDP session client.
+   * @param {ElementHandle<Node>} element The element to query.
+   * @param {string} accessibleName The accessible name of the element.
+   * @param {string} role The role of the element.
    * @returns A promise that resolves to the accessibility tree of the element.
    * @private
    */
@@ -160,7 +210,7 @@ export class Page {
 
   /**
    * Finds an element by its index in the ID mapping.
-   * @param index The index of the element in the ID mapping.
+   * @param {number} index The index of the element in the ID mapping.
    * @returns A promise that resolves to the found element handle.
    */
   private async findElement(index: number): Promise<ElementHandle<Element>> {
@@ -196,7 +246,7 @@ export class Page {
 
   /**
    * Simplifies the accessibility tree by converting it to an AccessibilityTree structure.
-   * @param node The serialized accessibility node to simplify.
+   * @param {SerializedAXNode} node The serialized accessibility node to simplify.
    * @returns The simplified accessibility tree.
    */
   private simplifyTree(node: SerializedAXNode): AccessibilityTree {
@@ -241,22 +291,22 @@ export class Page {
 
   /**
    * Retrieves the current state of the page based on the objective and progress.
-   * @param objective The objective of the page.
-   * @param objectiveProgress The progress of the objective.
+   * @param {string} objective The objective of the page.
+   * @param {string[]} objectiveProgress The progress of the objective.
    * @returns A promise that resolves to the objective state of the page.
    */
   async state(
     objective: string,
-    objectiveProgress: string[]
+    objectiveProgress?: string[]
   ): Promise<ObjectiveState> {
     let contentJSON = await this.parseContent();
-    let content: ObjectiveState = {
+    let content = ObjectiveState.parse({
       kind: "ObjectiveState",
       url: this.url().replace(/[?].*/g, ""),
       ariaTree: contentJSON,
-      progress: objectiveProgress,
+      progress: objectiveProgress ?? this.progress,
       objective: objective,
-    };
+    });
 
     this._state = content;
     return content;
@@ -272,15 +322,17 @@ export class Page {
 
   /**
    * Performs a browser action on the page.
-   * @param command The browser action to perform.
-   * @param inventory The inventory object (optional).
-   * @param delay The delay in milliseconds after performing the action (default: 100).
+   * @param {z.ZodSchema} command The browser action to perform.
+   * @param {Object} opts Additional options.
+   * @param {number} opts.delay The delay in milliseconds after performing the action (default: 100).
+   * @param {Inventory} opts.inventory The inventory object (optional).
    */
   async performAction(
     command: BrowserAction,
-    inventory?: Inventory,
-    delay: number = 100
+    opts?: { delay?: number; inventory?: Inventory }
   ) {
+    const inventory = opts?.inventory ?? this.inventory;
+    const delay = opts?.delay ?? 100;
     this.error = undefined;
     try {
       switch (command.kind) {
@@ -334,24 +386,44 @@ export class Page {
   /**
    * Performs multiple browser actions on the page.
    * @param commands An array of browser actions to perform.
-   * @param inventory The inventory object (optional).
+   * @param {Object} opts Additional options.
+   * @param {number} opts.delay The delay in milliseconds after performing the action (default: 100).
+   * @param {Inventory} opts.inventory The inventory object (optional).
    */
-  async performManyActions(commands: BrowserAction[], inventory?: Inventory) {
+  async performManyActions(
+    commands: BrowserAction[],
+    opts?: { delay?: number; inventory?: Inventory }
+  ) {
     for (let command of commands) {
-      await this.performAction(command, inventory);
+      await this.performAction(command, opts);
     }
   }
 
   /**
    * Creates a prompt for the agent based on the request and current state.
    * @param request The request or objective.
-   * @param agent The agent to create the prompt for.
-   * @param progress The progress of the objective (optional).
-   * @returns A promise that resolves to the created prompt.
+   * @param {Object} [opts] The navigation options.
+   * @param {Agent} opts.agent The agent to create the prompt for.
+   * @param {string[]} opts.progress The progress of the objective (optional).
+   * @returns {Promise<string>} A promise that resolves to the created prompt.
    */
-  async makePrompt(request: string, agent: Agent, progress?: string[]) {
-    const state = (await this.state(request, progress ?? [])) as ObjectiveState;
-    const prompt = agent.prompt(state, DEFAULT_STATE_ACTION_PAIRS);
+  async makePrompt(
+    request: string,
+    opts?: { progress?: string[]; agent?: Agent; inventory?: Inventory }
+  ) {
+    const state = (await this.state(
+      request,
+      opts?.progress ?? this.progress
+    )) as ObjectiveState;
+    const agent = opts?.agent ?? this.agent;
+    const memories = await remember(state, {
+      apiKey: this.apiKey,
+      endpoint: this.endpoint,
+    });
+
+    const prompt = agent.prompt(state, memories, {
+      inventory: opts?.inventory,
+    });
 
     return prompt;
   }
@@ -359,55 +431,157 @@ export class Page {
   /**
    * Generates a command based on the request and current state.
    * @param request The request or objective.
-   * @param agent The agent to generate the command for.
-   * @param progress The progress of the objective (optional).
-   * @returns A promise that resolves to the generated command.
+   * @param {Object} opts Additional options.
+   * @param {string[]} opts.progress The progress towards the objective (optional).
+   * @param {Agent} opts.agent The agent to use (optional).
+   * @param {z.ZodSchema} opts.schema The Zod schema for the return type.
+   * @param {Inventory} opts.inventory The inventory object (optional).
    */
-  async generateCommand(request: string, agent: Agent, progress?: string[]) {
-    const prompt = await this.makePrompt(request, agent, progress);
+  async generateCommand<T extends z.ZodSchema<any>>(
+    request: string,
+    opts?: {
+      progress?: string[];
+      agent?: Agent;
+      schema?: T;
+      inventory?: Inventory;
+    }
+  ): Promise<z.infer<T>> {
+    const agent = opts?.agent ?? this.agent;
+    const prompt = await this.makePrompt(request, opts);
+    const schema = z.object({
+      command: opts?.schema ?? z.array(BrowserAction).min(1),
+      progressAssessment: z.string(),
+      description: z.string(),
+    });
 
-    const command = await agent.actionCall(
-      prompt,
-      z.array(BrowserAction).min(1)
-    );
+    const command = await agent.actionCall(prompt, schema);
     return command;
   }
 
   /**
    * Performs a request on the page.
    * @param request The request or objective.
-   * @param opts Additional options.
-   * @param opts.agent The agent to use (optional).
-   * @param opts.inventory The inventory object (optional).
+   * @param {Object} opts Additional options.
+   * @param {Agent} opts.agent The agent to use (optional).
+   * @param {Inventory} opts.inventory The inventory object (optional).
+   * @param {string[]} opts.progress The progress towards the objective (optional).
+   * @param {number} opts.delay The delay in milliseconds after performing the action (default: 100).
+   * @param {z.ZodSchema} opts.schema The Zod schema for the return type.
    */
-  async do(request: string, opts?: { agent?: Agent; inventory?: Inventory }) {
-    const agent = opts?.agent ?? this.agent;
-    const inventory = opts?.inventory;
-    const command = await this.generateCommand(request, agent);
+  async do(
+    request: string,
+    opts?: {
+      agent?: Agent;
+      inventory?: Inventory;
+      progress?: string[];
+      delay?: number;
+      schema?: z.ZodSchema<any>;
+    }
+  ) {
+    const command = await this.generateCommand(request, opts);
     memorize(this._state!, command as ModelResponseType, this.pageId, {
       endpoint: process.env.HDR_API_ENDPOINT ?? "https://api.hdr.is",
       apiKey: process.env.HDR_API_KEY ?? "",
     });
-    await this.performManyActions(command.command, inventory);
+    await this.performManyActions(command.command, opts);
   }
 
   /**
    * Retrieves data from the page based on the request and return type.
    * @template T The type of the return value.
    * @param request The request or objective.
-   * @param returnType The Zod schema for the return type.
+   * @param outputSchema The Zod schema for the return type.
    * @param opts Additional options.
-   * @param opts.agent The agent to use (optional).
+   * @param {Agent} opts.agent The agent to use (optional).
+   * @param {string[]} opts.progress The progress towards the objective (optional).
    * @returns A promise that resolves to the retrieved data.
    */
   async get<T extends z.ZodSchema<any>>(
     request: string,
-    returnType: T,
-    opts?: { agent?: Agent }
+    outputSchema: T,
+    opts?: { agent?: Agent; progress?: string[] }
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
-    const prompt = await this.makePrompt(request, agent);
-    return await agent.returnCall(prompt, returnType);
+    const prompt = await this.makePrompt(request, opts);
+    const result = await agent.returnCall(prompt, outputSchema);
+    this.log(JSON.stringify(result));
+    return result;
+  }
+
+  /**
+   * Take the next step towards the objective.
+   * @param {string} request The request or objective.
+   * @param {z.ZodSchema} outputSchema The Zod schema for the return type.
+   * @param {Object} opts Additional options.
+   * @param {Agent} opts.agent The agent to use (optional).
+   * @param {string[]} opts.progress The progress towards the objective (optional).
+   * @param {Inventory} opts.inventory The inventory object (optional).
+   * @returns {z.ZodSchema} A promise that resolves to the retrieved data.
+   */
+  async step(
+    request: string,
+    outputSchema: z.ZodSchema<any>,
+    opts?: {
+      agent?: Agent;
+      progress?: string[];
+      inventory?: Inventory;
+      delay?: number;
+    }
+  ) {
+    const responseSchema = ModelResponseSchema(
+      ObjectiveComplete.extend({ outputSchema })
+    );
+    const result = await this.generateCommand(request, {
+      agent: opts?.agent ?? this.agent,
+      progress: opts?.progress,
+      schema: responseSchema,
+    });
+    if (result.objectiveComplete) {
+      if (result.command) {
+        await this.performManyActions(result.command, opts);
+      }
+      this.log(JSON.stringify(result));
+      return result;
+    }
+    await this.performManyActions(result.command);
+  }
+
+  /**
+   * Browses the page based on the request and return type.
+   * @param {string} request The request or objective.
+   * @param {z.ZodSchema} outputSchema The Zod schema for the return type.
+   * @param {Object} opts Additional options.
+   * @param {Agent} opts.agent The agent to use (optional).
+   * @param {string[]} opts.progress The progress towards the objective (optional).
+   * @param {Inventory} opts.inventory The inventory object (optional).
+   * @param {number} opts.maxTurns The maximum number of turns to browse.
+   * @returns {z.ZodSchema} A promise that resolves to the retrieved data.
+   */
+  async browse(
+    request: string,
+    outputSchema: z.ZodSchema<any>,
+    opts: {
+      agent?: Agent;
+      progress?: string[];
+      inventory?: Inventory;
+      maxTurns: number;
+    } = {
+      maxTurns: 20,
+    }
+  ): Promise<z.infer<typeof outputSchema>> {
+    const responseSchema = ModelResponseSchema(
+      ObjectiveComplete.extend({ outputSchema })
+    );
+    let currentTurn = 0;
+    while (currentTurn < opts.maxTurns) {
+      const result = await this.step(request, responseSchema, opts);
+
+      if (result) {
+        return result;
+      }
+
+      currentTurn++;
+    }
   }
 
   /**

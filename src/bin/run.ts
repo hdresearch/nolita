@@ -22,7 +22,7 @@ const loadConfigFile = (filePath: string): any => {
 
 const loadConfigs = (config: string | undefined): any => {
   const commandLineConfig = loadConfigFile(
-    path.resolve(process.cwd(), config || ""),
+    path.resolve(process.cwd(), config || "")
   );
   const homeConfig = loadConfigFile(path.resolve(os.homedir(), ".nolitarc"));
   const mergedConfig = { ...homeConfig, ...commandLineConfig };
@@ -39,7 +39,7 @@ const getConfig = (
   agentApiKey: string | undefined,
   agentEndpoint: string | undefined,
   hdrApiKey: string | undefined,
-  headless: boolean | string | undefined,
+  headless: boolean | string | undefined
 ): any => ({
   startUrl: startUrl || mergedConfig.startUrl,
   objective: objective || mergedConfig.objective,
@@ -96,7 +96,7 @@ export const run = async (toolbox: GluegunToolbox) => {
     agentApiKey,
     agentEndpoint,
     hdrApiKey,
-    headless,
+    headless
   );
   resolvedConfig.headless = resolvedConfig.headless !== "false";
 
@@ -237,7 +237,7 @@ export const run = async (toolbox: GluegunToolbox) => {
 
   if (!chatApi) {
     throw new Error(
-      `Failed to create chat api for ${providerOptions.provider}`,
+      `Failed to create chat api for ${providerOptions.provider}`
     );
   }
 
@@ -247,7 +247,7 @@ export const run = async (toolbox: GluegunToolbox) => {
 
   const args = {
     agent,
-    browser: await Browser.create(resolvedConfig.headless, agent),
+    browser: await Browser.launch(resolvedConfig.headless, agent),
     logger,
     inventory:
       resolvedConfig.inventory.length > 0
@@ -271,7 +271,7 @@ export const run = async (toolbox: GluegunToolbox) => {
       objective: [resolvedConfig.objective],
       maxIterations: MAX_ITERATIONS,
     },
-    ModelResponseSchema(ObjectiveComplete),
+    ModelResponseSchema(ObjectiveComplete)
   );
   await args.browser.close();
 };

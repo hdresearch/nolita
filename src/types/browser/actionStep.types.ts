@@ -50,13 +50,12 @@ export const ActionStep = z.union([
 export type ActionStep = z.infer<typeof ActionStep>;
 
 export const ModelResponseSchema = <TObjectiveComplete extends z.AnyZodObject>(
-  objectiveCompleteExtension?: TObjectiveComplete
+  objectiveCompleteExtension?: TObjectiveComplete,
+  commandSchema: z.ZodSchema<any> = BrowserActionSchemaArray
 ) =>
   z.object({
     progressAssessment: z.string(),
-    command: BrowserActionSchemaArray.optional().describe(
-      "List of browser actions"
-    ),
+    command: commandSchema.optional().describe("List of browser actions"),
     objectiveComplete: objectiveCompleteExtension
       ? ObjectiveComplete.merge(objectiveCompleteExtension)
           .optional()

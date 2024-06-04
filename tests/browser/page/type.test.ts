@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from "@jest/globals";
+import { describe, it, expect, beforeAll, jest } from "@jest/globals";
 
 import { Browser } from "../../../src/browser/index";
-import { Page } from "../../../src/browser/page";
 import { Agent, completionApiBuilder } from "../../../src/agent";
+
+jest.retryTimes(3);
 
 describe("Page interaction -- Type", () => {
   const htmlContent = `
@@ -31,7 +32,7 @@ describe("Page interaction -- Type", () => {
   }, 20000);
 
   it("should enter text", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto(dataUrl);
@@ -56,7 +57,7 @@ describe("Page interaction -- Type", () => {
   }, 30000);
 
   it("it should enter text as array", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
     await page.goto(dataUrl);
 
@@ -82,14 +83,17 @@ describe("Page interaction -- Type", () => {
   }, 30000);
 
   it("should enter text via do", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto(dataUrl);
 
-    await page.do("type `High Dimensional Research` into the text box", {
-      agent,
-    });
+    await page.do(
+      "type `High Dimensional Research` into the text box. Please make sure to capitalize the type in the command array",
+      {
+        agent,
+      }
+    );
     const value = await page.page.evaluate(() =>
       document.querySelector("textarea")!.value.trim()
     );

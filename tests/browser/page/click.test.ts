@@ -1,12 +1,4 @@
-import {
-  describe,
-  it,
-  expect,
-  beforeAll,
-  beforeEach,
-  afterEach,
-} from "@jest/globals";
-import { Page } from "../../../src/browser/page";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { Browser } from "../../../src/browser";
 import { Agent, completionApiBuilder } from "../../../src/agent";
 
@@ -53,7 +45,7 @@ describe("Page interaction -- TYPE", () => {
   }, 20000);
 
   it("should click a button", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto(dataUrl);
@@ -78,7 +70,7 @@ describe("Page interaction -- TYPE", () => {
   }, 20000);
 
   it("should click a button as an array", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto(dataUrl);
@@ -105,7 +97,7 @@ describe("Page interaction -- TYPE", () => {
   }, 20000);
 
   it("should click a button via do", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto(dataUrl);
@@ -123,5 +115,5 @@ describe("Page interaction -- TYPE", () => {
     );
     expect(resultText).toBe("Button clicked!");
     await browser.close();
-  });
+  }, 20000);
 });

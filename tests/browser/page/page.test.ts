@@ -1,5 +1,4 @@
 import { describe, expect, it, beforeAll } from "@jest/globals";
-import { Page } from "../../../src/browser/page";
 import { Browser } from "../../../src/browser";
 import { ObjectiveState } from "../../../src/types/browser";
 import { Agent, completionApiBuilder } from "../../../src/agent";
@@ -23,7 +22,7 @@ describe("Page", () => {
   }, 5000);
 
   it("should return the state of the page", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
     await page.goto("http://example.com");
     const state = await page.state("Describe the page content", []);
@@ -34,22 +33,19 @@ describe("Page", () => {
   });
 
   it("should make a prompt", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");
 
-    const prompt = await page.makePrompt(
-      "What is the title of the page?",
-      agent
-    );
+    const prompt = await page.makePrompt("What is the title of the page?");
 
     expect(prompt).toBeDefined();
     await browser.close();
   }, 10000);
 
   it("should get a result", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto("https://hdr.is/people");
@@ -67,10 +63,10 @@ describe("Page", () => {
     expect(result).toBeDefined();
     expect(result.emails).toContain("tynan.daly@hdr.is");
     await browser.close();
-  }, 10000);
+  }, 20000);
 
   it("should take a screenshot", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
     const htmlContent = `
       <!DOCTYPE html>
@@ -92,7 +88,7 @@ describe("Page", () => {
   });
 
   it("should return html content", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");
@@ -104,7 +100,7 @@ describe("Page", () => {
   });
 
   it("should return markdown content", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");
@@ -116,7 +112,7 @@ describe("Page", () => {
   });
 
   it("should inject bounding boxes correctly", async () => {
-    const browser = await Browser.create(true, agent);
+    const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");

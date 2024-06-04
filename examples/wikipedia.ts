@@ -40,10 +40,11 @@ async function main() {
     );
   }
   const logger = new Logger(["info"], (msg) => console.log(msg));
+  const agent = new Agent({ modelApi: chatApi });
 
   const agentBrowser = new AgentBrowser({
-    agent: new Agent({ modelApi: chatApi }),
-    browser: await Browser.create(argv.headless),
+    agent: agent,
+    browser: await Browser.launch(argv.headless, agent),
     logger,
   });
 

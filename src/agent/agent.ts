@@ -29,6 +29,15 @@ export class Agent {
     this.systemPrompt = agentArgs.systemPrompt;
   }
 
+  /**
+   * Generate a prompt for the user to complete an objective
+   * @param currentState - The current state of the objective
+   * @param memories - The memories to use as examples
+   * @param config - Configuration options for the prompt
+   * @param config.inventory - The inventory to use for the prompt
+   * @param config.systemPrompt - The system prompt to use for the prompt
+   * @returns string - The prompt for the user to complete the objective
+   */
   prompt(
     currentState: ObjectiveState,
     memories: Memory[],
@@ -215,22 +224,30 @@ export class Agent {
     return response;
   }
 
+  /**  
+  Generate a command response from the model and return the parsed data
+  @param prompt - The prompt to send to the model
+  @param commandSchema - The schema to validate the response
+  @returns The parsed response data as @commandSchema
+  */
   async actionCall<T extends z.ZodSchema<any>>(
     prompt: ChatRequestMessage[],
     commandSchema: T
   ) {
     const response = await chat(this.modelApi, prompt, {
-      schema: z.object({
-        progressAssessment: z.string(),
-        command: commandSchema,
-        description: z.string(),
-      }),
+      schema: commandSchema,
       autoSlice: true,
     });
 
     return response.data;
   }
 
+  /**  
+  Get information from the model and return the parsed data
+  @param prompt - The prompt to send to the model
+  @param responseSchema - The schema to validate the response
+  @returns The parsed response data as @responseSchema
+  */
   async returnCall<T extends z.ZodSchema<any>>(
     prompt: ChatRequestMessage[],
     responseSchema: T
