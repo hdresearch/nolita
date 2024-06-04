@@ -1,7 +1,7 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 
-import { BROWSERS } from "../browser/create";
+import { BROWSERS } from "../browser/launch";
 import { JsonSchema } from "json-schema-to-zod";
 import { jsonToZod } from "../utils";
 

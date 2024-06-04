@@ -4,7 +4,7 @@ import * as fs from "fs";
 
 import { ErrorSchema } from "./schema";
 
-import { BROWSERS } from "./browser/create";
+import { BROWSERS } from "./browser/launch";
 
 export async function jsonToZod(jsonObject: any): Promise<any> {
   const _module = jsonSchemaToZod(jsonObject, { module: "cjs" });

@@ -2,7 +2,7 @@ import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 import { JsonSchema } from "json-schema-to-zod";
 
-import { BROWSERS } from "../browser/create";
+import { BROWSERS } from "../browser/launch";
 import { PageParamsSchema } from "../schemas/pageSchemas";
 import { jsonToZod } from "../utils";
 import { Inventory, InventoryValue } from "../../inventory";
