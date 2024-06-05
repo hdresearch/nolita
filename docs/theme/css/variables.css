@@ -39,7 +39,7 @@
   --warning-border: #ff8e00;
 
   --table-border-color: hsl(0, 0%, 95%);
-  --table-header-bg: hsl(0, 0%, 5%);
+  --table-header-bg: transparent;
   --table-alternate-bg: hsl(0, 0%, 5%);
 
   --searchbar-border-color: #aaa;
