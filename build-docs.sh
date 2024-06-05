@@ -18,6 +18,6 @@ cd docs/src/reference && book sm
 
 # we append the reference summary to the main summary correcting the relative link
 sed -E -i '' 's/\]\(([^)]+)\)/\](\.\/reference\/\1)/g' SUMMARY.md
-sed -i '' 's/-/#/g' SUMMARY.md
+sed -i '' '/^-/ s/-/#/g' SUMMARY.md
 sed 1,2d SUMMARY.md >> ../SUMMARY.md
 rm SUMMARY.md
