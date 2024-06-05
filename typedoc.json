@@ -11,22 +11,4 @@
     "expandObjects": true,
     "expandParameters": true,
     "parametersFormat": "table",
-    // "pluginPages": {
-    //  "pages": [ { "name": "Nolita", "moduleRoot": true, "children": [
-    //   { "name": "Introduction", "source": "/docs/src/README.md" },
-    //   { "name": "Running tasks", "source": "/docs/src/tasks.md" },
-    //   { "name": "Using Nolita as a server", "source": "/docs/src/serve.md" },
-    //   { "name": "Creating a new project", "source": "/docs/src/create.md" },
-    //   { "name": "Nolita projects", "children": [
-    //    { "name": "The folder structure", "source": "/docs/src/create/folder.md", "children": [
-    //     {"name": "/agent", "source": "/docs/src/create/agent.md"},
-    //     {"name": "/app", "source": "/docs/src/create/app.md"},
-    //     {"name": "/extensions", "source": "/docs/src/create/extensions.md"},
-    //     {"name": "/server", "source": "/docs/src/create/server.md"},
-    //    ] },
-    //    { "name": "Specifying types", "source": "/docs/src/create/types.md"},
-    //    { "name": "Extending your application", "source": "/docs/src/create/extend.md"}
-    //   ] },
-    //  ] } ]
-    // }
    }
