@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "build:docs": "typedoc",
+    "build:docs": "./build-docs.sh",
     "test": "jest",
     "server": "npx tsx ./src/server/index.ts"
   },
