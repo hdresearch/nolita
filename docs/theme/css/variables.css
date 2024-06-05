@@ -33,14 +33,14 @@
   --theme-popup-border: #cccccc;
   --theme-hover: #444444;
 
-  --quote-bg: hsl(197, 37%, 96%);
+  --quote-bg: rgb(28, 30, 33);
   --quote-border: hsl(197, 37%, 91%);
 
   --warning-border: #ff8e00;
 
   --table-border-color: hsl(0, 0%, 95%);
-  --table-header-bg: hsl(0, 0%, 80%);
-  --table-alternate-bg: hsl(0, 0%, 97%);
+  --table-header-bg: hsl(0, 0%, 5%);
+  --table-alternate-bg: hsl(0, 0%, 5%);
 
   --searchbar-border-color: #aaa;
   --searchbar-bg: transparent;
@@ -79,14 +79,14 @@
   --theme-popup-border: #cccccc;
   --theme-hover: #444444;
 
-  --quote-bg: hsl(197, 37%, 96%);
-  --quote-border: hsl(197, 37%, 91%);
+  --quote-bg: rgb(28, 30, 33);
+  --quote-border: rgb(28, 30, 33);
 
   --warning-border: #ff8e00;
 
-  --table-border-color: hsl(0, 0%, 95%);
-  --table-header-bg: hsl(0, 0%, 80%);
-  --table-alternate-bg: hsl(0, 0%, 97%);
+  --table-border-color: hsl(0, 0%, 50%);
+  --table-header-bg: transparent;
+  --table-alternate-bg: hsl(0, 0%, 5%);
 
   --searchbar-border-color: #aaa;
   --searchbar-bg: transparent;
