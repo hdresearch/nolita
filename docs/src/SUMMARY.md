@@ -16,5 +16,5 @@
 - [Specifying types](./create/types.md)
 - [Extending your application](./create/extend.md)
 
-# API Reference
+## API Reference
 
