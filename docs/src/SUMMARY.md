@@ -18,13 +18,3 @@
 
 # API Reference
 
-- [Exported classes](./reference/classes.md)
-    - [Agent](./reference/agent.md)
-    - [Browser](./reference/browser.md)
-    - [Inventory](./reference/inventory.md)
-    - [Logger](./reference/logger.md)
-    - [AgentBrowser](./reference/agentbrowser.md)
-    <!-- - [Page](./reference/page.md) -->
-- [Exported types](./reference/types.md)
-    - [ModelResponseSchema](./reference/modelresponse.md)
-    - [ObjectiveComplete](./reference/objectivecomplete.md)
