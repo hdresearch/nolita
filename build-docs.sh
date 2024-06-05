@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cargo install book-summary
+npm i -g gitbook-summary
 
 ## copy our summary to a tmp
 cp docs/src/SUMMARY.md docs/src/SUMMARY.tmp.md
@@ -14,7 +14,7 @@ rm docs/src/SUMMARY.tmp.md
 typedoc
 
 # we generate a summary of the reference folder
-cd docs/src/reference && book-summary 
+cd docs/src/reference && book sm 
 
 # we append the reference summary to the main summary correcting the relative link
 sed -E 's/\]\(([^)]+)\)/\](\.\/reference\/\1)/g' SUMMARY.md > SUMMARY2.md 
