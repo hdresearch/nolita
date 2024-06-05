@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+cargo install book-summary
+
 ## copy our summary to a tmp
 cp docs/src/SUMMARY.md docs/src/SUMMARY.tmp.md
 rm docs/src/SUMMARY.md
