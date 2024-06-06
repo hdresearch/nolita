@@ -511,15 +511,17 @@ export class Page {
    */
   async get<T extends z.ZodSchema<any>>(
     request: string,
-    outputSchema?: T,
+    outputSchema: T,
     opts?: { agent?: Agent; progress?: string[] }
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
     const prompt = await this.makePrompt(request, opts);
-    const schema = outputSchema
-      ? ObjectiveComplete.extend({ outputSchema })
-      : ObjectiveComplete;
-    const result = await agent.returnCall(prompt, schema);
+    // const schema = outputSchema
+    //   ? ObjectiveComplete.extend({ outputSchema })
+    //   : ObjectiveComplete;
+
+    const result = await agent.returnCall(prompt, outputSchema);
+
     this.log(JSON.stringify(result));
     return result;
   }
@@ -532,7 +534,7 @@ export class Page {
    * @param {Agent} opts.agent The agent to use (optional).
    * @param {string[]} opts.progress The progress towards the objective (optional).
    * @param {Inventory} opts.inventory The inventory object (optional).
-   * @returns {z.ZodSchema} A promise that resolves to the retrieved data.
+   * @returns {z.ZodSchema | undefined} A promise that resolves to the retrieved data.
    */
   async step(
     objective: string,
@@ -580,7 +582,7 @@ export class Page {
    */
   async browse(
     request: string,
-    outputSchema: z.ZodSchema<any>,
+    outputSchema?: z.ZodSchema<any>,
     opts: {
       agent?: Agent;
       progress?: string[];
@@ -589,10 +591,10 @@ export class Page {
     } = {
       maxTurns: 20,
     }
-  ): Promise<z.infer<typeof outputSchema>> {
-    const responseSchema = ModelResponseSchema(
-      ObjectiveComplete.extend({ outputSchema })
-    );
+  ) {
+    const responseSchema = outputSchema
+      ? ModelResponseSchema(ObjectiveComplete.extend({ outputSchema }))
+      : ModelResponseSchema(ObjectiveComplete);
     let currentTurn = 0;
     while (currentTurn < opts.maxTurns) {
       const result = await this.step(request, responseSchema, opts);
