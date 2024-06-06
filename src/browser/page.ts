@@ -10,7 +10,7 @@ import {
 // @ts-ignore
 import { MAIN_WORLD } from "puppeteer";
 
-import { z } from "zod";
+import { ZodSchema, z } from "zod";
 import Turndown from "turndown";
 
 import {
@@ -31,6 +31,10 @@ import {
 } from "../collectiveMemory/remember";
 import { ModelResponseSchema, ModelResponseType } from "../types";
 import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
+import {
+  ObjectiveFailed,
+  extendModelResponse,
+} from "../types/browser/actionStep.types";
 
 /**
  * Represents a web page and provides methods to interact with it.
@@ -456,13 +460,12 @@ export class Page {
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
     const prompt = await this.makePrompt(request, opts);
-    // const schema = z.object({
-    //   command: opts?.schema ?? z.array(BrowserAction).min(1),
-    //   progressAssessment: z.string(),
-    //   description: z.string(),
-    // });
 
     const command = await agent.actionCall(prompt, opts.schema);
+
+    if (!command) {
+      throw new Error("No command generated");
+    }
     return command;
   }
 
@@ -535,7 +538,7 @@ export class Page {
    */
   async step(
     objective: string,
-    outputSchema?: z.ZodSchema<any>,
+    outputSchema?: z.ZodObject<any>,
     opts?: {
       agent?: Agent;
       progress?: string[];
@@ -543,27 +546,19 @@ export class Page {
       delay?: number;
     }
   ) {
-    const responseSchema = outputSchema
-      ? ModelResponseSchema(ObjectiveComplete.extend({ outputSchema }))
-      : ModelResponseSchema(ObjectiveComplete);
+    const schema = extendModelResponse(outputSchema);
     const step = await this.generateCommand(objective, {
-      agent: opts?.agent ?? this.agent,
-      progress: opts?.progress,
-      schema: responseSchema,
+      ...opts,
+      schema: schema,
     });
 
-    console.log("STEP", JSON.stringify(step));
+    this.log(JSON.stringify(step));
 
-    if (step.objectiveComplete) {
-      if (step.command) {
-        await this.performManyActions(step.command, opts);
-      }
-      this.log(JSON.stringify(step));
-      return step;
-    }
     if (step.command) {
       await this.performManyActions(step.command);
     }
+
+    return step;
   }
 
   /**
@@ -579,7 +574,7 @@ export class Page {
    */
   async browse(
     request: string,
-    outputSchema?: z.ZodSchema<any>,
+    outputSchema?: z.ZodObject<any>,
     opts: {
       agent?: Agent;
       progress?: string[];
@@ -589,15 +584,12 @@ export class Page {
       maxTurns: 20,
     }
   ) {
-    const responseSchema = outputSchema
-      ? ModelResponseSchema(ObjectiveComplete.extend({ outputSchema }))
-      : ModelResponseSchema(ObjectiveComplete);
     let currentTurn = 0;
     while (currentTurn < opts.maxTurns) {
-      const result = await this.step(request, responseSchema, opts);
+      const step = await this.step(request, outputSchema, opts);
 
-      if (result) {
-        return result;
+      if (step?.objectiveComplete) {
+        return step;
       }
 
       currentTurn++;
