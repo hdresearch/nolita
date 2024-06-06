@@ -11,4 +11,6 @@
     "expandObjects": true,
     "expandParameters": true,
     "parametersFormat": "table",
+    "disableGit": true,
+    "sourceLinkTemplate": "https://github.com/hdresearch/nolita/blob/{gitRevision}/{path}#L{line}"
    }
