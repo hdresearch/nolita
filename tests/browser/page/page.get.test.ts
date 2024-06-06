@@ -33,15 +33,14 @@ describe("Page -- get", () => {
     const result = await page.get(
       "Find all the email addresses on the page",
       z.object({
-        emails: z
+        email: z
           .array(z.string())
           .describe("The email addresses found on the page"),
       }),
       { agent }
     );
-    console.log("RESULT", result);
     expect(result).toBeDefined();
-    // expect(result.outputSchema.email).toContain("tynan.daly@hdr.is");
+    expect(result.email).toContain("tynan.daly@hdr.is");
     await browser.close();
   }, 20000);
 
@@ -61,10 +60,25 @@ describe("Page -- get", () => {
       }),
       { agent }
     );
-    console.log("RESULT", result);
 
     expect(result).toBeDefined();
     expect(result.emails).toContain("tynan.daly@hdr.is");
+    await browser.close();
+  }, 20000);
+
+  it("should get a result with no schema", async () => {
+    const logger = new Logger();
+    const browser = await Browser.launch(true, agent, logger);
+    const page = await browser.newPage();
+
+    await page.goto("https://hdr.is/people");
+
+    const result = await page.get(
+      "Find all the email addresses on the page",
+      ObjectiveComplete
+    );
+
+    expect(result).toBeDefined();
     await browser.close();
   }, 20000);
 });

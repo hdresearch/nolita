@@ -203,4 +203,21 @@ describe("Agent", () => {
 
     expect(response?.command[0].index).toStrictEqual(5);
   });
+
+  it("Should return a response with a custom schema", async () => {
+    objectiveStateExample1.objective = "tell me what this website is";
+    const prompt = await agent.prompt(objectiveStateExample1, [
+      stateActionPair1,
+    ]);
+
+    const website = z.object({
+      website: z.string().describe("The website name"),
+    });
+    const response = await agent.returnCall(
+      prompt,
+      ObjectiveComplete.extend({ website })
+    );
+    expect(response.website).toBeDefined();
+    expect(response.website.website.toLowerCase()).toContain("google");
+  });
 });

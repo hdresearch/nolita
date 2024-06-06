@@ -516,9 +516,6 @@ export class Page {
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
     const prompt = await this.makePrompt(request, opts);
-    // const schema = outputSchema
-    //   ? ObjectiveComplete.extend({ outputSchema })
-    //   : ObjectiveComplete;
 
     const result = await agent.returnCall(prompt, outputSchema);
 

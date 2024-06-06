@@ -4,7 +4,7 @@ export async function newPageHelper(app: any) {
   const agent = {
     apiKey: process.env.OPENAI_API_KEY!,
     provider: "openai",
-    model: "gpt-4-turbo",
+    model: "gpt-4",
   };
 
   const launchRes = await request(app)
