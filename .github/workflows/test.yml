@@ -1,6 +1,9 @@
 name: Run tests
 on:
-  - pull_request
+  pull_request:
+    paths:
+      - src/**
+      - tests/**
 
 jobs:
   test:
