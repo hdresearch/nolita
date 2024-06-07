@@ -33,10 +33,11 @@ describe("pageApi -- info", () => {
       .get(`/${sessionId}/page/${pageId}`)
       .expect(200)
       .expect((res) => {
+        console.log(res.body);
         expect(res.body.id).toBe(pageId);
         expect(res.body.url).toBe("https://example.com/");
         expect(res.body.title).toBe("Example Domain");
-        expect(res.body.progress).toBe([]);
+        expect(res.body.progress).toStrictEqual([]);
       });
   });
 
