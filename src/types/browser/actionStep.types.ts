@@ -49,6 +49,17 @@ export const ActionStep = z.union([
 ]);
 export type ActionStep = z.infer<typeof ActionStep>;
 
+export const ModelResponse = z.object({
+  progressAssessment: z.string(),
+  command: BrowserActionSchemaArray.optional().describe(
+    "List of browser actions"
+  ),
+  objectiveComplete: ObjectiveComplete.optional().describe(
+    "Only return description of result if objective is complete"
+  ),
+  description: z.string(),
+});
+
 export const ModelResponseSchema = <TObjectiveComplete extends z.AnyZodObject>(
   objectiveCompleteExtension?: TObjectiveComplete,
   commandSchema: z.ZodSchema<any> = BrowserActionSchemaArray
@@ -72,15 +83,13 @@ export type ModelResponseType<
   TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
 > = z.infer<ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>>;
 
-export const ObjectiveCompleteResponse = <
-  TObjectiveComplete extends z.AnyZodObject
->(
-  objectiveCompleteExtension?: TObjectiveComplete
+export const ObjectiveCompleteResponse = <T extends z.AnyZodObject>(
+  extension?: T
 ) =>
   z.object({
     progressAssessment: z.string(),
-    objectiveComplete: objectiveCompleteExtension
-      ? objectiveCompleteExtension.describe(
+    objectiveComplete: extension
+      ? extension.describe(
           "Only return description of result if objective is complete"
         )
       : ObjectiveComplete.describe(
@@ -92,3 +101,13 @@ export const ObjectiveCompleteResponse = <
 export type ObjectiveCompleteResponse<
   TObjectiveComplete extends z.AnyZodObject
 > = z.infer<ReturnType<typeof ObjectiveCompleteResponse<TObjectiveComplete>>>;
+
+// Function to merge a ZodObject into objectiveComplete within ModelResponse with a default empty schema
+export const extendModelResponse = <T extends z.ZodObject<any>>(
+  additionalSchema: T = z.object({}) as T
+) => {
+  const updatedObjectiveComplete = ObjectiveComplete.merge(additionalSchema)
+    .optional()
+    .describe("Updated ObjectiveComplete with additional properties");
+  return ModelResponse.extend({ objectiveComplete: updatedObjectiveComplete });
+};

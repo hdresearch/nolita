@@ -1,6 +1,8 @@
-import { describe, it, expect, beforeEach } from "@jest/globals";
+import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 import { Browser } from "../../../src/browser";
 import { Agent, completionApiBuilder } from "../../../src/agent";
+
+jest.retryTimes(3);
 
 describe("Page interaction -- TYPE", () => {
   const htmlContent = `

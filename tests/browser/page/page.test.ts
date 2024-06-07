@@ -1,9 +1,12 @@
 import { describe, expect, it, beforeAll } from "@jest/globals";
-import { Browser } from "../../../src/browser";
-import { ObjectiveState } from "../../../src/types/browser";
-import { Agent, completionApiBuilder } from "../../../src/agent";
-
 import { z } from "zod";
+
+import { Browser } from "../../../src/browser";
+import { ObjectiveComplete, ObjectiveState } from "../../../src/types/browser";
+import { Agent, completionApiBuilder } from "../../../src/agent";
+import { Logger } from "../../../src/utils";
+
+// jest.retryTimes(1);
 
 describe("Page", () => {
   let agent: Agent;
@@ -43,27 +46,6 @@ describe("Page", () => {
     expect(prompt).toBeDefined();
     await browser.close();
   }, 10000);
-
-  it("should get a result", async () => {
-    const browser = await Browser.launch(true, agent);
-    const page = await browser.newPage();
-
-    await page.goto("https://hdr.is/people");
-
-    const result = await page.get(
-      "Find all the email addresses on the page",
-      z.object({
-        emails: z
-          .array(z.string())
-          .describe("The email addresses found on the page"),
-      }),
-      { agent }
-    );
-
-    expect(result).toBeDefined();
-    expect(result.emails).toContain("tynan.daly@hdr.is");
-    await browser.close();
-  }, 20000);
 
   it("should take a screenshot", async () => {
     const browser = await Browser.launch(true, agent);

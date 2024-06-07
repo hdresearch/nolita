@@ -17,7 +17,6 @@ export function parseAriaTree(array: any[]): any[] {
           leafArrays.push(item);
         } else {
           if (item[1] === "combobox") {
-            console.log(item);
             leafArrays.push(item.slice(0, 3));
           }
           // Otherwise, recursively find leaf arrays within the children
