@@ -12,5 +12,7 @@
     "expandParameters": true,
     "parametersFormat": "table",
     "disableGit": true,
+    "excludeInternal": true,
+    "excludePrivate": true,
     "sourceLinkTemplate": "https://github.com/hdresearch/nolita/blob/{gitRevision}/{path}#L{line}"
    }
