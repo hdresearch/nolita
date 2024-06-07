@@ -197,6 +197,8 @@ table tbody tr:nth-child(2n) {
 blockquote {
   margin: 20px 0;
   padding: 0 20px;
+  font-size: 1.25rem;
+  font-family: var(--mono-font);
   color: var(--fg);
   background-color: var(--quote-bg);
   border-block-start: 0.1em solid var(--quote-border);
