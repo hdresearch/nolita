@@ -573,7 +573,7 @@ export class Page {
    * @returns {z.ZodSchema} A promise that resolves to the retrieved data.
    */
   async browse(
-    request: string,
+    objective: string,
     outputSchema?: z.ZodObject<any>,
     opts: {
       agent?: Agent;
@@ -586,7 +586,7 @@ export class Page {
   ) {
     let currentTurn = 0;
     while (currentTurn < opts.maxTurns) {
-      const step = await this.step(request, outputSchema, opts);
+      const step = await this.step(objective, outputSchema, opts);
 
       if (step?.objectiveComplete) {
         return step;
