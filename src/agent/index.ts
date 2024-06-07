@@ -1,4 +1,4 @@
 import { Agent } from "./agent";
-import { completionApiBuilder } from "./config";
+import { completionApiBuilder, makeAgent, defaultAgent } from "./config";
 
-export { Agent, completionApiBuilder };
+export { Agent, completionApiBuilder, makeAgent, defaultAgent };

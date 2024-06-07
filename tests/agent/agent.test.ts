@@ -199,7 +199,6 @@ describe("Agent", () => {
       prompt,
       ModelResponseSchema(ObjectiveComplete)
     );
-    console.log("Response:", JSON.stringify(response));
 
     expect(response?.command[0].index).toStrictEqual(5);
   });

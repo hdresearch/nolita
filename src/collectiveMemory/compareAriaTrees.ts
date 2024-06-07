@@ -47,7 +47,6 @@ export function updateCommandIndices(
     const oldKey = getKey(oldItem);
     newMap.set(oldKey, oldItem);
   });
-  // console.log(newMap);
   const oldMap = new Map();
   oldAriaTree.forEach((oldItem, oldIndex) => {
     if (oldItem.length > 3) {
@@ -56,16 +55,12 @@ export function updateCommandIndices(
     oldMap.set(oldItem[0], oldItem);
   });
 
-  // console.log(oldMap);
-
   let updatedCommands: any[] = [];
   commands.forEach((command) => {
     if (command.index === undefined) {
       updatedCommands.push(command);
     }
-    // console.log(command);
     const oldcommandObject = oldMap.get(command.index);
-    // console.log(oldcommandObject);
     const newcommandObject = newMap.get(getKey(oldcommandObject));
     if (oldcommandObject === newcommandObject) {
       updatedCommands.push(command);

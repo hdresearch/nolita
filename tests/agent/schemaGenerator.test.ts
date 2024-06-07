@@ -72,7 +72,6 @@ describe("generate Schemas", () => {
     ];
     const newCommandParsed = schema.parse(newCommand);
 
-    console.log(newCommandParsed);
     expect(schema.safeParse(sampleSchema).success).toBe(true);
     expect(newCommandParsed[0].kind).toBe("Type");
     expect(newCommandParsed[0].index).toBe(3);

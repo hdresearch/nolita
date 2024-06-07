@@ -232,14 +232,28 @@ export class Agent {
   */
   async actionCall<T extends z.ZodSchema<any>>(
     prompt: ChatRequestMessage[],
-    commandSchema: T
-  ) {
-    const response = await chat(this.modelApi, prompt, {
-      schema: commandSchema,
+    commandSchema: T,
+    opts = {
       autoSlice: true,
-    });
+      numOfAttempts: 5, // Maximum number of retries
+      startingDelay: 1000, // Initial delay in milliseconds
+      timeMultiple: 2, // Multiplier for the delay
+      maxDelay: 10000, // Maximum delay
+    }
+  ) {
+    const chatResponse = () =>
+      chat(this.modelApi, prompt, {
+        schema: commandSchema,
+        autoSlice: opts.autoSlice,
+      });
 
-    return response.data;
+    try {
+      const response = await backOff(chatResponse, opts);
+
+      return commandSchema.parse(response.data);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   /**  
@@ -254,6 +268,7 @@ export class Agent {
   ): Promise<z.infer<T>> {
     const response = await chat(this.modelApi, prompt, {
       schema: responseSchema,
+      autoSlice: true,
     });
 
     return response.data;
