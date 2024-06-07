@@ -4,7 +4,6 @@ import { getChromePath, browserContext } from "../../src/browser/browserUtils";
 describe("chromePaths", () => {
   test("chromepath works on local", () => {
     const chromePath = getChromePath();
-    console.log("ChromePath", chromePath);
 
     if (!(process.env.CI === "true")) {
       expect(chromePath).toBe(

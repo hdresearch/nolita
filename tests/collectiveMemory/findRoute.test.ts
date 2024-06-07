@@ -14,7 +14,6 @@ describe("Fetch Route", () => {
         endpoint: process.env.HDR_ENDPOINT!,
       }
     );
-    console.log(res);
     expect(res.length).toBeGreaterThan(0);
   });
 });
@@ -32,7 +31,6 @@ describe("Find Route", () => {
         endpoint: process.env.HDR_ENDPOINT!,
       }
     );
-    console.log(res);
     expect(res!.length).toBeGreaterThan(0);
   });
 });

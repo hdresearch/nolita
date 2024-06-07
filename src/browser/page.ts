@@ -10,7 +10,7 @@ import {
 // @ts-ignore
 import { MAIN_WORLD } from "puppeteer";
 
-import { ZodSchema, z } from "zod";
+import { z } from "zod";
 import Turndown from "turndown";
 
 import {
@@ -21,7 +21,6 @@ import { Logger, debug, generateUUID } from "../utils";
 import { BrowserAction } from "../types/browser/actions.types";
 import { Inventory } from "../inventory";
 import { Agent } from "../agent";
-import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 
 import { memorize } from "../collectiveMemory";
 import {
@@ -29,12 +28,9 @@ import {
   findRoute,
   remember,
 } from "../collectiveMemory/remember";
-import { ModelResponseSchema, ModelResponseType } from "../types";
+import { ModelResponseType } from "../types";
 import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
-import {
-  ObjectiveFailed,
-  extendModelResponse,
-} from "../types/browser/actionStep.types";
+import { extendModelResponse } from "../types/browser/actionStep.types";
 
 /**
  * Represents a web page and provides methods to interact with it.
