@@ -1,0 +1,16 @@
+{
+    "readme": "none",
+    "githubPages": false,
+    "hideGenerator": true,
+    "out": "./docs/src/reference",
+    "entryPoints": ["./src/index.ts"],
+    "titleLink": "https://nolita.ai",
+    "plugin": ["typedoc-plugin-zod", "typedoc-plugin-markdown"],
+    "hidePageHeader": true,
+    "hideBreadcrumbs": true,
+    "expandObjects": true,
+    "expandParameters": true,
+    "parametersFormat": "table",
+    "disableGit": true,
+    "sourceLinkTemplate": "https://github.com/hdresearch/nolita/blob/{gitRevision}/{path}#L{line}"
+   }
