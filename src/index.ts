@@ -5,6 +5,7 @@ import { Logger } from "./utils";
 import { Inventory } from "./inventory";
 import { completionApiBuilder } from "./agent/config";
 import { setupServer } from "./server";
+import { Nolita } from "./nolita";
 
 import {
   ModelResponseSchema,
@@ -18,6 +19,7 @@ import {
 } from "./types";
 
 export {
+  Nolita,
   Agent,
   Browser,
   Page,
