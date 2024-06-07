@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.0
+
+- **Breaking: Browser is now instantiated with `Browser.launch()`, not `.create()`.**
+- Added `Page` class for granular, natural language navigation API per "tab" of a Browser session.
+  - For an example, see our updated [findEmail](https://github.com/hdresearch/nolita/blob/1f57cc8f5b112faaf62cab488f88b047825bddfa/examples/findEmail.ts#L26-L41) example code.
+- Added a general `Nolita` class for an equivalent API of our general `npx nolita` task runner in Node scripts, without needing to wrangle classes. For granular usage, you should still create Browser sessions and drill down into Page navigation.
+- The Nolita server has been expanded to work in sessions and Pages. The new flow involves creating a browser session, then creating a page within that session, then navigating, providing objectives, or step-by-step natural language navigation. High-level documentation pending on such functionality, but API schema documentation is available at `localhost:3000/doc` when you run `npx nolita serve`.
+- Added documentation strings and automated documentation export across the codebase.
+
 ## 1.2.3
 
 - Removed a console.log in the `npx` default runner.
