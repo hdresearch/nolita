@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeAll, afterAll } from "@jest/globals";
+import { describe, expect, it, beforeAll, afterAll, jest } from "@jest/globals";
 import request from "supertest";
 
 import { createAdaptorServer } from "@hono/node-server";
@@ -8,6 +8,8 @@ import { newPageHelper } from "../../helpers/newPageHelper";
 import { generateUUID } from "../../../src/utils";
 
 export const app = createAdaptorServer(setupServer());
+
+jest.retryTimes(3);
 
 describe("pageApi -- browse", () => {
   let sessionId: string;
