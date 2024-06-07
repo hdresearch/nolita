@@ -9,7 +9,6 @@ import { Inventory } from "./inventory";
 /**
  * High level wrapper for the Nolita API.
  *
- *
  * @class
  * @property {string} hdrApiKey - The HDR api key.
  * @property {string} hdrEndpoint - The collective memory endpoint. Defaults to "https://api.hdr.is".
@@ -29,7 +28,7 @@ export class Nolita {
    * @param opts.provider - The provider to use. Defaults to "openai".
    * @param opts.model - The model to use. Defaults to "gpt-4".
    * @param opts.temperature - The temperature to use. Defaults to 0
-   * @param opts.systemPrompt - The system prompt to use. Defaults to "All responses should be witty and slightly mean."
+   * @param opts.systemPrompt - The system prompt to use.
    * @param opts.endpoint - The collective memory endpoint. Defaults to "https://api.hdr.is".
    */
   constructor(
