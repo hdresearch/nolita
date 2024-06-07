@@ -63,11 +63,9 @@ describe("pageApi -- get", () => {
       })
       .expect(200)
       .expect((res) => {
-        console.log(res.body);
-        expect(res.body.result).toBeDefined();
-        expect(res.body.kind).toBe("ObjectiveComplete");
+        console.log("TEST RES", res.body);
         expect(res.body).toBeDefined();
-        expect(res.body.outputSchema.purpose).toBeDefined();
+        expect(res.body.purpose).toBeDefined();
       });
   }, 20000);
 

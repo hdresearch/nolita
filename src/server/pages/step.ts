@@ -86,9 +86,11 @@ stepRouter.openapi(route, async (c) => {
   }
 
   const { schema, command, opts: userOpts } = c.req.valid("json");
-  const responseSchema: z.ZodType<any, z.ZodTypeDef, any> = await jsonToZod(
-    schema as JsonSchema
-  );
+
+  let responseSchema: z.ZodObject<any> | undefined;
+  if (schema) {
+    responseSchema = await jsonToZod(schema as JsonSchema);
+  }
 
   let inventory: Inventory | undefined;
 

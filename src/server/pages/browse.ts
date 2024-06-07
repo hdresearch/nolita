@@ -1,9 +1,11 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
+import { JsonSchema } from "json-schema-to-zod";
 
 import { BROWSERS } from "../browser/launch";
 import { PageParamsSchema } from "../schemas/pageSchemas";
 import { Inventory, InventoryValue } from "../../inventory";
+import { jsonToZod } from "../utils";
 
 const route = createRoute({
   method: "post",
@@ -34,7 +36,7 @@ const route = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: z.object({ image: z.string() }),
+          schema: z.any(),
         },
       },
       description: "The response from the server",
@@ -80,6 +82,11 @@ browseRouter.openapi(route, async (c) => {
     maxTurns,
     inventory: inventoryArgs,
   } = c.req.valid("json");
+
+  let responseSchema: z.ZodObject<any> | undefined;
+  if (schema) {
+    responseSchema = await jsonToZod(schema as JsonSchema);
+  }
 
   const inventory = inventoryArgs
     ? new Inventory(

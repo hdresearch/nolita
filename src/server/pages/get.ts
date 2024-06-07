@@ -67,6 +67,9 @@ getRouter.openapi(route, async (c) => {
   let responseSchema: z.ZodType<any, z.ZodTypeDef, any> | undefined;
   if (schema) {
     responseSchema = await jsonToZod(schema as JsonSchema);
+    if (!responseSchema) {
+      return c.json({ message: "Invalid schema" }, 400);
+    }
   }
 
   const result = await page.get(command, responseSchema);

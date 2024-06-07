@@ -514,7 +514,7 @@ export class Page {
    */
   async get<T extends z.ZodSchema<any>>(
     request: string,
-    outputSchema: T,
+    outputSchema: z.ZodSchema<any> = ObjectiveComplete,
     opts?: { agent?: Agent; progress?: string[] }
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
