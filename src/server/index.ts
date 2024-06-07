@@ -9,12 +9,14 @@ import { AgentBrowser } from "../agentBrowser";
 import { Logger } from "../utils";
 import { Browser } from "../browser";
 import { Agent } from "../agent/agent";
-import { Inventory, InventoryValue } from "../inventory";
+import { Inventory } from "../inventory";
 import { ModelResponseSchema, ObjectiveComplete } from "../types";
 
 import { jsonToZod } from "./utils";
 import { ErrorSchema, apiSchema } from "./schema";
 import { completionApiBuilder } from "../agent";
+import { pageRouter } from "./pages";
+import { browserRouter } from "./browser";
 
 export const setupServer = () => {
   const app = new OpenAPIHono();
@@ -81,7 +83,7 @@ export const setupServer = () => {
     // set inventory if it exists
     let agentInventory: Inventory | undefined;
     if (inventory) {
-      agentInventory = new Inventory(inventory as InventoryValue[]);
+      agentInventory = new Inventory(inventory);
     }
 
     // set custom response type if it exists
@@ -145,6 +147,8 @@ export const setupServer = () => {
       title: "HDR Browser API",
     },
   });
+  app.route("/", pageRouter);
+  app.route("/", browserRouter);
 
   app.get("/", swaggerUI({ url: "/doc" }));
   return app;

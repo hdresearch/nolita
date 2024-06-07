@@ -37,7 +37,7 @@ describe("Browser", () => {
   it("should create a new page with device", async () => {
     const browser = await Browser.launch(true, agent);
     const device = KnownDevices["iPhone 6"];
-    const page = await browser.newPage(undefined, device);
+    const page = await browser.newPage(undefined, { device });
     expect(page).toBeDefined();
     expect(page.page.viewport()).toBe(device.viewport);
 
@@ -47,7 +47,7 @@ describe("Browser", () => {
   it("should list pages", async () => {
     const browser = await Browser.launch(true, agent);
     const page = await browser.newPage();
-    const pages = await browser.pages();
+    const pages = [...(await browser.pages.values())];
     expect(pages).toContain(page);
 
     await browser.close();
