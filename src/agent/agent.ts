@@ -274,6 +274,11 @@ export class Agent {
     return response.data;
   }
 
+  /**
+   * Chat with
+   * @param prompt
+   * @returns The response from the model
+   */
   async chat(prompt: string) {
     const messages = this.handleConfig({ systemPrompt: this.systemPrompt });
     messages.push({
