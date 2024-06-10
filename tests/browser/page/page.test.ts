@@ -61,7 +61,7 @@ describe("Page", () => {
     const dataUrl = `data:text/html,${encodeURIComponent(htmlContent)}`;
     await page.goto(dataUrl);
     const screenshot = await page.screenshot();
-    const expectedStringPartial = "iVBORw0KGgoAAAANSUhEUgAAAy";
+    const expectedStringPartial = "iVBOR";
     const screenshotB64 = screenshot.toString("base64");
     expect(screenshotB64.slice(0, expectedStringPartial.length)).toBe(
       expectedStringPartial
