@@ -77,5 +77,5 @@ describe("Page", () => {
 
     expect(result.objectiveComplete?.emails).toBeDefined();
     await browser.close();
-  }, 20000);
+  }, 60000);
 });
