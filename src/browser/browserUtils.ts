@@ -1,7 +1,12 @@
 import * as chromePaths from "chrome-paths";
 import PuppeteerExtra from "puppeteer-extra";
-import puppeteer, { Browser as PuppeteerBrowser } from "puppeteer";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import puppeteer from "puppeteer-extra";
+
+import { Browser as PuppeteerBrowser } from "puppeteer";
 import { BROWSER_LAUNCH_ARGS } from "./browserDefaults";
+
+puppeteer.use(StealthPlugin());
 
 /**
  * Retrieves the path to the Chrome executable.
@@ -40,7 +45,7 @@ export const browserContext = async (
       browserWSEndpoint,
     });
   } else {
-    browser = await PuppeteerExtra.launch({
+    browser = await puppeteer.launch({
       headless: headless,
       executablePath: getChromePath(),
       args: browserLaunchArgs ?? BROWSER_LAUNCH_ARGS,
