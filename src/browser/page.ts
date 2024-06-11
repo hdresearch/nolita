@@ -31,6 +31,7 @@ import {
 import { ModelResponseType } from "../types";
 import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
 import { extendModelResponse } from "../types/browser/actionStep.types";
+import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 
 /**
  * Represents a web page and provides methods to interact with it.
@@ -42,6 +43,7 @@ export class Page {
   private inventory: Inventory | undefined;
   private apiKey: string | undefined;
   private endpoint: string | undefined;
+  private disableMemory: boolean = false;
 
   pageId: string;
   agent: Agent;
@@ -70,6 +72,7 @@ export class Page {
       inventory?: Inventory;
       apiKey?: string;
       endpoint?: string;
+      disableMemory?: boolean;
     }
   ) {
     this.page = page;
@@ -79,6 +82,7 @@ export class Page {
     this.inventory = opts?.inventory;
     this.apiKey = opts?.apiKey;
     this.endpoint = opts?.endpoint ?? "https://api.hdr.is";
+    this.disableMemory = opts?.disableMemory ?? false;
   }
 
   /**
@@ -424,10 +428,12 @@ export class Page {
       opts?.progress ?? this.progress
     )) as ObjectiveState;
     const agent = opts?.agent ?? this.agent;
-    const memories = await remember(state, {
-      apiKey: this.apiKey,
-      endpoint: this.endpoint,
-    });
+    const memories = this.disableMemory
+      ? DEFAULT_STATE_ACTION_PAIRS
+      : await remember(state, {
+          apiKey: this.apiKey,
+          endpoint: this.endpoint,
+        });
 
     const prompt = agent.prompt(state, memories, {
       inventory: opts?.inventory,
@@ -491,10 +497,12 @@ export class Page {
       description: z.string(),
     });
     const command = await this.generateCommand(request, { ...opts, schema });
-    memorize(this._state!, command as ModelResponseType, this.pageId, {
-      endpoint: process.env.HDR_API_ENDPOINT ?? "https://api.hdr.is",
-      apiKey: process.env.HDR_API_KEY ?? "",
-    });
+    if (!this.disableMemory) {
+      memorize(this._state!, command as ModelResponseType, this.pageId, {
+        endpoint: process.env.HDR_API_ENDPOINT ?? "https://api.hdr.is",
+        apiKey: process.env.HDR_API_KEY ?? "",
+      });
+    }
     await this.performManyActions(command.command, opts);
   }
 

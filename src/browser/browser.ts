@@ -23,6 +23,7 @@ export class Browser {
   private endpoint: string | undefined;
   pages: Map<string, Page> = new Map<string, Page>();
   private inventory: Inventory | undefined;
+  private disableMemory: boolean = false;
 
   browser: PuppeteerBrowser;
   mode: BrowserMode;
@@ -51,6 +52,7 @@ export class Browser {
       apiKey?: string;
       endpoint?: string;
       inventory?: Inventory;
+      disableMemory?: boolean;
     }
   ) {
     this.apiKey = opts?.apiKey || process.env.HDR_API_KEY;
@@ -114,7 +116,7 @@ export class Browser {
    */
   async newPage(
     pageId?: string,
-    opts?: { device: Device; inventory?: Inventory }
+    opts?: { device: Device; inventory?: Inventory; disableMemory?: boolean }
   ): Promise<Page> {
     const basePage = await this.browser.newPage();
     if (opts?.device) {
@@ -126,6 +128,7 @@ export class Browser {
       apiKey: this.apiKey,
       endpoint: this.endpoint,
       inventory: opts?.inventory ?? this.inventory,
+      disableMemory: opts?.disableMemory ?? this.disableMemory,
     });
 
     this.pages.set(page.pageId, page);
