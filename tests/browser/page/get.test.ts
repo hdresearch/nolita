@@ -64,7 +64,7 @@ describe("Page -- get", () => {
     expect(result).toBeDefined();
     expect(result.emails).toContain("tynan.daly@hdr.is");
     await browser.close();
-  }, 20000);
+  }, 60000);
 
   it("should get a result with no schema", async () => {
     const logger = new Logger();

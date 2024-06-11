@@ -228,6 +228,12 @@ export class Agent {
   Generate a command response from the model and return the parsed data
   @param prompt - The prompt to send to the model
   @param commandSchema - The schema to validate the response
+  @param opts - Options for actionCall function
+  @param opts.autoSlice - Whether to automatically slice the response
+  @param opts.numOfAttempts - Maximum number of retries
+  @param opts.startingDelay - Initial delay in milliseconds
+  @param opts.timeMultiple - Multiplier for the delay
+  @param opts.maxDelay - Maximum delay
   @returns The parsed response data as @commandSchema
   */
   async actionCall<T extends z.ZodSchema<any>>(
@@ -260,18 +266,35 @@ export class Agent {
   Get information from the model and return the parsed data
   @param prompt - The prompt to send to the model
   @param responseSchema - The schema to validate the response
+  @param opts - Options for actionCall function
+  @param opts.autoSlice - Whether to automatically slice the response
+  @param opts.numOfAttempts - Maximum number of retries
+  @param opts.startingDelay - Initial delay in milliseconds
+  @param opts.timeMultiple - Multiplier for the delay
+  @param opts.maxDelay - Maximum delay
   @returns The parsed response data as @responseSchema
   */
   async returnCall<T extends z.ZodSchema<any>>(
     prompt: ChatRequestMessage[],
-    responseSchema: T
-  ): Promise<z.infer<T>> {
-    const response = await chat(this.modelApi, prompt, {
-      schema: responseSchema,
+    responseSchema: T,
+    opts = {
       autoSlice: true,
-    });
+      numOfAttempts: 5, // Maximum number of retries
+      startingDelay: 1000, // Initial delay in milliseconds
+      timeMultiple: 2, // Multiplier for the delay
+      maxDelay: 10000, // Maximum delay
+    }
+  ): Promise<z.infer<T>> {
+    const chatResponse = () =>
+      this._call(prompt, responseSchema, { autoSlice: opts.autoSlice ?? true });
 
-    return response.data;
+    try {
+      const response = await backOff(chatResponse, opts);
+
+      return responseSchema.parse(response.data);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async chat(prompt: string) {

@@ -36,7 +36,7 @@ describe("pageApi -- browse", () => {
       .expect(async (res) => {
         console.log(res.body);
       });
-  }, 30000);
+  }, 60000);
 
   it("should return an error if the page is not found", async () => {
     await request(app)
