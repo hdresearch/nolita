@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { URL } from "url";
 
-import { ObjectiveState } from "../types/browser/browser.types";
+import { ObjectiveState } from "../types/browser";
 import { DEFAULT_STATE_ACTION_PAIRS } from "./examples";
 import { Memory } from "../types/memory.types";
 import { debug } from "../utils";

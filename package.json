@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "description": "",
   "main": "dist/index.js",
+  "type": "module",
   "files": [
     "dist/**/*"
   ],
@@ -19,6 +20,9 @@
   "author": "HDR",
   "license": "MIT",
   "dependencies": {
+    "@ai-sdk/anthropic": "^0.0.20",
+    "@ai-sdk/openai": "^0.0.28",
+    "@ai-sdk/provider": "^0.0.10",
     "@hono/node-server": ">=1.10.1",
     "@hono/swagger-ui": "^0.2.1",
     "@hono/zod-openapi": "^0.9.8",
@@ -26,6 +30,7 @@
     "@types/inquirer": "^9.0.7",
     "@types/lodash": "^4.14.202",
     "@types/turndown": "^5.0.4",
+    "ai": "^3.1.33",
     "chrome-paths": "^1.0.1",
     "debug": "^4.3.4",
     "dotenv": "^16.4.4",
@@ -37,7 +42,8 @@
     "json-to-zod": "^1.1.2",
     "llm-api": "^1.2.0",
     "lodash": "^4.17.21",
-    "openai": "^4.28.0",
+    "node-llama-cpp": "^2.8.11",
+    "openai": "^4.51.0",
     "puppeteer": "^22.0.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",

@@ -16,9 +16,11 @@ import Turndown from "turndown";
 import {
   AccessibilityTree,
   ObjectiveState,
-} from "../types/browser/browser.types";
+  BrowserAction,
+  ObjectiveComplete,
+  extendModelResponse,
+} from "../types/browser";
 import { Logger, debug, generateUUID } from "../utils";
-import { BrowserAction } from "../types/browser/actions.types";
 import { Inventory } from "../inventory";
 import { Agent } from "../agent";
 
@@ -29,8 +31,6 @@ import {
   remember,
 } from "../collectiveMemory/remember";
 import { ModelResponseType } from "../types";
-import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
-import { extendModelResponse } from "../types/browser/actionStep.types";
 import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 
 /**
@@ -315,7 +315,8 @@ export class Page {
     let content = ObjectiveState.parse({
       kind: "ObjectiveState",
       url: this.url().replace(/[?].*/g, ""),
-      ariaTree: contentJSON,
+      content: contentJSON,
+      contentMode: "aria",
       progress: objectiveProgress ?? this.progress,
       objective: objective,
     });
@@ -463,7 +464,7 @@ export class Page {
     const agent = opts?.agent ?? this.agent;
     const prompt = await this.makePrompt(request, opts);
 
-    const command = await agent.actionCall(prompt, opts.schema);
+    const command = await agent.generateResponse(prompt, opts.schema);
 
     if (!command) {
       throw new Error("No command generated");
@@ -524,7 +525,7 @@ export class Page {
     const agent = opts?.agent ?? this.agent;
     const prompt = await this.makePrompt(request, opts);
 
-    const result = await agent.returnCall(prompt, outputSchema);
+    const result = await agent.generateResponse(prompt, outputSchema);
 
     this.log(JSON.stringify(result));
     return result;

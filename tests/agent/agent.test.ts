@@ -1,5 +1,4 @@
 import { describe, expect, test, it, beforeAll } from "@jest/globals";
-import { OpenAIChatApi } from "llm-api";
 
 import { Agent } from "../../src/agent/agent";
 import {
@@ -9,7 +8,6 @@ import {
 import {
   ModelResponseSchema,
   ObjectiveComplete,
-  ModelResponseType,
 } from "../../src/types/browser/actionStep.types";
 
 import { Inventory } from "../../src/inventory";
@@ -17,21 +15,16 @@ import { Inventory } from "../../src/inventory";
 import { z } from "zod";
 import { ObjectiveState } from "../../src/types/browser";
 import { actionStepExample1 } from "../collectiveMemory/memorize.test";
+import { makeAgent } from "../../src/agent";
 
 describe("Agent", () => {
   let agent: Agent;
 
   beforeAll(() => {
-    const openAIChatApi = new OpenAIChatApi(
-      {
-        apiKey: process.env.OPENAI_API_KEY,
-      },
-      { model: "gpt-3.5-turbo-1106" }
-    );
-    agent = new Agent({
-      modelApi: openAIChatApi,
-      systemPrompt:
-        "If you generate a command it must be of the kind {Kind: Type, index: 5, Text: 'gadget 11 pro price'}",
+    agent = makeAgent({
+      provider: "openai",
+      apiKey: process.env.OPENAI_API_KEY,
+      model: "gpt-3.5-turbo-1106",
     });
   });
 
@@ -78,11 +71,10 @@ describe("Agent", () => {
       {}
     );
 
-    const response = await agent.call(
-      prompt,
-      ModelResponseSchema(ObjectiveComplete)
-    );
-    expect(response.data.command).toStrictEqual([
+    const schema = ModelResponseSchema(ObjectiveComplete);
+
+    const response = await agent.call(prompt, schema);
+    expect(schema.parse(response).command).toStrictEqual([
       { index: 5, kind: "Type", text: "gadget 11 pro price" },
     ]);
   });
@@ -195,7 +187,7 @@ describe("Agent", () => {
     const prompt = await agent.prompt(objectiveStateExample1, [
       stateActionPair1,
     ]);
-    const response = await agent.actionCall(
+    const response = await agent.generateResponse(
       prompt,
       ModelResponseSchema(ObjectiveComplete)
     );
@@ -212,7 +204,7 @@ describe("Agent", () => {
     const website = z.object({
       website: z.string().describe("The website name"),
     });
-    const response = await agent.returnCall(
+    const response = await agent.generateResponse(
       prompt,
       ObjectiveComplete.extend({ website })
     );

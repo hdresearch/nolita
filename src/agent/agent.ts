@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { backOff } from "exponential-backoff";
-import { chat } from "zod-gpt";
-import { ChatRequestMessage, CompletionApi } from "llm-api";
+
+import { CoreMessage, generateText } from "ai";
+import { LanguageModelV1 } from "@ai-sdk/provider";
 
 import {
   ModelResponseSchema,
@@ -14,19 +15,34 @@ import { Inventory } from "../inventory";
 import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
 import { generateSchema, SchemaElement } from "./schemaGenerators";
 import { debug } from "../utils";
+import { generateObject } from "./objectGeneratior";
+
+export type ModelApi = LanguageModelV1;
 
 export function stringifyObjects<T>(obj: T[]): string {
   const strings = obj.map((o) => JSON.stringify(o));
   return strings.join("\n");
 }
 
-export class Agent {
-  private modelApi: CompletionApi;
-  systemPrompt?: string;
+export interface AgentCallOpts {
+  temperature: number;
+  maxRetries: number;
+}
 
-  constructor(agentArgs: { modelApi: CompletionApi; systemPrompt?: string }) {
+export class Agent {
+  private modelApi: ModelApi;
+  systemPrompt?: string;
+  maxRetries: number;
+  temperature: number;
+
+  constructor(
+    agentArgs: { modelApi: ModelApi; systemPrompt?: string },
+    opts?: AgentCallOpts
+  ) {
     this.modelApi = agentArgs.modelApi;
     this.systemPrompt = agentArgs.systemPrompt;
+    this.maxRetries = opts?.maxRetries || 5;
+    this.temperature = opts?.temperature || 0;
   }
 
   /**
@@ -42,12 +58,11 @@ export class Agent {
     currentState: ObjectiveState,
     memories: Memory[],
     config?: { inventory?: Inventory; systemPrompt?: string }
-  ): ChatRequestMessage[] {
+  ): CoreMessage[] {
     const userPrompt = `Here are examples of a request: 
     ${stringifyObjects(memories)}
 
-    remember to return a result only in the form of an ActionStep.
-    Please generate the next ActionStep for ${JSON.stringify({
+    Please generate the response for ${JSON.stringify({
       objectiveState: currentState,
     })} 
     `;
@@ -65,8 +80,8 @@ export class Agent {
   private handleConfig(config: {
     inventory?: Inventory;
     systemPrompt?: string;
-  }): ChatRequestMessage[] {
-    let messages: ChatRequestMessage[] = [];
+  }): CoreMessage[] {
+    let messages: CoreMessage[] = [];
 
     const systemPrompt = config.systemPrompt || this.systemPrompt;
     if (systemPrompt) {
@@ -93,9 +108,10 @@ export class Agent {
     memories: Memory,
     responseSchema: ReturnType<
       typeof ObjectiveCompleteResponse<TObjectiveComplete>
-    >
+    >,
+    opts?: AgentCallOpts
   ) {
-    const messages: ChatRequestMessage[] = [
+    const messages: CoreMessage[] = [
       {
         role: "user",
         content: `
@@ -108,88 +124,28 @@ export class Agent {
       },
     ];
 
-    const response = await chat(this.modelApi, messages, {
-      schema: ObjectiveCompleteResponse(responseSchema),
-    });
-
-    return ObjectiveCompleteResponse(responseSchema).parse(response.data);
-  }
-
-  async modifyActions(
-    currentState: ObjectiveState,
-    memory: Memory,
-    config?: {
-      inventory?: Inventory;
-      systemPrompt?: string;
-      maxAttempts?: number;
-    }
-  ) {
-    const maxAttempts = config?.maxAttempts || 5;
-    const modifyActionsPrompt = `
-    
-    Here is a past state-action pair: ${JSON.stringify(memory)}
-
-    Please generate the action sequences for ${JSON.stringify(currentState)}
-    `;
-
-    let messages = this.handleConfig(config || {});
-    messages.push({
-      role: "user",
-      content: modifyActionsPrompt,
-    });
-
-    const commandSchema = generateSchema(
-      memory.actionStep.command! as SchemaElement[]
+    const response = await generateObject(
+      this.modelApi,
+      ObjectiveCompleteResponse(responseSchema),
+      messages,
+      opts
     );
 
-    let safeParseResultSuccess = false;
-    let attempts = 0;
-
-    // Retry until the response is valid or the max number of attempts is reached
-    if (safeParseResultSuccess == false) {
-      let response = await chat(this.modelApi, messages, {
-        schema: z.object({
-          progressAssessment: z.string(),
-          command: BrowserActionSchemaArray,
-          description: z.string(),
-        }),
-        autoSlice: true,
-      });
-
-      let safeParseResult = commandSchema.safeParse(response.data.command);
-      safeParseResultSuccess = safeParseResult.success;
-
-      while (safeParseResultSuccess == false && attempts <= maxAttempts) {
-        debug.log("Invalid response type. Retrying...");
-        response = await response.respond(
-          `Invalid response type. Error messages: ${JSON.stringify(
-            safeParseResult
-          )}`
-        );
-        safeParseResult = commandSchema.safeParse(response.data.command);
-        safeParseResultSuccess = safeParseResult.success;
-      }
-      return ModelResponseSchema().parse(response.data);
-    }
-
-    return undefined;
+    return ObjectiveCompleteResponse(responseSchema).parse(response);
   }
 
   async _call<T extends z.ZodSchema<any>>(
-    prompt: ChatRequestMessage[],
+    prompt: CoreMessage[],
     commandSchema: T,
-    opts?: { autoSlice?: boolean }
+    opts?: AgentCallOpts
   ) {
-    const response = await chat(this.modelApi, prompt, {
-      schema: commandSchema,
-      autoSlice: opts?.autoSlice ?? true,
-    });
+    const response = generateObject(this.modelApi, commandSchema, prompt, opts);
 
     return response;
   }
 
   async askCommand<T extends z.ZodSchema<any>>(
-    prompt: ChatRequestMessage[],
+    prompt: CoreMessage[],
     schema: T,
     backoffOptions = {
       numOfAttempts: 5, // Maximum number of retries
@@ -203,7 +159,7 @@ export class Agent {
     try {
       const response = await backOff(operation, backoffOptions);
 
-      return schema.parse(response.data);
+      return schema.parse(response);
     } catch (error) {
       console.log(error);
     }
@@ -212,16 +168,11 @@ export class Agent {
   async call<
     TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
   >(
-    prompt: ChatRequestMessage[],
+    prompt: CoreMessage[],
     responseSchema: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>,
-    opts?: { autoSlice?: boolean }
+    opts?: AgentCallOpts
   ) {
-    const response = await chat(this.modelApi, prompt, {
-      schema: responseSchema,
-      autoSlice: opts?.autoSlice ?? true,
-    });
-
-    return response;
+    return this._call(prompt, responseSchema, opts);
   }
 
   /**  
@@ -237,29 +188,11 @@ export class Agent {
   @returns The parsed response data as @commandSchema
   */
   async generateResponse<T extends z.ZodSchema<any>>(
-    prompt: ChatRequestMessage[],
+    prompt: CoreMessage[],
     schema: T,
-    opts = {
-      autoSlice: true,
-      numOfAttempts: 5, // Maximum number of retries
-      startingDelay: 1000, // Initial delay in milliseconds
-      timeMultiple: 2, // Multiplier for the delay
-      maxDelay: 10000, // Maximum delay
-    }
+    opts?: AgentCallOpts
   ) {
-    const chatResponse = () =>
-      chat(this.modelApi, prompt, {
-        schema,
-        autoSlice: opts.autoSlice,
-      });
-
-    try {
-      const response = await backOff(chatResponse, opts);
-
-      return schema.parse(response.data);
-    } catch (error) {
-      console.log(error);
-    }
+    return generateObject(this.modelApi, schema, prompt, opts);
   }
 
   /**
@@ -273,8 +206,6 @@ export class Agent {
       role: "user",
       content: prompt,
     });
-    const response = await chat(this.modelApi, messages);
-
-    return response.content;
+    return await generateText({ model: this.modelApi, messages });
   }
 }

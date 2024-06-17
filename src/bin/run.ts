@@ -39,7 +39,8 @@ const getConfig = (
   agentApiKey: string | undefined,
   agentEndpoint: string | undefined,
   hdrApiKey: string | undefined,
-  headless: boolean | string | undefined
+  headless: boolean | string | undefined,
+  disableMemory: boolean | undefined
 ): any => ({
   startUrl: startUrl || mergedConfig.startUrl,
   objective: objective || mergedConfig.objective,
@@ -58,6 +59,7 @@ const getConfig = (
   hdrApiKey: hdrApiKey || mergedConfig.hdrApiKey || process.env.HDR_API_KEY,
   headless: headless ?? mergedConfig.headless ?? process.env.HDR_HEADLESS,
   inventory: mergedConfig.inventory || [],
+  disableMemory: disableMemory || mergedConfig.disableMemory,
 });
 
 const writeToNolitarc = (key: string, value: string): void => {
@@ -84,6 +86,7 @@ export const run = async (toolbox: GluegunToolbox) => {
     hdrApiKey,
     headless,
     config,
+    disableMemory,
   } = toolbox.parameters.options;
 
   const mergedConfig = loadConfigs(config);
@@ -96,7 +99,8 @@ export const run = async (toolbox: GluegunToolbox) => {
     agentApiKey,
     agentEndpoint,
     hdrApiKey,
-    headless
+    headless,
+    disableMemory
   );
   resolvedConfig.headless = resolvedConfig.headless !== "false";
 

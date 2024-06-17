@@ -1,55 +1,52 @@
-import {
-  CompletionApi,
-  AnthropicChatApi,
-  OpenAIChatApi,
-  ModelConfig,
-} from "llm-api";
-import { Agent } from "./agent";
+import { createOpenAI } from "@ai-sdk/openai";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { Agent, ModelApi } from "./agent";
+import { Inventory } from "../inventory";
 
 export const CompletionDefaultRetries = 3;
 export const CompletionDefaultTimeout = 300_000;
 export const MinimumResponseTokens = 200;
 export const MaximumResponseTokens = 8_000;
 
+export type ProviderOptions = {
+  provider: string;
+  apiKey?: string;
+  endpoint?: string;
+  path?: string;
+  model: string;
+};
+
 export function completionApiBuilder(
-  prodiverOpts: { provider: string; apiKey: string },
-  modelConfig: ModelConfig,
-  customProvider?: CompletionApi
-): CompletionApi | undefined {
-  const _provider = prodiverOpts.provider.toLowerCase();
+  providerOpts: ProviderOptions
+): ModelApi | undefined {
+  const _provider = providerOpts.provider.toLowerCase();
+
+  if (providerOpts.path) {
+    throw new Error("Custom path is not supported yet.");
+  }
 
   if (_provider === "openai") {
-    return new OpenAIChatApi(
-      {
-        apiKey: prodiverOpts.apiKey,
-      },
-      modelConfig
-    );
+    const openai = createOpenAI({
+      apiKey: providerOpts.apiKey,
+      baseURL: providerOpts.endpoint,
+    });
+    return openai.chat(providerOpts.model);
   } else if (_provider === "anthropic") {
-    return new AnthropicChatApi(
-      {
-        apiKey: prodiverOpts.apiKey,
-      },
-      modelConfig
-    );
-  } else if (customProvider) {
-    return customProvider;
+    const anthropic = createAnthropic({
+      apiKey: providerOpts.apiKey,
+      baseURL: providerOpts.endpoint,
+    });
+    return anthropic.chat(providerOpts.model);
   }
 
   throw new Error(`Unknown provider: ${_provider}`);
 }
 
 export function makeAgent(
-  prodiverOpts: { provider: string; apiKey: string },
-  modelConfig: ModelConfig,
-  customProvider?: CompletionApi,
+  prodiverOpts: ProviderOptions,
   opts?: { systemPrompt?: string }
 ) {
-  const chatApi = completionApiBuilder(
-    prodiverOpts,
-    modelConfig,
-    customProvider
-  );
+  const chatApi = completionApiBuilder(prodiverOpts);
 
   if (!chatApi) {
     throw new Error(`Failed to create chat api for ${prodiverOpts.provider}`);
@@ -68,5 +65,5 @@ export function defaultAgent() {
       "You must set OPENAI_API_KEY in your environment to use the default agent."
     );
   }
-  return makeAgent({ provider: "openai", apiKey }, { model: "gpt-4" });
+  return makeAgent({ provider: "openai", apiKey, model: "gpt-4" });
 }

@@ -4,7 +4,6 @@ import { LanguageModelV1 } from "@ai-sdk/provider";
 
 export async function generateProviderObject<T extends z.ZodSchema<any>>(
   model: LanguageModelV1,
-  prompt: string,
   schema: T,
   messages: CoreMessage[] = [],
   opts: { temperature: number; maxRetries: number } = {
@@ -15,7 +14,7 @@ export async function generateProviderObject<T extends z.ZodSchema<any>>(
   const result = await generateObject({
     model,
     schema,
-    messages: [{ role: "user", content: prompt }, ...messages],
+    messages: messages,
     ...opts,
   });
 

@@ -30,7 +30,11 @@ export const BrowserActionSchemaArray = z.array(BrowserActionSchema).min(1);
 export type BrowserActionSchemaArray = z.infer<typeof BrowserActionSchemaArray>;
 
 export const ObjectiveComplete = z.object({
-  kind: z.literal("ObjectiveComplete").describe("Objective is complete"),
+  kind: z
+    .literal("ObjectiveComplete")
+    .describe(
+      "Objective is complete. This is a string literal and should always be 'ObjectiveComplete'"
+    ),
   result: z.string().describe("The result of the objective"),
 });
 
