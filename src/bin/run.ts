@@ -39,7 +39,8 @@ const getConfig = (
   agentApiKey: string | undefined,
   agentEndpoint: string | undefined,
   hdrApiKey: string | undefined,
-  headless: boolean | string | undefined
+  headless: boolean | string | undefined,
+  hdrDisable: boolean | string | undefined
 ): any => ({
   startUrl: startUrl || mergedConfig.startUrl,
   objective: objective || mergedConfig.objective,
@@ -57,6 +58,7 @@ const getConfig = (
     process.env.HDR_AGENT_ENDPOINT,
   hdrApiKey: hdrApiKey || mergedConfig.hdrApiKey || process.env.HDR_API_KEY,
   headless: headless ?? mergedConfig.headless ?? process.env.HDR_HEADLESS,
+  hdrDisable: hdrDisable ?? mergedConfig.hdrDisable ?? process.env.HDR_DISABLE,
   inventory: mergedConfig.inventory || [],
 });
 
@@ -84,6 +86,7 @@ export const run = async (toolbox: GluegunToolbox) => {
     hdrApiKey,
     headless,
     config,
+    hdrDisable
   } = toolbox.parameters.options;
 
   const mergedConfig = loadConfigs(config);
@@ -96,9 +99,15 @@ export const run = async (toolbox: GluegunToolbox) => {
     agentApiKey,
     agentEndpoint,
     hdrApiKey,
-    headless
+    headless,
+    hdrDisable
   );
-  resolvedConfig.headless = resolvedConfig.headless !== "false";
+  resolvedConfig.headless = resolvedConfig.headless !== undefined ? resolvedConfig.headless !== "false" : true;
+  resolvedConfig.hdrDisable = resolvedConfig.hdrDisable !== undefined ? resolvedConfig.hdrDisable !== "false" : false;
+
+  if (!resolvedConfig.hdrApiKey && !resolvedConfig.hdrDisable) {
+    toolbox.print.muted("No API key for Memory Index provided. Use `npx nolita auth` to authenticate or suppress this message with --hdrDisable.")
+  }
 
   if (!resolvedConfig.startUrl) {
     await toolbox.prompt
@@ -186,31 +195,6 @@ export const run = async (toolbox: GluegunToolbox) => {
       });
   }
 
-  if (!resolvedConfig.hdrApiKey) {
-    await toolbox.prompt
-      .ask({
-        type: "input",
-        name: "hdrApiKey",
-        message: `Do you have an HDR API key? If so, you can enter it here:`,
-      })
-      .then(async (answers) => {
-        if (!answers.hdrApiKey) {
-          return;
-        }
-        resolvedConfig.hdrApiKey = answers.hdrApiKey;
-        await toolbox.prompt
-          .ask({
-            type: "confirm",
-            name: "save",
-            message: "Would you like to save the HDR API key for future use?",
-          })
-          .then((answers) => {
-            if (answers.save) {
-              writeToNolitarc("hdrApiKey", resolvedConfig.hdrApiKey);
-            }
-          });
-      });
-  }
   const spinner = toolbox.print.spin();
   spinner.stop();
   const logger = new Logger(["info"], (input: any) => {
@@ -247,7 +231,9 @@ export const run = async (toolbox: GluegunToolbox) => {
 
   const args = {
     agent,
-    browser: await Browser.launch(resolvedConfig.headless, agent),
+    browser: await Browser.launch(resolvedConfig.headless, agent, undefined, {
+      disableMemory: resolvedConfig.hdrDisable,
+    }),
     logger,
     inventory:
       resolvedConfig.inventory.length > 0
