@@ -30,8 +30,13 @@ import {
 } from "../collectiveMemory/remember";
 import { ModelResponseType } from "../types";
 import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
-import { extendModelResponse } from "../types/browser/actionStep.types";
+import {
+  ModelResponse,
+  ModelResponseSchema,
+  extendModelResponse,
+} from "../types/browser/actionStep.types";
 import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
+import { Memory } from "../types/memory.types";
 
 /**
  * Represents a web page and provides methods to interact with it.
@@ -597,6 +602,52 @@ export class Page {
       }
 
       currentTurn++;
+    }
+  }
+
+  async followRoute(
+    memoryId: string,
+    outputSchema?: z.ZodObject<any>,
+    opts?: { delay?: number; maxTurns?: number }
+  ) {
+    const maxTurns = opts?.maxTurns ?? 20;
+    const memoriesBackwards = await fetchMemorySequence(memoryId, {
+      apiKey: this.apiKey,
+      endpoint: this.endpoint,
+    });
+
+    const memories = memoriesBackwards.reverse();
+
+    if (memories.length === 0) {
+      throw new Error(`No memories found for memory sequence id ${memoryId}`);
+    }
+
+    await this.goto(memories[0].objectiveState.url, {
+      delay: opts?.delay ?? 1000,
+    });
+    const turnNumber = 0;
+    while (turnNumber < maxTurns) {
+      for (const memory of memories) {
+        if (memory.actionStep.objectiveComplete) {
+          const state = await this.state(
+            memory.objectiveState.objective,
+            this.progress
+          );
+
+          return await this.step(
+            memory.objectiveState.objective,
+            outputSchema,
+            {
+              agent: this.agent,
+              progress: memory.objectiveState.progress,
+              inventory: this.inventory,
+            }
+          );
+        } else {
+          const mem = Memory.parse(memory);
+          await this.performManyActions(mem.actionStep.command);
+        }
+      }
     }
   }
 
