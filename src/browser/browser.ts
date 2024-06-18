@@ -42,6 +42,7 @@ export class Browser {
    * @param {string} [opts.endpoint] - The HDR collective memory endpoint.
    * @param {Inventory} [opts.inventory] - The inventory to use for the browser.
    * @param {BrowserMode} [opts.mode=BrowserMode.text] - The mode of the browser (e.g., text).
+   * @param {boolean} [opts.disableMemory=false] - Specifies if the browser should disable memory.
    */
   constructor(
     browser: PuppeteerBrowser,
@@ -78,6 +79,8 @@ export class Browser {
    * @param {BrowserMode} [opts.mode=BrowserMode.text] - The mode of the browser, defaults to text.
    * @param {string} [opts.apiKey] - The API key for the browser.
    * @param {string} [opts.endpoint] - The HDR collective memory endpoint.
+   * @param {Inventory} [opts.inventory] - The inventory to use for the browser.
+   * @param {boolean} [opts.disableMemory=false] - Specifies if the browser should disable memory.
    * @returns {Promise<Browser>} A promise that resolves to an instance of Browser.
    */
   static async launch(
@@ -91,6 +94,7 @@ export class Browser {
       apiKey?: string;
       endpoint?: string;
       inventory?: Inventory;
+      disableMemory?: boolean;
     }
   ): Promise<Browser> {
     const browser = new Browser(
