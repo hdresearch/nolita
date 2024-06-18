@@ -564,7 +564,9 @@ export class Page {
     this.log(JSON.stringify(step));
 
     if (step.command) {
-      await this.performManyActions(step.command);
+      await this.performManyActions(step.command, {
+        inventory: opts?.inventory,
+      });
     }
 
     return step;
@@ -583,8 +585,8 @@ export class Page {
    */
   async browse(
     objective: string,
-    outputSchema?: z.ZodObject<any>,
     opts: {
+      schema?: z.ZodObject<any>;
       agent?: Agent;
       progress?: string[];
       inventory?: Inventory;
@@ -595,7 +597,7 @@ export class Page {
   ) {
     let currentTurn = 0;
     while (currentTurn < opts.maxTurns) {
-      const step = await this.step(objective, outputSchema, opts);
+      const step = await this.step(objective, opts?.schema, opts);
 
       if (step?.objectiveComplete) {
         return step;
@@ -608,7 +610,7 @@ export class Page {
   async followRoute(
     memoryId: string,
     outputSchema?: z.ZodObject<any>,
-    opts?: { delay?: number; maxTurns?: number }
+    opts?: { delay?: number; maxTurns?: number; inventory?: Inventory }
   ) {
     const maxTurns = opts?.maxTurns ?? 20;
     const memoriesBackwards = await fetchMemorySequence(memoryId, {
