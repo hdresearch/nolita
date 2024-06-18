@@ -31,11 +31,14 @@ describe("Page", () => {
 
     const result = await page.browse(
       "click on the company link and find the email addresses on the page",
-      z.object({
-        emails: z
-          .array(z.string())
-          .describe("The email addresses found on the page"),
-      })
+      {
+        schema: z.object({
+          emails: z
+            .array(z.string())
+            .describe("The email addresses found on the page"),
+        }),
+        maxTurns: 5,
+      }
     );
 
     expect(result?.objectiveComplete?.emails).toBeDefined();

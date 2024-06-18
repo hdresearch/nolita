@@ -30,11 +30,7 @@ import {
 } from "../collectiveMemory/remember";
 import { ModelResponseType } from "../types";
 import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
-import {
-  ModelResponse,
-  ModelResponseSchema,
-  extendModelResponse,
-} from "../types/browser/actionStep.types";
+import { extendModelResponse } from "../types/browser/actionStep.types";
 import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 import { Memory } from "../types/memory.types";
 
