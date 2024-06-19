@@ -13,7 +13,7 @@ async function chartRoute(browser: Browser, inventory: Inventory) {
     inventory,
     maxTurns: 5,
   });
-  await page.goto("http://shop.junglegym.ai/");
+  await page.browse("navigate to home page", { maxTurns: 2 });
 
   await page.do("add a product to the cart");
   await page.browse("navigate to the checkout", { maxTurns: 4 });
