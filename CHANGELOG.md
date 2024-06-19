@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1
+
+- Adds `npx nolita auth` for securing API keys to the memory index.
+- Adds `npx nolita help` for an overview of commands.
+
 ## 2.0.0
 
 - **Breaking: Browser is now instantiated with `Browser.launch()`, not `.create()`.**

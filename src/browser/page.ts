@@ -33,6 +33,7 @@ import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
 import { extendModelResponse } from "../types/browser/actionStep.types";
 import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 import { Memory } from "../types/memory.types";
+import { updateCommandIndices } from "../collectiveMemory/compareAriaTrees";
 
 /**
  * Represents a web page and provides methods to interact with it.
@@ -627,12 +628,10 @@ export class Page {
     opts?: { delay?: number; maxTurns?: number; inventory?: Inventory }
   ) {
     const maxTurns = opts?.maxTurns ?? 20;
-    const memoriesBackwards = await fetchMemorySequence(memoryId, {
+    const memories = await fetchMemorySequence(memoryId, {
       apiKey: this.apiKey,
       endpoint: this.endpoint,
     });
-
-    const memories = memoriesBackwards.reverse();
 
     if (memories.length === 0) {
       throw new Error(`No memories found for memory sequence id ${memoryId}`);
@@ -645,23 +644,53 @@ export class Page {
     while (turnNumber < maxTurns) {
       for (const memory of memories) {
         if (memory.actionStep.objectiveComplete) {
+          await this.step(memory.objectiveState.objective, outputSchema, {
+            agent: this.agent,
+            progress: memory.objectiveState.progress,
+            inventory: this.inventory,
+          });
+        } else {
+          const mem = Memory.parse(memory);
           const state = await this.state(
             memory.objectiveState.objective,
             this.progress
           );
-
-          return await this.step(
-            memory.objectiveState.objective,
-            outputSchema,
-            {
-              agent: this.agent,
-              progress: memory.objectiveState.progress,
-              inventory: this.inventory,
-            }
+          const hasText = memory.actionStep.command?.some(
+            (action: any) => action.kind === "Type"
           );
-        } else {
-          const mem = Memory.parse(memory);
-          await this.performManyActions(mem.actionStep.command);
+          let description = "";
+          if (state.ariaTree === memory.objectiveState.ariaTree && !hasText) {
+            debug.write("Performing action step from memory");
+            this.performManyActions(
+              memory.actionStep.command as BrowserAction[],
+              {
+                inventory: this.inventory,
+              }
+            );
+            description = memory.actionStep.description;
+          } else {
+            debug.write("Modifying actions");
+            let modifiedActionStep = await this.agent.modifyActions(
+              state,
+              memory,
+              {
+                inventory: this.inventory,
+              }
+            );
+
+            if (modifiedActionStep === undefined) {
+              throw new Error("Agent failed to respond");
+              return;
+            }
+
+            description = modifiedActionStep.description;
+            this.performManyActions(
+              modifiedActionStep.command as BrowserAction[],
+              {
+                inventory: this.inventory,
+              }
+            );
+          }
         }
       }
     }
