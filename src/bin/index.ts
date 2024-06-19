@@ -4,9 +4,10 @@ import { build } from "gluegun";
 import { run } from "./run";
 
 const cli = build()
-  .brand("hdr")
+  .brand("nolita")
   .src(__dirname)
   .plugins("./node_modules", { matching: "hdr-*", hidden: true })
+  .help()
   .defaultCommand(run)
   .create()
   .run()

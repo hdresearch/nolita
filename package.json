@@ -38,6 +38,7 @@
     "llm-api": "^1.2.0",
     "lodash": "^4.17.21",
     "openai": "^4.28.0",
+    "out-url": "^1.2.2",
     "puppeteer": "^22.0.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",

@@ -62,6 +62,9 @@ dependencies:
   openai:
     specifier: ^4.28.0
     version: 4.32.1
+  out-url:
+    specifier: ^1.2.2
+    version: 1.2.2
   puppeteer:
     specifier: ^22.0.0
     version: 22.6.2(typescript@5.4.3)
@@ -4506,6 +4509,10 @@ packages:
     resolution: {integrity: sha512-B5JU3cabzk8c67mRRd3ECmROafjYMXbuzlwtqdM8IbS8ktlTix8aFGb2bAGKrSRIlnfKwovGUUr72JUPyOb6kQ==}
     engines: {node: '>=0.10.0'}
     dev: true
+
+  /out-url@1.2.2:
+    resolution: {integrity: sha512-9YX6NkfE8kujbeK0h1m+z8AdVYN3luHeF55ayNKks1qIfpsNInwQa4F5WAbSHhxEQvPDEB7tSnbK3RIvCxjJoA==}
+    dev: false
 
   /p-limit@2.3.0:
     resolution: {integrity: sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w==}
