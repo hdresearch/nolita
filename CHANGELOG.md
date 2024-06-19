@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.0
+
+- Adds `followRoute` to `Page` class.
+  - By passing a previous `pageID` (eg. `page.pageId()`), you can replay the navigation session in a new Page instance.
+
 ## 2.0.0
 
 - **Breaking: Browser is now instantiated with `Browser.launch()`, not `.create()`.**
