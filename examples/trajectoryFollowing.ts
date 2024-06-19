@@ -51,7 +51,7 @@ async function main() {
   const browser = await Browser.launch(false, agent, logger);
 
   const routeId = await chartRoute(browser, inventory);
-  await followRoute(browser, "673cdb13-2a67-4333-b959-6d6fdd28a56b", inventory);
+  await followRoute(browser, routeId, inventory);
 
   await browser.close();
 }
