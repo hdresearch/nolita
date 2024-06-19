@@ -96,7 +96,8 @@ browseRouter.openapi(route, async (c) => {
       )
     : undefined;
 
-  const result = await page.browse(command, responseSchema, {
+  const result = await page.browse(command, {
+    schema: responseSchema,
     maxTurns,
     inventory,
   });

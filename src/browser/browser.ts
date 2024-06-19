@@ -118,16 +118,21 @@ export class Browser {
    * @param {Device} [device] - Optional device to emulate in the new page.
    * @returns {Promise<Page>} A promise that resolves to the newly created Page instance.
    */
-  async newPage(
-    pageId?: string,
-    opts?: { device: Device; inventory?: Inventory; disableMemory?: boolean }
-  ): Promise<Page> {
+  async newPage(opts?: {
+    pageId?: string;
+    agent?: Agent;
+    device?: Device;
+    inventory?: Inventory;
+    disableMemory?: boolean;
+  }): Promise<Page> {
     const basePage = await this.browser.newPage();
     if (opts?.device) {
       await basePage.emulate(opts.device);
     }
-    const page = new Page(basePage, this.agent, {
-      pageId,
+
+    const agent = opts?.agent ?? this.agent;
+    const page = new Page(basePage, agent, {
+      pageId: opts?.pageId,
       logger: this.logger,
       apiKey: this.apiKey,
       endpoint: this.endpoint,

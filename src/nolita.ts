@@ -90,7 +90,8 @@ export class Nolita {
 
     await page.goto(task.startUrl);
 
-    return await page.browse(task.objective, task.returnSchema, {
+    return await page.browse(task.objective, {
+      schema: task.returnSchema,
       maxTurns: opts?.maxTurns ?? 10,
     });
   }

@@ -1,6 +1,4 @@
-import { Page } from "../src/browser/page.ts";
 import { Browser } from "../src/browser/index.ts";
-import { completionApiBuilder } from "../src/agent/config.ts";
 import { makeAgent } from "../src/agent/index.ts";
 import { z } from "zod";
 

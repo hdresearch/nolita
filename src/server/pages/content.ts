@@ -76,8 +76,6 @@ contentRouter.openapi(route, async (c) => {
     return c.json({ message: "Invalid page content type" }, 400);
   }
 
-  console.log(content);
-
   if (!content) {
     return c.json({ message: "Error retrieving page content" }, 500);
   }

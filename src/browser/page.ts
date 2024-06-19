@@ -32,6 +32,7 @@ import { ModelResponseType } from "../types";
 import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
 import { extendModelResponse } from "../types/browser/actionStep.types";
 import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
+import { Memory } from "../types/memory.types";
 
 /**
  * Represents a web page and provides methods to interact with it.
@@ -533,8 +534,8 @@ export class Page {
   /**
    * Take the next step towards the objective.
    * @param {string} request The request or objective.
-   * @param {z.ZodSchema} outputSchema The Zod schema for the return type.
    * @param {Object} opts Additional options.
+   * @param {z.ZodSchema} opts.outputSchema The Zod schema for the return type.
    * @param {Agent} opts.agent The agent to use (optional).
    * @param {string[]} opts.progress The progress towards the objective (optional).
    * @param {Inventory} opts.inventory The inventory object (optional).
@@ -559,7 +560,9 @@ export class Page {
     this.log(JSON.stringify(step));
 
     if (step.command) {
-      await this.performManyActions(step.command);
+      await this.performManyActions(step.command, {
+        inventory: opts?.inventory,
+      });
     }
 
     return step;
@@ -568,8 +571,8 @@ export class Page {
   /**
    * Browses the page based on the request and return type.
    * @param {string} request The request or objective.
-   * @param {z.ZodSchema} outputSchema The Zod schema for the return type.
    * @param {Object} opts Additional options.
+   * @param {z.ZodSchema} opts.schema The Zod schema for the return type.
    * @param {Agent} opts.agent The agent to use (optional).
    * @param {string[]} opts.progress The progress towards the objective (optional).
    * @param {Inventory} opts.inventory The inventory object (optional).
@@ -578,8 +581,8 @@ export class Page {
    */
   async browse(
     objective: string,
-    outputSchema?: z.ZodObject<any>,
     opts: {
+      schema?: z.ZodObject<any>;
       agent?: Agent;
       progress?: string[];
       inventory?: Inventory;
@@ -590,13 +593,70 @@ export class Page {
   ) {
     let currentTurn = 0;
     while (currentTurn < opts.maxTurns) {
-      const step = await this.step(objective, outputSchema, opts);
+      const step = await this.step(objective, opts?.schema, opts);
 
       if (step?.objectiveComplete) {
         return step;
       }
 
       currentTurn++;
+    }
+  }
+
+  /**
+   * Follows a route based on a memory sequence.
+   * @param {string} memoryId The memory sequence ID.
+   * @param {z.ZodSchema} outputSchema The Zod schema for the return type.
+   * @param {Object} opts Additional options.
+   * @param {number} opts.delay The delay in milliseconds after performing the action (default: 100).
+   * @param {number} opts.maxTurns The maximum number of turns to follow the route.
+   * @param {Inventory} opts.inventory The inventory object (optional).
+   * @returns {z.ZodSchema} A promise that resolves to the retrieved data.
+   * @throws {Error} An error is thrown if no memories are found for the memory sequence ID.
+   */
+  async followRoute(
+    memoryId: string,
+    outputSchema?: z.ZodObject<any>,
+    opts?: { delay?: number; maxTurns?: number; inventory?: Inventory }
+  ) {
+    const maxTurns = opts?.maxTurns ?? 20;
+    const memoriesBackwards = await fetchMemorySequence(memoryId, {
+      apiKey: this.apiKey,
+      endpoint: this.endpoint,
+    });
+
+    const memories = memoriesBackwards.reverse();
+
+    if (memories.length === 0) {
+      throw new Error(`No memories found for memory sequence id ${memoryId}`);
+    }
+
+    await this.goto(memories[0].objectiveState.url, {
+      delay: opts?.delay ?? 1000,
+    });
+    const turnNumber = 0;
+    while (turnNumber < maxTurns) {
+      for (const memory of memories) {
+        if (memory.actionStep.objectiveComplete) {
+          const state = await this.state(
+            memory.objectiveState.objective,
+            this.progress
+          );
+
+          return await this.step(
+            memory.objectiveState.objective,
+            outputSchema,
+            {
+              agent: this.agent,
+              progress: memory.objectiveState.progress,
+              inventory: this.inventory,
+            }
+          );
+        } else {
+          const mem = Memory.parse(memory);
+          await this.performManyActions(mem.actionStep.command);
+        }
+      }
     }
   }
 
