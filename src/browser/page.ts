@@ -534,8 +534,8 @@ export class Page {
   /**
    * Take the next step towards the objective.
    * @param {string} request The request or objective.
-   * @param {z.ZodSchema} outputSchema The Zod schema for the return type.
    * @param {Object} opts Additional options.
+   * @param {z.ZodSchema} opts.outputSchema The Zod schema for the return type.
    * @param {Agent} opts.agent The agent to use (optional).
    * @param {string[]} opts.progress The progress towards the objective (optional).
    * @param {Inventory} opts.inventory The inventory object (optional).
@@ -571,8 +571,8 @@ export class Page {
   /**
    * Browses the page based on the request and return type.
    * @param {string} request The request or objective.
-   * @param {z.ZodSchema} outputSchema The Zod schema for the return type.
    * @param {Object} opts Additional options.
+   * @param {z.ZodSchema} opts.schema The Zod schema for the return type.
    * @param {Agent} opts.agent The agent to use (optional).
    * @param {string[]} opts.progress The progress towards the objective (optional).
    * @param {Inventory} opts.inventory The inventory object (optional).
@@ -603,6 +603,17 @@ export class Page {
     }
   }
 
+  /**
+   * Follows a route based on a memory sequence.
+   * @param {string} memoryId The memory sequence ID.
+   * @param {z.ZodSchema} outputSchema The Zod schema for the return type.
+   * @param {Object} opts Additional options.
+   * @param {number} opts.delay The delay in milliseconds after performing the action (default: 100).
+   * @param {number} opts.maxTurns The maximum number of turns to follow the route.
+   * @param {Inventory} opts.inventory The inventory object (optional).
+   * @returns {z.ZodSchema} A promise that resolves to the retrieved data.
+   * @throws {Error} An error is thrown if no memories are found for the memory sequence ID.
+   */
   async followRoute(
     memoryId: string,
     outputSchema?: z.ZodObject<any>,
