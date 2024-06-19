@@ -628,12 +628,10 @@ export class Page {
     opts?: { delay?: number; maxTurns?: number; inventory?: Inventory }
   ) {
     const maxTurns = opts?.maxTurns ?? 20;
-    const memoriesBackwards = await fetchMemorySequence(memoryId, {
+    const memories = await fetchMemorySequence(memoryId, {
       apiKey: this.apiKey,
       endpoint: this.endpoint,
     });
-
-    const memories = memoriesBackwards.reverse();
 
     if (memories.length === 0) {
       throw new Error(`No memories found for memory sequence id ${memoryId}`);
