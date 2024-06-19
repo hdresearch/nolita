@@ -1,9 +1,9 @@
 # Changelog
 
-## 2.1.0
+## 2.0.1
 
-- Adds `followRoute` to `Page` class.
-  - By passing a previous `pageID` (eg. `page.pageId()`), you can replay the navigation session in a new Page instance.
+- Adds `npx nolita auth` for securing API keys to the memory index.
+- Adds `npx nolita help` for an overview of commands.
 
 ## 2.0.0
 
