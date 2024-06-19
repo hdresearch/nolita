@@ -440,7 +440,7 @@ export class Page {
       inventory: opts?.inventory,
     });
 
-    return prompt;
+    return { prompt, state };
   }
 
   /**
@@ -462,12 +462,19 @@ export class Page {
     }
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
-    const prompt = await this.makePrompt(request, opts);
+    const { prompt, state } = await this.makePrompt(request, opts);
 
     const command = await agent.actionCall(prompt, opts.schema);
 
     if (!command) {
       throw new Error("No command generated");
+    }
+
+    if (!this.disableMemory) {
+      await memorize(state, command as ModelResponseType, this.pageId, {
+        endpoint: process.env.HDR_API_ENDPOINT ?? "https://api.hdr.is",
+        apiKey: process.env.HDR_API_KEY ?? "",
+      });
     }
     return command;
   }
@@ -499,7 +506,7 @@ export class Page {
     });
     const command = await this.generateCommand(request, { ...opts, schema });
     if (!this.disableMemory) {
-      memorize(this._state!, command as ModelResponseType, this.pageId, {
+      await memorize(this._state!, command as ModelResponseType, this.pageId, {
         endpoint: process.env.HDR_API_ENDPOINT ?? "https://api.hdr.is",
         apiKey: process.env.HDR_API_KEY ?? "",
       });
@@ -523,7 +530,7 @@ export class Page {
     opts?: { agent?: Agent; progress?: string[] }
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
-    const prompt = await this.makePrompt(request, opts);
+    const { prompt, state } = await this.makePrompt(request, opts);
 
     const result = await agent.returnCall(prompt, outputSchema);
 
