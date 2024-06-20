@@ -6,7 +6,7 @@ import { debug } from "../utils";
 export async function memorize(
   state: ObjectiveState,
   action: ModelResponseType,
-  sequnceId: string,
+  sequenceId: string,
   collectiveMemoryConfig?: CollectiveMemoryConfig
 ) {
   const config = CollectiveMemoryConfig.parse(collectiveMemoryConfig);
@@ -21,7 +21,7 @@ export async function memorize(
     method: "POST",
     headers,
     body: JSON.stringify({
-      sequence_id: sequnceId,
+      sequence_id: sequenceId,
       memory: {
         state,
         action,
