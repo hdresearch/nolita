@@ -192,6 +192,22 @@ export class Page {
     if (opts?.delay) {
       await new Promise((resolve) => setTimeout(resolve, opts.delay));
     }
+
+    if (!this.disableMemory) {
+      const state: ObjectiveState = {
+        kind: "ObjectiveState",
+        objective: "navigate to " + url,
+        url: url,
+        ariaTree: "about:blank",
+        progress: [],
+      };
+      const action: ModelResponseType = {
+        command: [{ kind: "GoTo", url }],
+        description: "Navigated to " + url,
+        progressAssessment: "",
+      };
+      await memorize(state, action, this.pageId);
+    }
   }
 
   /**
@@ -350,12 +366,14 @@ export class Page {
     this.error = undefined;
     try {
       switch (command.kind) {
+        case "GoTo":
+          await this.goto(command.url, { delay });
+          break;
         case "Click":
           let eClick = await this.findElement(command.index);
           await eClick.click();
           await new Promise((resolve) => setTimeout(resolve, delay));
           break;
-
         case "Type":
           let text = command.text;
 
@@ -363,7 +381,6 @@ export class Page {
           if (inventory) {
             text = inventory.replaceMask(text);
           }
-
           let eType = await this.findElement(command.index);
           await eType.click({ clickCount: 3 }); // click to select all text
           await eType.type(text + "\n");

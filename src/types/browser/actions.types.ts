@@ -38,6 +38,11 @@ const Scroll = z.object({
   direction: z.enum(["up", "down"]).describe("The direction to scroll"),
 });
 
+const GoTo = z.object({
+  kind: z.literal("GoTo").describe("Go to a specific URL"),
+  url: z.string().url().describe("The URL to navigate to"),
+});
+
 export const BrowserAction = z.union([
   Type,
   Click,
@@ -46,6 +51,7 @@ export const BrowserAction = z.union([
   Enter,
   Hover,
   Scroll,
+  GoTo,
 ]);
 
 export type BrowserAction = z.infer<typeof BrowserAction>;
