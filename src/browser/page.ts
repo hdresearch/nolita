@@ -197,8 +197,8 @@ export class Page {
       const state: ObjectiveState = {
         kind: "ObjectiveState",
         objective: "navigate to " + url,
-        url: url,
-        ariaTree: "about:blank",
+        url: this.url(),
+        ariaTree: "[]",
         progress: [],
       };
       const action: ModelResponseType = {
