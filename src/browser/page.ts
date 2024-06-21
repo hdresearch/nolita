@@ -260,7 +260,7 @@ export class Page {
 
     const ret = (await this.page
       .mainFrame()
-      // this is black magic referred to the execution context
+      // this is black magic referring to the execution context
       // @ts-ignore
       .worlds[MAIN_WORLD].adoptBackendNode(
         backendNodeId
