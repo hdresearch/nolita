@@ -1,7 +1,6 @@
 import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
-import { AgentBrowser } from "../agentBrowser";
 import { Browser } from "../browser";
 import { Agent } from "../agent/agent";
 import { Logger } from "../utils";
@@ -250,7 +249,7 @@ export const run = async (toolbox: GluegunToolbox) => {
   await page.browse(resolvedConfig.objective, {
     agent,
     schema: ModelResponseSchema(ObjectiveComplete),
-    maxTurns: 3
+    maxTurns: 10
   });
   await browser.close();
 };
