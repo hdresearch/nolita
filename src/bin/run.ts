@@ -198,16 +198,24 @@ export const run = async (toolbox: GluegunToolbox) => {
   const spinner = toolbox.print.spin();
   spinner.stop();
   const logger = new Logger(["info"], (input: any) => {
-    const parsedInput = JSON.parse(input);
-    spinner.text = parsedInput.progressAssessment;
-    if (parsedInput?.result) {
-      if (parsedInput?.kind === "ObjectiveComplete") {
-        spinner.succeed(parsedInput?.result?.objectiveComplete?.result);
-        console.log(parsedInput?.result?.objectiveComplete?.result);
-      } else if (parsedInput.result.kind === "ObjectiveFailed") {
-        spinner.fail(parsedInput?.result?.result);
-      }
+    const incMsg = JSON.parse(input);
+    let parsedInput;
+    try {
+      parsedInput = JSON.parse(incMsg?.message);
+  } catch (e) {
+      parsedInput = incMsg?.message;
+  }
+    if (typeof parsedInput === 'string') {
+      spinner.text = parsedInput;
+      return;
     }
+    spinner.text = parsedInput.progressAssessment;
+      if (parsedInput?.["objectiveComplete"]) {
+        spinner.succeed();
+        console.log(parsedInput?.objectiveComplete?.result);
+      } else if (parsedInput?.["objectiveFailed"]) {
+        spinner.fail(parsedInput?.objectiveFailed?.result);
+      }
   });
 
   const providerOptions = {
@@ -229,35 +237,20 @@ export const run = async (toolbox: GluegunToolbox) => {
     modelApi: chatApi,
   });
 
-  const args = {
-    agent,
-    browser: await Browser.launch(resolvedConfig.headless, agent, undefined, {
-      disableMemory: resolvedConfig.hdrDisable,
-    }),
-    logger,
-    inventory:
-      resolvedConfig.inventory.length > 0
-        ? new Inventory(resolvedConfig.inventory)
-        : undefined,
-    ...(resolvedConfig.hdrApiKey
-      ? {
-          collectiveMemoryConfig: {
-            endpoint: process.env.HDR_ENDPOINT || "https://api.hdr.is",
-            apiKey: resolvedConfig.hdrApiKey,
-          },
-        }
-      : {}),
-  };
+  const browser = await Browser.launch(resolvedConfig.headless, agent, logger, {
+    disableMemory: resolvedConfig.hdrDisable,
+    inventory: resolvedConfig.inventory.length > 0 ? new Inventory(resolvedConfig.inventory) : undefined,
+    apiKey: resolvedConfig.hdrApiKey || undefined,
 
-  const agentBrowser = new AgentBrowser(args);
+  });
+  const page = await browser.newPage();
+
   spinner.start("Session starting...");
-  await agentBrowser.browse(
-    {
-      startUrl: resolvedConfig.startUrl,
-      objective: [resolvedConfig.objective],
-      maxIterations: MAX_ITERATIONS,
-    },
-    ModelResponseSchema(ObjectiveComplete)
-  );
-  await args.browser.close();
+  await page.goto(resolvedConfig.startUrl);
+  await page.browse(resolvedConfig.objective, {
+    agent,
+    schema: ModelResponseSchema(ObjectiveComplete),
+    maxTurns: 3
+  });
+  await browser.close();
 };
