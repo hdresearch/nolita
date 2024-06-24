@@ -34,6 +34,7 @@ import { extendModelResponse } from "../types/browser/actionStep.types";
 import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 import { Memory } from "../types/memory.types";
 import { updateCommandIndices } from "../collectiveMemory/compareAriaTrees";
+import { result } from "lodash";
 
 /**
  * Represents a web page and provides methods to interact with it.
@@ -576,6 +577,19 @@ export class Page {
     return step;
   }
 
+  async returnErrorState(failureReason: string) {
+    const failure = {
+      kind: "ObjectiveFailed",
+      result: failureReason,
+      url: this.url(),
+      content: await this.content(),
+    };
+
+    this.log(JSON.stringify(failure));
+
+    return failure;
+  }
+
   /**
    * Browses the page based on the request and return type.
    * @param {string} request The request or objective.
@@ -609,6 +623,8 @@ export class Page {
 
       currentTurn++;
     }
+
+    return this.returnErrorState("Maximum number of turns exceeded");
   }
 
   /**
