@@ -376,7 +376,6 @@ export class Page {
           break;
         case "Type":
           let text = command.text;
-
           // repalce masked inventory values with real values
           if (inventory) {
             text = inventory.replaceMask(text);
