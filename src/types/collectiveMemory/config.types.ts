@@ -1,7 +1,10 @@
 import { z } from "zod";
 
 export const CollectiveMemoryConfig = z.object({
-  endpoint: z.string().url().default("https://api.hdr.is"),
+  endpoint: z
+    .string()
+    .url()
+    .default(process.env.HDR_ENDPOINT ?? "https://api.hdr.is"),
   apiKey: z
     .string()
     .optional()

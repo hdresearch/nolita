@@ -43,6 +43,15 @@ const GoTo = z.object({
   url: z.string().url().describe("The URL to navigate to"),
 });
 
+const Get = z.object({
+  kind: z.literal("Get").describe("Get information from the page"),
+  request: z.string().describe("The request to get from the page"),
+  type: z
+    .enum(["html", "aria", "markdown", "text", "image"])
+    .default("aria")
+    .describe("The format inspect the page"),
+});
+
 export const BrowserAction = z.union([
   Type,
   Click,
@@ -52,6 +61,7 @@ export const BrowserAction = z.union([
   Hover,
   Scroll,
   GoTo,
+  Get,
 ]);
 
 export type BrowserAction = z.infer<typeof BrowserAction>;

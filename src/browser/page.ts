@@ -18,7 +18,10 @@ import {
   ObjectiveState,
 } from "../types/browser/browser.types";
 import { Logger, debug, generateUUID } from "../utils";
-import { BrowserAction } from "../types/browser/actions.types";
+import {
+  BrowserAction,
+  BrowserActionArray,
+} from "../types/browser/actions.types";
 import { Inventory } from "../inventory";
 import { Agent } from "../agent";
 
@@ -194,13 +197,7 @@ export class Page {
     }
 
     if (!this.disableMemory) {
-      const state: ObjectiveState = {
-        kind: "ObjectiveState",
-        objective: "navigate to " + url,
-        url: this.url(),
-        ariaTree: "[]",
-        progress: [],
-      };
+      const state = await this.state("Navigate");
       const action: ModelResponseType = {
         command: [{ kind: "GoTo", url }],
         description: "Navigated to " + url,
@@ -395,6 +392,7 @@ export class Page {
         case "Hover":
           let eHover = await this.findElement(command.index);
           await eHover.hover();
+          break;
         case "Scroll":
           if ("direction" in command) {
             await this.page.evaluate((direction: "up" | "down") => {
@@ -628,20 +626,71 @@ export class Page {
   }
 
   /**
+   * Performs a memory on a page
+   * @param memory  The memory to perform
+   * @param opts Additional options
+   * @param opts.delay The delay in milliseconds after performing the action (default: 100).
+   * @param opts.inventory The inventory object (optional).
+   * @param opts.schema The Zod schema for the return type (optional).
+   * @oaram opts.agent The agent to use (optional). Defaults to page agent.
+   * @oaram opts.memoryDelay The delay in milliseconds after performing the memory (optional).
+   * @returns
+   */
+  async performMemory(
+    memory: Memory,
+    opts?: {
+      delay?: number;
+      inventory?: Inventory;
+      schema?: z.ZodObject<any>;
+      agent?: Agent;
+      memoryDelay?: number;
+    }
+  ) {
+    const { actionStep, objectiveState } = Memory.parse(memory);
+
+    if (actionStep.command) {
+      const commands = BrowserActionArray.parse(actionStep.command);
+      for (const command of commands) {
+        if (command.kind === "Get") {
+          return await this.get(command.request, opts?.schema, opts);
+        }
+        await this.performAction(command, opts);
+      }
+    } else if (actionStep.objectiveComplete) {
+      return await this.get(objectiveState.objective, opts?.schema, opts);
+    }
+  }
+
+  async modifyCommands(memory: Memory, state: ObjectiveState) {
+    // const state = await this.state(
+    //   memory.objectiveState.objective,
+    //   this.progress
+    // );
+
+    const { actionStep, objectiveState } = Memory.parse(memory);
+    const ff = updateCommandIndices(objectiveState, state, actionStep.command);
+  }
+
+  /**
    * Follows a route based on a memory sequence.
    * @param {string} memoryId The memory sequence ID.
    * @param {z.ZodSchema} outputSchema The Zod schema for the return type.
    * @param {Object} opts Additional options.
    * @param {number} opts.delay The delay in milliseconds after performing the action (default: 100).
-   * @param {number} opts.maxTurns The maximum number of turns to follow the route.
+   * @param {number} opts.maxTurns The maximum number of turns to follow the route. Currently not used.
    * @param {Inventory} opts.inventory The inventory object (optional).
    * @returns {z.ZodSchema} A promise that resolves to the retrieved data.
    * @throws {Error} An error is thrown if no memories are found for the memory sequence ID.
    */
   async followRoute(
     memoryId: string,
-    outputSchema?: z.ZodObject<any>,
-    opts?: { delay?: number; maxTurns?: number; inventory?: Inventory }
+
+    opts?: {
+      delay?: number;
+      maxTurns?: number;
+      inventory?: Inventory;
+      schema?: z.ZodObject<any>;
+    }
   ) {
     const maxTurns = opts?.maxTurns ?? 20;
     const memories = await fetchMemorySequence(memoryId, {
@@ -652,63 +701,10 @@ export class Page {
     if (memories.length === 0) {
       throw new Error(`No memories found for memory sequence id ${memoryId}`);
     }
+    console.log(JSON.stringify(memories));
 
-    await this.goto(memories[0].objectiveState.url, {
-      delay: opts?.delay ?? 1000,
-    });
-    const turnNumber = 0;
-    while (turnNumber < maxTurns) {
-      for (const memory of memories) {
-        if (memory.actionStep.objectiveComplete) {
-          await this.step(memory.objectiveState.objective, outputSchema, {
-            agent: this.agent,
-            progress: memory.objectiveState.progress,
-            inventory: this.inventory,
-          });
-        } else {
-          const mem = Memory.parse(memory);
-          const state = await this.state(
-            memory.objectiveState.objective,
-            this.progress
-          );
-          const hasText = memory.actionStep.command?.some(
-            (action: any) => action.kind === "Type"
-          );
-          let description = "";
-          if (state.ariaTree === memory.objectiveState.ariaTree && !hasText) {
-            debug.write("Performing action step from memory");
-            this.performManyActions(
-              memory.actionStep.command as BrowserAction[],
-              {
-                inventory: this.inventory,
-              }
-            );
-            description = memory.actionStep.description;
-          } else {
-            debug.write("Modifying actions");
-            let modifiedActionStep = await this.agent.modifyActions(
-              state,
-              memory,
-              {
-                inventory: this.inventory,
-              }
-            );
-
-            if (modifiedActionStep === undefined) {
-              throw new Error("Agent failed to respond");
-              return;
-            }
-
-            description = modifiedActionStep.description;
-            this.performManyActions(
-              modifiedActionStep.command as BrowserAction[],
-              {
-                inventory: this.inventory,
-              }
-            );
-          }
-        }
-      }
+    for (const memory of memories) {
+      await this.performMemory(memory, opts);
     }
   }
 
