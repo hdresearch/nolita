@@ -661,16 +661,6 @@ export class Page {
     }
   }
 
-  async modifyCommands(memory: Memory, state: ObjectiveState) {
-    // const state = await this.state(
-    //   memory.objectiveState.objective,
-    //   this.progress
-    // );
-
-    const { actionStep, objectiveState } = Memory.parse(memory);
-    const ff = updateCommandIndices(objectiveState, state, actionStep.command);
-  }
-
   /**
    * Follows a route based on a memory sequence.
    * @param {string} memoryId The memory sequence ID.
@@ -701,11 +691,12 @@ export class Page {
     if (memories.length === 0) {
       throw new Error(`No memories found for memory sequence id ${memoryId}`);
     }
-    console.log(JSON.stringify(memories));
 
     for (const memory of memories) {
       await this.performMemory(memory, opts);
     }
+
+    this.log(`Route finishef for memory sequence id: ${memoryId}`);
   }
 
   /**
