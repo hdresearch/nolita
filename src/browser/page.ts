@@ -550,6 +550,18 @@ export class Page {
     const result = await agent.returnCall(prompt, outputSchema);
 
     this.log(JSON.stringify(result));
+
+    if (!this.disableMemory) {
+      const action: ModelResponseType = {
+        command: [{ kind: "Get", type: "aria", request }],
+        description: "Getting data from the page",
+        progressAssessment: "",
+      };
+      await memorize(this._state!, action as ModelResponseType, this.pageId, {
+        endpoint: process.env.HDR_API_ENDPOINT ?? "https://api.hdr.is",
+        apiKey: process.env.HDR_API_KEY ?? "",
+      });
+    }
     return result;
   }
 
