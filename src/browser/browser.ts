@@ -6,6 +6,7 @@ import { browserContext } from "./browserUtils";
 import { Agent } from "../agent";
 import { Logger } from "../utils";
 import { Inventory } from "../inventory";
+import { nolitarc } from "../utils/config";
 
 /**
  * Represents a browser session using Puppeteer.
@@ -56,7 +57,9 @@ export class Browser {
       disableMemory?: boolean;
     }
   ) {
-    this.apiKey = opts?.apiKey || process.env.HDR_API_KEY;
+    const { hdrApiKey } = nolitarc();
+    this.disableMemory = opts?.disableMemory || false;
+    this.apiKey = opts?.apiKey || hdrApiKey || process.env.HDR_API_KEY;
     this.endpoint = opts?.endpoint || process.env.HDR_ENDPOINT;
 
     this.agent = agent;

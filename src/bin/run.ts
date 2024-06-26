@@ -1,7 +1,6 @@
 import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
-import { AgentBrowser } from "../agentBrowser";
 import { Browser } from "../browser";
 import { Agent } from "../agent/agent";
 import { Logger } from "../utils";
@@ -10,7 +9,6 @@ import { Inventory } from "../inventory";
 import { completionApiBuilder } from "../agent/config";
 import { GluegunToolbox } from "gluegun";
 import "dotenv/config";
-const MAX_ITERATIONS = 10;
 
 const loadConfigFile = (filePath: string): any => {
   try {
@@ -30,20 +28,92 @@ const loadConfigs = (config: string | undefined): any => {
   return mergedConfig;
 };
 
+const isValidBoolean = (value: any): boolean => typeof value === "boolean";
+
+const isValidNumber = (value: any, key: string): void => {
+  if (typeof value !== "number" || value < 1) {
+    throw new Error(`Invalid ${key}.`);
+  }
+};
+
+const isValidString = (value: any, key: string): void => {
+  if (typeof value !== "string") {
+    throw new Error(`Invalid ${key}.`);
+  }
+};
+
+const isValidUrl = (value: string): void => {
+  if (!value.startsWith("http://") && !value.startsWith("https://")) {
+    throw new Error("startUrl must be a valid URL.");
+  }
+};
+
+const isValidProvider = (value: string): void => {
+  if (value !== "openai" && value !== "anthropic") {
+    throw new Error("Invalid provider.");
+  }
+};
+
+const isValidApiKey = (value: string, key: string): void => {
+  if (value.length === 0) {
+    throw new Error(`${key} not provided.`);
+  }
+};
+
+const isValidHdrApiKey = (value: string): void => {
+  if (value.length > 0 && !value.startsWith("hdr-")) {
+    throw new Error("Invalid HDR API key.");
+  }
+};
+
+const validate = (config: any): void => {
+  Object.entries(config).forEach(([key, value]) => {
+    if (isValidBoolean(value)) return;
+
+    switch (key) {
+      case "inventory":
+        return;
+      case "maxIterations":
+        isValidNumber(value, key);
+        return;
+      case "startUrl":
+        isValidUrl(value as string);
+        return;
+      case "objective":
+      case "agentApiKey":
+        isValidString(value, key);
+        isValidApiKey(value as string, key);
+        return;
+      case "agentProvider":
+        isValidString(value, key);
+        isValidProvider(value as string);
+        return;
+      case "hdrApiKey":
+        isValidString(value, key);
+        isValidHdrApiKey(value as string);
+        return;
+      default:
+        isValidString(value, key);
+        return;
+    }
+  });
+};
+
 const getConfig = (
   mergedConfig: any,
   startUrl: string | undefined,
   objective: string | undefined,
+  maxIterations: number | undefined,
   agentProvider: string | undefined,
   agentModel: string | undefined,
   agentApiKey: string | undefined,
-  agentEndpoint: string | undefined,
   hdrApiKey: string | undefined,
   headless: boolean | string | undefined,
   hdrDisable: boolean | string | undefined
 ): any => ({
   startUrl: startUrl || mergedConfig.startUrl,
   objective: objective || mergedConfig.objective,
+  maxIterations: maxIterations || mergedConfig.maxIterations || 10,
   agentProvider:
     agentProvider ||
     mergedConfig.agentProvider ||
@@ -52,10 +122,6 @@ const getConfig = (
     agentModel || mergedConfig.agentModel || process.env.HDR_AGENT_MODEL,
   agentApiKey:
     agentApiKey || mergedConfig.agentApiKey || process.env.HDR_AGENT_API_KEY,
-  agentEndpoint:
-    agentEndpoint ||
-    mergedConfig.agentEndpoint ||
-    process.env.HDR_AGENT_ENDPOINT,
   hdrApiKey: hdrApiKey || mergedConfig.hdrApiKey || process.env.HDR_API_KEY,
   headless: headless ?? mergedConfig.headless ?? process.env.HDR_HEADLESS,
   hdrDisable: hdrDisable ?? mergedConfig.hdrDisable ?? process.env.HDR_DISABLE,
@@ -79,14 +145,14 @@ export const run = async (toolbox: GluegunToolbox) => {
   let {
     startUrl,
     objective,
+    maxIterations,
     agentProvider,
     agentModel,
     agentApiKey,
-    agentEndpoint,
     hdrApiKey,
     headless,
     config,
-    hdrDisable
+    hdrDisable,
   } = toolbox.parameters.options;
 
   const mergedConfig = loadConfigs(config);
@@ -94,19 +160,27 @@ export const run = async (toolbox: GluegunToolbox) => {
     mergedConfig,
     startUrl,
     objective,
+    maxIterations,
     agentProvider,
     agentModel,
     agentApiKey,
-    agentEndpoint,
     hdrApiKey,
     headless,
     hdrDisable
   );
-  resolvedConfig.headless = resolvedConfig.headless !== undefined ? resolvedConfig.headless !== "false" : true;
-  resolvedConfig.hdrDisable = resolvedConfig.hdrDisable !== undefined ? resolvedConfig.hdrDisable !== "false" : false;
+  resolvedConfig.headless =
+    resolvedConfig.headless !== undefined
+      ? resolvedConfig.headless !== "false"
+      : true;
+  resolvedConfig.hdrDisable =
+    resolvedConfig.hdrDisable !== undefined
+      ? resolvedConfig.hdrDisable !== "false"
+      : false;
 
   if (!resolvedConfig.hdrApiKey && !resolvedConfig.hdrDisable) {
-    toolbox.print.muted("No API key for Memory Index provided. Use `npx nolita auth` to authenticate or suppress this message with --hdrDisable.")
+    toolbox.print.muted(
+      "No API key for Memory Index provided. Use `npx nolita auth` to authenticate or suppress this message with --hdrDisable."
+    );
   }
 
   if (!resolvedConfig.startUrl) {
@@ -195,25 +269,34 @@ export const run = async (toolbox: GluegunToolbox) => {
       });
   }
 
+  validate(resolvedConfig);
+
   const spinner = toolbox.print.spin();
   spinner.stop();
   const logger = new Logger(["info"], (input: any) => {
-    const parsedInput = JSON.parse(input);
+    const incMsg = JSON.parse(input);
+    let parsedInput;
+    try {
+      parsedInput = JSON.parse(incMsg?.message);
+    } catch (e) {
+      parsedInput = incMsg?.message;
+    }
+    if (typeof parsedInput === "string") {
+      spinner.text = parsedInput;
+      return;
+    }
     spinner.text = parsedInput.progressAssessment;
-    if (parsedInput?.result) {
-      if (parsedInput?.kind === "ObjectiveComplete") {
-        spinner.succeed(parsedInput?.result?.objectiveComplete?.result);
-        console.log(parsedInput?.result?.objectiveComplete?.result);
-      } else if (parsedInput.result.kind === "ObjectiveFailed") {
-        spinner.fail(parsedInput?.result?.result);
-      }
+    if (parsedInput?.["objectiveComplete"]) {
+      spinner.succeed();
+      console.log(parsedInput?.objectiveComplete?.result);
+    } else if (parsedInput?.["objectiveFailed"]) {
+      spinner.fail(parsedInput?.objectiveFailed?.result);
     }
   });
 
   const providerOptions = {
     apiKey: resolvedConfig.agentApiKey!,
     provider: resolvedConfig.agentProvider,
-    endpoint: resolvedConfig.agentEndpoint,
   };
   const chatApi = completionApiBuilder(providerOptions, {
     model: resolvedConfig.agentModel,
@@ -229,35 +312,22 @@ export const run = async (toolbox: GluegunToolbox) => {
     modelApi: chatApi,
   });
 
-  const args = {
-    agent,
-    browser: await Browser.launch(resolvedConfig.headless, agent, undefined, {
-      disableMemory: resolvedConfig.hdrDisable,
-    }),
-    logger,
+  const browser = await Browser.launch(resolvedConfig.headless, agent, logger, {
+    disableMemory: resolvedConfig.hdrDisable,
     inventory:
       resolvedConfig.inventory.length > 0
         ? new Inventory(resolvedConfig.inventory)
         : undefined,
-    ...(resolvedConfig.hdrApiKey
-      ? {
-          collectiveMemoryConfig: {
-            endpoint: process.env.HDR_ENDPOINT || "https://api.hdr.is",
-            apiKey: resolvedConfig.hdrApiKey,
-          },
-        }
-      : {}),
-  };
+    apiKey: resolvedConfig.hdrApiKey || undefined,
+  });
+  const page = await browser.newPage();
 
-  const agentBrowser = new AgentBrowser(args);
   spinner.start("Session starting...");
-  await agentBrowser.browse(
-    {
-      startUrl: resolvedConfig.startUrl,
-      objective: [resolvedConfig.objective],
-      maxIterations: MAX_ITERATIONS,
-    },
-    ModelResponseSchema(ObjectiveComplete)
-  );
-  await args.browser.close();
+  await page.goto(resolvedConfig.startUrl);
+  await page.browse(resolvedConfig.objective, {
+    agent,
+    schema: ModelResponseSchema(ObjectiveComplete),
+    maxTurns: resolvedConfig.maxIterations,
+  });
+  await browser.close();
 };
