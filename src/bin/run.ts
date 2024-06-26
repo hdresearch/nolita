@@ -40,7 +40,7 @@ const validate = (config: any): void => {
     }
     switch (key) {
       case "startUrl":
-        if (!value?.startsWith("http://")) {
+        if (!value?.startsWith("http://") && !(value?.startsWith("https://"))) {
           throw new Error("startUrl must be a valid URL.");
         }
         break;
@@ -295,7 +295,7 @@ export const run = async (toolbox: GluegunToolbox) => {
   await page.browse(resolvedConfig.objective, {
     agent,
     schema: ModelResponseSchema(ObjectiveComplete),
-    maxTurns: 3,
+    maxTurns: 10,
   });
   await browser.close();
 };
