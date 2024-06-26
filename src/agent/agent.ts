@@ -14,6 +14,8 @@ import { Inventory } from "../inventory";
 import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
 import { generateSchema, SchemaElement } from "./schemaGenerators";
 import { debug } from "../utils";
+import { completionApiBuilder } from "./config";
+import { nolitarc } from "../utils/config";
 
 export function stringifyObjects<T>(obj: T[]): string {
   const strings = obj.map((o) => JSON.stringify(o));
@@ -24,8 +26,20 @@ export class Agent {
   private modelApi: CompletionApi;
   systemPrompt?: string;
 
-  constructor(agentArgs: { modelApi: CompletionApi; systemPrompt?: string }) {
-    this.modelApi = agentArgs.modelApi;
+  constructor(agentArgs: { modelApi?: CompletionApi; systemPrompt?: string }) {
+    if (agentArgs.modelApi) {
+      this.modelApi = agentArgs.modelApi;
+    } else {
+      try {
+        const { agentApiKey, agentProvider, agentModel } = nolitarc();
+        this.modelApi = completionApiBuilder(
+          { provider: agentProvider, apiKey: agentApiKey },
+          { model: agentModel }
+        ) as CompletionApi;
+      } catch (error) {
+        throw new Error("Failed to create chat api");
+      }
+    }
     this.systemPrompt = agentArgs.systemPrompt;
   }
 

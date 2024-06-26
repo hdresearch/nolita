@@ -35,7 +35,6 @@ const getConfig = (
   agentProvider: string | undefined,
   agentModel: string | undefined,
   agentApiKey: string | undefined,
-  agentEndpoint: string | undefined,
   hdrApiKey: string | undefined,
   headless: boolean | string | undefined,
   hdrDisable: boolean | string | undefined
@@ -50,10 +49,6 @@ const getConfig = (
     agentModel || mergedConfig.agentModel || process.env.HDR_AGENT_MODEL,
   agentApiKey:
     agentApiKey || mergedConfig.agentApiKey || process.env.HDR_AGENT_API_KEY,
-  agentEndpoint:
-    agentEndpoint ||
-    mergedConfig.agentEndpoint ||
-    process.env.HDR_AGENT_ENDPOINT,
   hdrApiKey: hdrApiKey || mergedConfig.hdrApiKey || process.env.HDR_API_KEY,
   headless: headless ?? mergedConfig.headless ?? process.env.HDR_HEADLESS,
   hdrDisable: hdrDisable ?? mergedConfig.hdrDisable ?? process.env.HDR_DISABLE,
@@ -80,7 +75,6 @@ export const run = async (toolbox: GluegunToolbox) => {
     agentProvider,
     agentModel,
     agentApiKey,
-    agentEndpoint,
     hdrApiKey,
     headless,
     config,
@@ -95,7 +89,6 @@ export const run = async (toolbox: GluegunToolbox) => {
     agentProvider,
     agentModel,
     agentApiKey,
-    agentEndpoint,
     hdrApiKey,
     headless,
     hdrDisable
@@ -227,7 +220,6 @@ export const run = async (toolbox: GluegunToolbox) => {
   const providerOptions = {
     apiKey: resolvedConfig.agentApiKey!,
     provider: resolvedConfig.agentProvider,
-    endpoint: resolvedConfig.agentEndpoint,
   };
   const chatApi = completionApiBuilder(providerOptions, {
     model: resolvedConfig.agentModel,

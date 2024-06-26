@@ -5,6 +5,7 @@ import {
   ModelConfig,
 } from "llm-api";
 import { Agent } from "./agent";
+import { nolitarc } from "../utils/config";
 
 export const CompletionDefaultRetries = 3;
 export const CompletionDefaultTimeout = 300_000;
@@ -40,11 +41,22 @@ export function completionApiBuilder(
 }
 
 export function makeAgent(
-  prodiverOpts: { provider: string; apiKey: string },
-  modelConfig: ModelConfig,
+  prodiverOpts?: { provider: string; apiKey: string },
+  modelConfig?: ModelConfig,
   customProvider?: CompletionApi,
   opts?: { systemPrompt?: string }
 ) {
+  if (!prodiverOpts) {
+    const { agentApiKey, agentProvider, agentModel } = nolitarc();
+    prodiverOpts = { provider: agentProvider, apiKey: agentApiKey };
+    modelConfig = { model: agentModel };
+  }
+  if (!prodiverOpts.provider) {
+    throw new Error("Provider is required");
+  }
+  if (!modelConfig?.model) {
+    throw new Error("Model is required");
+  }
   const chatApi = completionApiBuilder(
     prodiverOpts,
     modelConfig,
