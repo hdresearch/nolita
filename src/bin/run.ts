@@ -1,7 +1,6 @@
 import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
-import { AgentBrowser } from "../agentBrowser";
 import { Browser } from "../browser";
 import { Agent } from "../agent/agent";
 import { Logger } from "../utils";
@@ -10,7 +9,6 @@ import { Inventory } from "../inventory";
 import { completionApiBuilder } from "../agent/config";
 import { GluegunToolbox } from "gluegun";
 import "dotenv/config";
-const MAX_ITERATIONS = 10;
 
 const loadConfigFile = (filePath: string): any => {
   try {
@@ -86,7 +84,7 @@ export const run = async (toolbox: GluegunToolbox) => {
     hdrApiKey,
     headless,
     config,
-    hdrDisable
+    hdrDisable,
   } = toolbox.parameters.options;
 
   const mergedConfig = loadConfigs(config);
@@ -102,11 +100,19 @@ export const run = async (toolbox: GluegunToolbox) => {
     headless,
     hdrDisable
   );
-  resolvedConfig.headless = resolvedConfig.headless !== undefined ? resolvedConfig.headless !== "false" : true;
-  resolvedConfig.hdrDisable = resolvedConfig.hdrDisable !== undefined ? resolvedConfig.hdrDisable !== "false" : false;
+  resolvedConfig.headless =
+    resolvedConfig.headless !== undefined
+      ? resolvedConfig.headless !== "false"
+      : true;
+  resolvedConfig.hdrDisable =
+    resolvedConfig.hdrDisable !== undefined
+      ? resolvedConfig.hdrDisable !== "false"
+      : false;
 
   if (!resolvedConfig.hdrApiKey && !resolvedConfig.hdrDisable) {
-    toolbox.print.muted("No API key for Memory Index provided. Use `npx nolita auth` to authenticate or suppress this message with --hdrDisable.")
+    toolbox.print.muted(
+      "No API key for Memory Index provided. Use `npx nolita auth` to authenticate or suppress this message with --hdrDisable."
+    );
   }
 
   if (!resolvedConfig.startUrl) {
@@ -198,15 +204,23 @@ export const run = async (toolbox: GluegunToolbox) => {
   const spinner = toolbox.print.spin();
   spinner.stop();
   const logger = new Logger(["info"], (input: any) => {
-    const parsedInput = JSON.parse(input);
+    const incMsg = JSON.parse(input);
+    let parsedInput;
+    try {
+      parsedInput = JSON.parse(incMsg?.message);
+    } catch (e) {
+      parsedInput = incMsg?.message;
+    }
+    if (typeof parsedInput === "string") {
+      spinner.text = parsedInput;
+      return;
+    }
     spinner.text = parsedInput.progressAssessment;
-    if (parsedInput?.result) {
-      if (parsedInput?.kind === "ObjectiveComplete") {
-        spinner.succeed(parsedInput?.result?.objectiveComplete?.result);
-        console.log(parsedInput?.result?.objectiveComplete?.result);
-      } else if (parsedInput.result.kind === "ObjectiveFailed") {
-        spinner.fail(parsedInput?.result?.result);
-      }
+    if (parsedInput?.["objectiveComplete"]) {
+      spinner.succeed();
+      console.log(parsedInput?.objectiveComplete?.result);
+    } else if (parsedInput?.["objectiveFailed"]) {
+      spinner.fail(parsedInput?.objectiveFailed?.result);
     }
   });
 
@@ -229,35 +243,22 @@ export const run = async (toolbox: GluegunToolbox) => {
     modelApi: chatApi,
   });
 
-  const args = {
-    agent,
-    browser: await Browser.launch(resolvedConfig.headless, agent, undefined, {
-      disableMemory: resolvedConfig.hdrDisable,
-    }),
-    logger,
+  const browser = await Browser.launch(resolvedConfig.headless, agent, logger, {
+    disableMemory: resolvedConfig.hdrDisable,
     inventory:
       resolvedConfig.inventory.length > 0
         ? new Inventory(resolvedConfig.inventory)
         : undefined,
-    ...(resolvedConfig.hdrApiKey
-      ? {
-          collectiveMemoryConfig: {
-            endpoint: process.env.HDR_ENDPOINT || "https://api.hdr.is",
-            apiKey: resolvedConfig.hdrApiKey,
-          },
-        }
-      : {}),
-  };
+    apiKey: resolvedConfig.hdrApiKey || undefined,
+  });
+  const page = await browser.newPage();
 
-  const agentBrowser = new AgentBrowser(args);
   spinner.start("Session starting...");
-  await agentBrowser.browse(
-    {
-      startUrl: resolvedConfig.startUrl,
-      objective: [resolvedConfig.objective],
-      maxIterations: MAX_ITERATIONS,
-    },
-    ModelResponseSchema(ObjectiveComplete)
-  );
-  await args.browser.close();
+  await page.goto(resolvedConfig.startUrl);
+  await page.browse(resolvedConfig.objective, {
+    agent,
+    schema: ModelResponseSchema(ObjectiveComplete),
+    maxTurns: 3,
+  });
+  await browser.close();
 };

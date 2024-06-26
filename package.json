@@ -7,7 +7,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf ./dist && tsc",
     "build:docs": "./build-docs.sh",
     "test": "jest",
     "server": "npx tsx ./src/server/index.ts"
