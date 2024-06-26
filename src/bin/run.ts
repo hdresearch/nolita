@@ -34,6 +34,10 @@ const validate = (config: any): void => {
     if (typeof value === "boolean") {
       return true;
     }
+    // Let inventory through.
+    if (key === "inventory") {
+      return true;
+    }
     // Now we validate strings.
     if (typeof value !== "string") {
       throw new Error("Invalid config file.");
