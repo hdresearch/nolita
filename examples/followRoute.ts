@@ -24,7 +24,8 @@ async function followRoute(
 ) {
   const page = await browser.newPage();
 
-  await page.followRoute(routeId, { schema });
+  const answer = await page.followRoute(routeId, { schema });
+  console.log(answer);
 }
 
 async function main() {
