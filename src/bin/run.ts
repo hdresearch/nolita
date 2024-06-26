@@ -28,10 +28,82 @@ const loadConfigs = (config: string | undefined): any => {
   return mergedConfig;
 };
 
+const isValidBoolean = (value: any): boolean => typeof value === "boolean";
+
+const isValidNumber = (value: any, key: string): void => {
+  if (typeof value !== "number" || value < 1) {
+    throw new Error(`Invalid ${key}.`);
+  }
+};
+
+const isValidString = (value: any, key: string): void => {
+  if (typeof value !== "string") {
+    throw new Error(`Invalid ${key}.`);
+  }
+};
+
+const isValidUrl = (value: string): void => {
+  if (!value.startsWith("http://") && !value.startsWith("https://")) {
+    throw new Error("startUrl must be a valid URL.");
+  }
+};
+
+const isValidProvider = (value: string): void => {
+  if (value !== "openai" && value !== "anthropic") {
+    throw new Error("Invalid provider.");
+  }
+};
+
+const isValidApiKey = (value: string, key: string): void => {
+  if (value.length === 0) {
+    throw new Error(`${key} not provided.`);
+  }
+};
+
+const isValidHdrApiKey = (value: string): void => {
+  if (value.length > 0 && !value.startsWith("hdr-")) {
+    throw new Error("Invalid HDR API key.");
+  }
+};
+
+const validate = (config: any): void => {
+  Object.entries(config).forEach(([key, value]) => {
+    if (isValidBoolean(value)) return;
+
+    switch (key) {
+      case "inventory":
+        return;
+      case "maxIterations":
+        isValidNumber(value, key);
+        return;
+      case "startUrl":
+        isValidUrl(value as string);
+        return;
+      case "objective":
+      case "agentApiKey":
+        isValidString(value, key);
+        isValidApiKey(value as string, key);
+        return;
+      case "agentProvider":
+        isValidString(value, key);
+        isValidProvider(value as string);
+        return;
+      case "hdrApiKey":
+        isValidString(value, key);
+        isValidHdrApiKey(value as string);
+        return;
+      default:
+        isValidString(value, key);
+        return;
+    }
+  });
+};
+
 const getConfig = (
   mergedConfig: any,
   startUrl: string | undefined,
   objective: string | undefined,
+  maxIterations: number | undefined,
   agentProvider: string | undefined,
   agentModel: string | undefined,
   agentApiKey: string | undefined,
@@ -41,6 +113,7 @@ const getConfig = (
 ): any => ({
   startUrl: startUrl || mergedConfig.startUrl,
   objective: objective || mergedConfig.objective,
+  maxIterations: maxIterations || mergedConfig.maxIterations || 10,
   agentProvider:
     agentProvider ||
     mergedConfig.agentProvider ||
@@ -72,6 +145,7 @@ export const run = async (toolbox: GluegunToolbox) => {
   let {
     startUrl,
     objective,
+    maxIterations,
     agentProvider,
     agentModel,
     agentApiKey,
@@ -86,6 +160,7 @@ export const run = async (toolbox: GluegunToolbox) => {
     mergedConfig,
     startUrl,
     objective,
+    maxIterations,
     agentProvider,
     agentModel,
     agentApiKey,
@@ -194,6 +269,8 @@ export const run = async (toolbox: GluegunToolbox) => {
       });
   }
 
+  validate(resolvedConfig);
+
   const spinner = toolbox.print.spin();
   spinner.stop();
   const logger = new Logger(["info"], (input: any) => {
@@ -250,7 +327,7 @@ export const run = async (toolbox: GluegunToolbox) => {
   await page.browse(resolvedConfig.objective, {
     agent,
     schema: ModelResponseSchema(ObjectiveComplete),
-    maxTurns: 3,
+    maxTurns: resolvedConfig.maxIterations,
   });
   await browser.close();
 };
