@@ -705,10 +705,13 @@ export class Page {
     }
 
     for (const memory of memories) {
-      await this.performMemory(memory, opts);
+      const result = await this.performMemory(memory, opts);
+      if (result) {
+        return result;
+      }
     }
 
-    this.log(`Route finishef for memory sequence id: ${memoryId}`);
+    this.log(`Route finished for memory sequence id: ${memoryId}`);
   }
 
   /**
