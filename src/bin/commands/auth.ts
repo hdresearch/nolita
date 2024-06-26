@@ -27,8 +27,63 @@ const writeToNolitarc = (key: string, value: string): void => {
 
 export const run = async (toolbox: GluegunToolbox) => {
   const homeConfig = loadConfigFile(path.resolve(os.homedir(), ".nolitarc"));
-  const { hdrApiKey } = homeConfig;
+  const { hdrApiKey, agentProvider } = homeConfig;
   const { print, prompt } = toolbox;
+
+  if (!agentProvider) {
+    print.error("No model config found in ~/.nolitarc.");
+    await prompt
+      .ask({
+        type: "confirm",
+        name: "model",
+        message: "Would you like to set a model config?",
+      })
+      .then(async ({ model }) => {
+        if (model) {
+          const { provider, apiKey } = await prompt.ask([
+            {
+              type: "select",
+              name: "provider",
+              message: "Please select an agent provider.",
+              choices: ["openai", "anthropic"],
+            },
+            {
+              type: "input",
+              name: "apiKey",
+              message: "Please enter your provider API key.",
+            },
+            {
+              type: "input",
+              name: "model",
+              message: "Please enter your model name.",
+              initial: "gpt-4"
+            }
+          ]);
+          writeToNolitarc("agentProvider", provider);
+          writeToNolitarc("agentApiKey", apiKey);
+          writeToNolitarc("agentModel", model);
+        }
+      });
+  }
+
+  if (agentProvider) {
+    print.success("Model config found in ~/.nolitarc.");
+    await prompt
+      .ask({
+        type: "confirm",
+        name: "delete",
+        message: "Delete model config?",
+      })
+      .then(({ delete: del }) => {
+        if (del) {
+          writeToNolitarc("agentProvider", "");
+          writeToNolitarc("agentApiKey", "");
+          writeToNolitarc("agentModel", "");
+          print.success("Model config deleted.");
+        }
+      });
+  }
+
   if (!hdrApiKey) {
     print.error("No HDR API key found in ~/.nolitarc.");
     await prompt
