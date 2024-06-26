@@ -28,6 +28,49 @@ const loadConfigs = (config: string | undefined): any => {
   return mergedConfig;
 };
 
+const validate = (config: any): void => {
+  Object.entries(config).every(([key, value]) => {
+    // Boolean values get checked first.
+    if (typeof value === "boolean") {
+      return true;
+    }
+    // Now we validate strings.
+    if (typeof value !== "string") {
+      throw new Error("Invalid config file.");
+    }
+    switch (key) {
+      case "startUrl":
+        if (!value?.startsWith("http://")) {
+          throw new Error("startUrl must be a valid URL.");
+        }
+        break;
+      case "objective":
+        if (value.length === 0) {
+          throw new Error("Objective not provided.");
+        }
+        break;
+      case "agentProvider":
+        if (value !== "openai" && value !== "anthropic") {
+          throw new Error("Invalid provider.");
+        }
+        break;
+      case "agentApiKey":
+        if (value.length === 0) {
+          throw new Error("API key not provided.");
+        }
+        break;
+      case "hdrApiKey":
+        if (value.length > 0 && !value.startsWith("hdr-")) {
+          throw new Error("Invalid HDR API key.");
+        }
+        break;
+      default:
+        break;
+    }
+    return true;
+  });
+};
+
 const getConfig = (
   mergedConfig: any,
   startUrl: string | undefined,
@@ -193,6 +236,8 @@ export const run = async (toolbox: GluegunToolbox) => {
         resolvedConfig.agentModel = answers.agentModel;
       });
   }
+
+  validate(resolvedConfig);
 
   const spinner = toolbox.print.spin();
   spinner.stop();
