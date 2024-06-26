@@ -9,7 +9,6 @@ import { Inventory } from "../inventory";
 import { completionApiBuilder } from "../agent/config";
 import { GluegunToolbox } from "gluegun";
 import "dotenv/config";
-const MAX_ITERATIONS = 10;
 
 const loadConfigFile = (filePath: string): any => {
   try {
@@ -85,7 +84,7 @@ export const run = async (toolbox: GluegunToolbox) => {
     hdrApiKey,
     headless,
     config,
-    hdrDisable
+    hdrDisable,
   } = toolbox.parameters.options;
 
   const mergedConfig = loadConfigs(config);
@@ -101,11 +100,19 @@ export const run = async (toolbox: GluegunToolbox) => {
     headless,
     hdrDisable
   );
-  resolvedConfig.headless = resolvedConfig.headless !== undefined ? resolvedConfig.headless !== "false" : true;
-  resolvedConfig.hdrDisable = resolvedConfig.hdrDisable !== undefined ? resolvedConfig.hdrDisable !== "false" : false;
+  resolvedConfig.headless =
+    resolvedConfig.headless !== undefined
+      ? resolvedConfig.headless !== "false"
+      : true;
+  resolvedConfig.hdrDisable =
+    resolvedConfig.hdrDisable !== undefined
+      ? resolvedConfig.hdrDisable !== "false"
+      : false;
 
   if (!resolvedConfig.hdrApiKey && !resolvedConfig.hdrDisable) {
-    toolbox.print.muted("No API key for Memory Index provided. Use `npx nolita auth` to authenticate or suppress this message with --hdrDisable.")
+    toolbox.print.muted(
+      "No API key for Memory Index provided. Use `npx nolita auth` to authenticate or suppress this message with --hdrDisable."
+    );
   }
 
   if (!resolvedConfig.startUrl) {
@@ -201,20 +208,20 @@ export const run = async (toolbox: GluegunToolbox) => {
     let parsedInput;
     try {
       parsedInput = JSON.parse(incMsg?.message);
-  } catch (e) {
+    } catch (e) {
       parsedInput = incMsg?.message;
-  }
-    if (typeof parsedInput === 'string') {
+    }
+    if (typeof parsedInput === "string") {
       spinner.text = parsedInput;
       return;
     }
     spinner.text = parsedInput.progressAssessment;
-      if (parsedInput?.["objectiveComplete"]) {
-        spinner.succeed();
-        console.log(parsedInput?.objectiveComplete?.result);
-      } else if (parsedInput?.["objectiveFailed"]) {
-        spinner.fail(parsedInput?.objectiveFailed?.result);
-      }
+    if (parsedInput?.["objectiveComplete"]) {
+      spinner.succeed();
+      console.log(parsedInput?.objectiveComplete?.result);
+    } else if (parsedInput?.["objectiveFailed"]) {
+      spinner.fail(parsedInput?.objectiveFailed?.result);
+    }
   });
 
   const providerOptions = {
@@ -238,9 +245,11 @@ export const run = async (toolbox: GluegunToolbox) => {
 
   const browser = await Browser.launch(resolvedConfig.headless, agent, logger, {
     disableMemory: resolvedConfig.hdrDisable,
-    inventory: resolvedConfig.inventory.length > 0 ? new Inventory(resolvedConfig.inventory) : undefined,
+    inventory:
+      resolvedConfig.inventory.length > 0
+        ? new Inventory(resolvedConfig.inventory)
+        : undefined,
     apiKey: resolvedConfig.hdrApiKey || undefined,
-
   });
   const page = await browser.newPage();
 
@@ -249,7 +258,7 @@ export const run = async (toolbox: GluegunToolbox) => {
   await page.browse(resolvedConfig.objective, {
     agent,
     schema: ModelResponseSchema(ObjectiveComplete),
-    maxTurns: 10
+    maxTurns: 3,
   });
   await browser.close();
 };
