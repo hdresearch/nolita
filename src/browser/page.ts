@@ -579,10 +579,11 @@ export class Page {
 
   async returnErrorState(failureReason: string) {
     const failure = {
-      kind: "ObjectiveFailed",
-      result: failureReason,
-      url: this.url(),
-      content: await this.content(),
+      objectiveFailed: {
+        kind: "ObjectiveFailed",
+        result: failureReason,
+        url: this.url(),
+      },
     };
 
     this.log(JSON.stringify(failure));
