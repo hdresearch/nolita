@@ -125,7 +125,9 @@ export async function fetchRoute(
 ) {
   const { apiKey, endpoint } = opts!;
 
-  const response = await fetch(`${endpoint}/memories/findpath`, {
+  const baseUrl = new URL(`/memories/findpath`, endpoint);
+
+  const response = await fetch(baseUrl.href, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

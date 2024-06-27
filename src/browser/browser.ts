@@ -1,7 +1,7 @@
 import { Browser as PuppeteerBrowser, Device } from "puppeteer";
 
 import { Page } from "./page";
-import { BrowserMode } from "../types/browser/browser.types";
+import { BrowserMode } from "../types/browser";
 import { browserContext } from "./browserUtils";
 import { Agent } from "../agent";
 import { Logger } from "../utils";

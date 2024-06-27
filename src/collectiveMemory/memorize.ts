@@ -1,5 +1,6 @@
-import { ModelResponseType } from "../types/browser/actionStep.types";
-import { ObjectiveState } from "../types/browser";
+import { URL } from "url";
+
+import { ObjectiveState, ModelResponseType } from "../types/browser";
 import { CollectiveMemoryConfig } from "../types/collectiveMemory/index";
 import { debug } from "../utils";
 
@@ -15,7 +16,8 @@ export async function memorize(
     "https://api.hdr.is";
 
   const apiKey = collectiveMemoryConfig?.apiKey ?? process.env.HDR_API_KEY;
-  const endpoint = `${endpointValue}/memorize`;
+  const endpoint = new URL("/memorize", endpointValue).href;
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),

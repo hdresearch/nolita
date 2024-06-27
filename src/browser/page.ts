@@ -13,7 +13,13 @@ import { MAIN_WORLD } from "puppeteer";
 import { z } from "zod";
 import Turndown from "turndown";
 
-import { AccessibilityTree, ObjectiveState, StateType } from "../types/browser";
+import {
+  AccessibilityTree,
+  ObjectiveState,
+  StateType,
+  ObjectiveComplete,
+  extendModelResponse,
+} from "../types/browser";
 import { Logger, debug, generateUUID } from "../utils";
 import {
   BrowserAction,
@@ -25,8 +31,6 @@ import { Agent } from "../agent";
 import { memorize } from "../collectiveMemory";
 import { fetchMemorySequence, remember } from "../collectiveMemory/remember";
 import { ModelResponseType } from "../types";
-import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
-import { extendModelResponse } from "../types/browser/actionStep.types";
 import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 import { Memory } from "../types/memory.types";
 

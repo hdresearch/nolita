@@ -1,5 +1,4 @@
 import * as chromePaths from "chrome-paths";
-import PuppeteerExtra from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import puppeteer from "puppeteer-extra";
 
