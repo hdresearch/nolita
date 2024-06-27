@@ -3,6 +3,11 @@ import { makeAgent } from "../src/agent/index.ts";
 import { z } from "zod";
 
 async function main() {
+  // If you run npx nolita auth, and save your keys during any `npx nolita` session,
+  // you can simply use the following instead:
+  // 
+  // const agent = makeAgent();
+  // 
   const agent = makeAgent(
     { apiKey: process.env.OPENAI_API_KEY!, provider: "openai" },
     { model: "gpt-4" }
