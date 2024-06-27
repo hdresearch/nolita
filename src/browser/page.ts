@@ -13,10 +13,7 @@ import { MAIN_WORLD } from "puppeteer";
 import { z } from "zod";
 import Turndown from "turndown";
 
-import {
-  AccessibilityTree,
-  ObjectiveState,
-} from "../types/browser/browser.types";
+import { AccessibilityTree, ObjectiveState, StateType } from "../types/browser";
 import { Logger, debug, generateUUID } from "../utils";
 import {
   BrowserAction,
@@ -26,17 +23,12 @@ import { Inventory } from "../inventory";
 import { Agent } from "../agent";
 
 import { memorize } from "../collectiveMemory";
-import {
-  fetchMemorySequence,
-  findRoute,
-  remember,
-} from "../collectiveMemory/remember";
+import { fetchMemorySequence, remember } from "../collectiveMemory/remember";
 import { ModelResponseType } from "../types";
 import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
 import { extendModelResponse } from "../types/browser/actionStep.types";
 import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 import { Memory } from "../types/memory.types";
-import { updateCommandIndices } from "../collectiveMemory/compareAriaTrees";
 
 /**
  * Represents a web page and provides methods to interact with it.
@@ -324,7 +316,8 @@ export class Page {
    */
   async state(
     objective: string,
-    objectiveProgress?: string[]
+    objectiveProgress?: string[],
+    mode: StateType = "aria"
   ): Promise<ObjectiveState> {
     let contentJSON = await this.parseContent();
     let content = ObjectiveState.parse({
@@ -542,7 +535,7 @@ export class Page {
   async get<T extends z.ZodSchema<any>>(
     request: string,
     outputSchema: z.ZodSchema<any> = ObjectiveComplete,
-    opts?: { agent?: Agent; progress?: string[] }
+    opts?: { agent?: Agent; progress?: string[]; mode?: StateType }
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
     const { prompt, state } = await this.makePrompt(request, opts);

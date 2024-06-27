@@ -5,10 +5,12 @@ import {
   ObjectiveFailed,
   BrowserActionSchemaArray,
 } from "./actionStep.types";
-import { BrowserMode, ObjectiveState } from "./browser.types";
-import { BrowserArgs } from "./browser.types";
+import { BrowserMode, BrowserArgs, AccessibilityTree } from "./browser.types";
+import { ObjectiveState, StateType } from "./objectiveState.types";
 
 export {
+  StateType,
+  AccessibilityTree,
   ModelResponseSchema,
   ModelResponseType,
   BrowserMode,

@@ -1,5 +1,5 @@
 import { ModelResponseType } from "../types/browser/actionStep.types";
-import { ObjectiveState } from "../types/browser/browser.types";
+import { ObjectiveState } from "../types/browser";
 import { CollectiveMemoryConfig } from "../types/collectiveMemory/index";
 import { debug } from "../utils";
 

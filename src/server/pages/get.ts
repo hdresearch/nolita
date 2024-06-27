@@ -72,6 +72,6 @@ getRouter.openapi(route, async (c) => {
     }
   }
 
-  const result = await page.get(command, responseSchema);
+  const result: any = await page.get(command, responseSchema);
   return c.json(result);
 });

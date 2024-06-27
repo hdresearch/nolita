@@ -36,8 +36,12 @@ export function updateCommandIndices(
   objectiveStateNew: ObjectiveState,
   commands: any[]
 ) {
-  const oldAriaTree = parseAriaTree(JSON.parse(objectiveStateOld.ariaTree));
-  const newAriaTree = parseAriaTree(JSON.parse(objectiveStateNew.ariaTree));
+  if (objectiveStateOld.type !== "aria" || objectiveStateNew.type !== "aria") {
+    throw new Error("Objective state must be of type 'aria'");
+  }
+
+  const oldAriaTree = parseAriaTree(JSON.parse(objectiveStateOld.content));
+  const newAriaTree = parseAriaTree(JSON.parse(objectiveStateNew.content));
 
   const getKey = (item: any[]) => JSON.stringify(item.slice(1));
 
