@@ -23,10 +23,7 @@ import {
   ObjectiveCompleteResponse,
 } from "./types/browser/actionStep.types";
 import { BrowserAction } from "./types/browser/actions.types";
-import {
-  BrowserObjective,
-  ObjectiveState,
-} from "./types/browser/browser.types";
+import { BrowserObjective, ObjectiveState } from "./types/browser";
 
 export class AgentBrowser {
   agent: Agent;

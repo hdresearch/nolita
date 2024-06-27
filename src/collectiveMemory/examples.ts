@@ -1,5 +1,7 @@
-import { ObjectiveState } from "../types/browser/objectiveState.types";
-import { ModelResponseType as ModelResponse } from "../types/browser/actionStep.types";
+import {
+  ObjectiveState,
+  ModelResponseType as ModelResponse,
+} from "../types/browser";
 
 export const objectiveStateExample1: ObjectiveState = {
   kind: "ObjectiveState",

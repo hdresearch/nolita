@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { URL } from "url";
 
-import { ObjectiveState } from "../types/browser/browser.types";
+import { ObjectiveState } from "../types/browser";
 import { DEFAULT_STATE_ACTION_PAIRS } from "./examples";
 import { Memory } from "../types/memory.types";
 import { debug } from "../utils";
@@ -125,7 +125,9 @@ export async function fetchRoute(
 ) {
   const { apiKey, endpoint } = opts!;
 
-  const response = await fetch(`${endpoint}/memories/findpath`, {
+  const baseUrl = new URL(`/memories/findpath`, endpoint);
+
+  const response = await fetch(baseUrl.href, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

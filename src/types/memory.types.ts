@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { ModelResponseSchema } from "./browser/actionStep.types";
-import { ObjectiveState } from "./browser/browser.types";
+import { ObjectiveState } from "./browser";
 import { BrowserActionArray } from "./browser/actions.types";
 
 export const Memory = z.object({

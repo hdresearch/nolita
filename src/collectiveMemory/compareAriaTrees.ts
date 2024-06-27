@@ -1,6 +1,4 @@
 import { ObjectiveState } from "../types/browser";
-import { BrowserActionSchemaArray } from "../types/browser";
-import { BrowserAction } from "../types/browser/actions.types";
 
 export function parseAriaTree(array: any[]): any[] {
   function findLeafArrays(arr: any[]): any[] {

@@ -1,20 +1,33 @@
 import {
+  BrowserActionSchemaArray,
   ModelResponseSchema,
   ModelResponseType,
   ObjectiveComplete,
   ObjectiveFailed,
-  BrowserActionSchemaArray,
+  extendModelResponse,
 } from "./actionStep.types";
-import { BrowserMode, ObjectiveState } from "./browser.types";
-import { BrowserArgs } from "./browser.types";
+
+import { BrowserAction } from "./actions.types";
+import {
+  AccessibilityTree,
+  BrowserArgs,
+  BrowserMode,
+  BrowserObjective,
+} from "./browser.types";
+import { ObjectiveState, StateType } from "./objectiveState.types";
 
 export {
+  AccessibilityTree,
+  BrowserAction,
+  BrowserActionSchemaArray,
+  BrowserArgs,
+  BrowserMode,
+  BrowserObjective,
   ModelResponseSchema,
   ModelResponseType,
-  BrowserMode,
-  ObjectiveState,
-  BrowserArgs,
   ObjectiveComplete,
   ObjectiveFailed,
-  BrowserActionSchemaArray,
+  ObjectiveState,
+  StateType,
+  extendModelResponse,
 };
