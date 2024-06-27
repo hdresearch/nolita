@@ -128,19 +128,6 @@ const getConfig = (
   inventory: mergedConfig.inventory || [],
 });
 
-const writeToNolitarc = (key: string, value: string): void => {
-  const nolitarcPath = path.resolve(os.homedir(), ".nolitarc");
-  let nolitarc = {};
-  try {
-    const nolitarcContent = fs.readFileSync(nolitarcPath, "utf8");
-    nolitarc = JSON.parse(nolitarcContent);
-  } catch (error) {
-    // File does not exist or is not valid JSON
-  }
-  nolitarc = { ...nolitarc, [key]: value };
-  fs.writeFileSync(nolitarcPath, JSON.stringify(nolitarc));
-};
-
 export const run = async (toolbox: GluegunToolbox) => {
   let {
     startUrl,
@@ -209,64 +196,7 @@ export const run = async (toolbox: GluegunToolbox) => {
   }
 
   if (!resolvedConfig.agentProvider) {
-    await toolbox.prompt
-      .ask({
-        type: "select",
-        name: "agentProvider",
-        message: "Please specify an LLM provider for the agent",
-        choices: ["openai", "anthropic"],
-      })
-      .then((answers) => {
-        resolvedConfig.agentProvider = answers.agentProvider;
-      });
-  }
-
-  if (
-    !resolvedConfig.agentApiKey &&
-    resolvedConfig.agentProvider !== "custom" &&
-    resolvedConfig.agentProvider !== "ollama"
-  ) {
-    await toolbox.prompt
-      .ask({
-        type: "input",
-        name: "agentApiKey",
-        message: "An API key for your provider is required",
-      })
-      .then(async (answers) => {
-        resolvedConfig.agentApiKey = answers.agentApiKey;
-        await toolbox.prompt
-          .ask({
-            type: "confirm",
-            name: "save",
-            message: "Would you like to save the API key for future use?",
-          })
-          .then((answers) => {
-            if (answers.save) {
-              writeToNolitarc("agentApiKey", resolvedConfig.agentApiKey);
-            }
-          });
-      });
-  }
-
-  if (!resolvedConfig.agentModel) {
-    await toolbox.prompt
-      .ask({
-        type: "input",
-        name: "agentModel",
-        message: "Please specify an LLM model for the agent",
-        initial: () => {
-          if (resolvedConfig.agentProvider === "openai") {
-            return "gpt-4";
-          } else if (resolvedConfig.agentProvider === "anthropic") {
-            return "claude-2.1";
-          } else {
-            return "";
-          }
-        },
-      })
-      .then((answers) => {
-        resolvedConfig.agentModel = answers.agentModel;
-      });
+    return toolbox.print.error("No model config found. Please use `npx nolita auth` to set one.");
   }
 
   validate(resolvedConfig);
