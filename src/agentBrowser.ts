@@ -79,7 +79,7 @@ export class AgentBrowser {
     );
     let description = "";
     // we should relax this condition in the future
-    if (state.content === memory.objectiveState.content && !hasText) {
+    if (state.ariaTree === memory.objectiveState.ariaTree && !hasText) {
       debug.write("Performing action step from memory");
       page.performManyActions(memory.actionStep.command as BrowserAction[], {
         inventory: this.inventory,
@@ -302,7 +302,7 @@ export class AgentBrowser {
       if (this.inventory) {
         censoredState = {
           ...state,
-          content: this.inventory.censor(state.content),
+          ariaTree: this.inventory.censor(state.ariaTree),
         };
       }
       memorize(censoredState, action, this.memorySequenceId, this.hdrConfig);

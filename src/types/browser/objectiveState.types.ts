@@ -8,8 +8,7 @@ export const ObjectiveState = z.object({
   objective: z.string(),
   progress: z.array(z.string()),
   url: z.string(),
-  content: z.string(),
-  type: StateType.default("aria"),
+  ariaTree: z.string(),
 });
 
 export type ObjectiveState = z.infer<typeof ObjectiveState>;
