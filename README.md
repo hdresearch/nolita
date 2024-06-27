@@ -16,21 +16,25 @@ npx nolita
 
 ![](https://content.hdr.is/runner.gif)
 
-If you don't include information, we will prompt you for it as we go. The flags you can provide to omit these steps include the following:
+In order to use Nolita, you must authenticate first with `npx nolita auth` to set your model provider, API keys, and optionally, your keys for High Dimensional Research's [Memory Index](https://hdr.is/memory).
+
+You can also specify details on a per-task basis with the following flags:
 
 - `--startUrl` dictates where we start the session.
 - `--objective` specifies what we want our agent to accomplish for us.
-- `--agentProvider` sets who is providing the LLM for the task (currently supporting `anthropic` and `openai`).
-- `--agentModel` specifies the model in question by the provider.
-- `--hdrApiKey` takes your HDR key for persistent memory integration, improving the performance and reliability of tasks.
 - `--headless` specifies whether you want the browser to run in headless mode or not. We default to `true`, but you can set it to `false` to see the browser run.
 - `--config` takes a JSON file with the previous flags, if you want to provide them. You can also specify an **inventory** of personal data to use for the objective, like usernames and passwords.
 
+### Example config file
+
 ```json
 {
-  "agentProvider": "openai", // or process.env.HDR_AGENT_PROVIDER
-  "agentModel": "gpt-4", // or process.env.HDR_AGENT_MODEL
-  "agentApiKey": "sk-*********", // or process.env.HDR_AGENT_API_KEY
+  "agentProvider": "openai",
+  "agentModel": "gpt-4",
+  "agentApiKey": "sk-*********",
+  "startUrl": "https://***",
+  "objective": "what is their address?",
+  "headless": false,
   "inventory": [
     {  
       "value": "student", 
