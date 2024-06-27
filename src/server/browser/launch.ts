@@ -76,7 +76,7 @@ launchRouter.openapi(route, async (c) => {
     launchArgs,
     headless,
   } = c.req.valid("json");
-  const { agentApiKey, agentProvider, agentModel } = nolitarc();
+  const { agentApiKey, agentProvider, agentModel, hdrApiKey } = nolitarc();
   if (!agentProvider) {
     return c.json(
       {
@@ -106,6 +106,7 @@ launchRouter.openapi(route, async (c) => {
     mode,
     browserWSEndpoint: wsEndpoint,
     browserLaunchArgs: launchArgs,
+    ...(hdrApiKey && {apiKey: hdrApiKey}),
   });
 
   const sessionId = generateUUID();
