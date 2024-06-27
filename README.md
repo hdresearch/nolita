@@ -23,6 +23,7 @@ You can also specify details on a per-task basis with the following flags:
 - `--startUrl` dictates where we start the session.
 - `--objective` specifies what we want our agent to accomplish for us.
 - `--headless` specifies whether you want the browser to run in headless mode or not. We default to `true`, but you can set it to `false` to see the browser run.
+- `--maxIterations` sets the maximum number of steps allowed to accomplish the objective. The default is 10.
 - `--config` takes a JSON file with the previous flags, if you want to provide them. You can also specify an **inventory** of personal data to use for the objective, like usernames and passwords.
 
 ### Example config file
@@ -35,6 +36,7 @@ You can also specify details on a per-task basis with the following flags:
   "startUrl": "https://***",
   "objective": "what is their address?",
   "headless": false,
+  "maxIterations": 10,
   "inventory": [
     {  
       "value": "student", 
