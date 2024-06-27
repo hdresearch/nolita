@@ -23,10 +23,7 @@ import {
   ObjectiveCompleteResponse,
 } from "./types/browser/actionStep.types";
 import { BrowserAction } from "./types/browser/actions.types";
-import {
-  BrowserObjective,
-  ObjectiveState,
-} from "./types/browser/browser.types";
+import { BrowserObjective, ObjectiveState } from "./types/browser";
 
 export class AgentBrowser {
   agent: Agent;
@@ -82,7 +79,7 @@ export class AgentBrowser {
     );
     let description = "";
     // we should relax this condition in the future
-    if (state.ariaTree === memory.objectiveState.ariaTree && !hasText) {
+    if (state.content === memory.objectiveState.content && !hasText) {
       debug.write("Performing action step from memory");
       page.performManyActions(memory.actionStep.command as BrowserAction[], {
         inventory: this.inventory,
@@ -305,7 +302,7 @@ export class AgentBrowser {
       if (this.inventory) {
         censoredState = {
           ...state,
-          ariaTree: this.inventory.censor(state.ariaTree),
+          content: this.inventory.censor(state.content),
         };
       }
       memorize(censoredState, action, this.memorySequenceId, this.hdrConfig);
