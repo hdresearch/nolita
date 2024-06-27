@@ -38,6 +38,20 @@ const Scroll = z.object({
   direction: z.enum(["up", "down"]).describe("The direction to scroll"),
 });
 
+const GoTo = z.object({
+  kind: z.literal("GoTo").describe("Go to a specific URL"),
+  url: z.string().url().describe("The URL to navigate to"),
+});
+
+const Get = z.object({
+  kind: z.literal("Get").describe("Get information from the page"),
+  request: z.string().describe("The request to get from the page"),
+  type: z
+    .enum(["html", "aria", "markdown", "text", "image"])
+    .default("aria")
+    .describe("The format inspect the page"),
+});
+
 export const BrowserAction = z.union([
   Type,
   Click,
@@ -46,6 +60,8 @@ export const BrowserAction = z.union([
   Enter,
   Hover,
   Scroll,
+  GoTo,
+  Get,
 ]);
 
 export type BrowserAction = z.infer<typeof BrowserAction>;

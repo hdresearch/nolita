@@ -6,22 +6,26 @@ import { debug } from "../utils";
 export async function memorize(
   state: ObjectiveState,
   action: ModelResponseType,
-  sequnceId: string,
+  sequenceId: string,
   collectiveMemoryConfig?: CollectiveMemoryConfig
 ) {
-  const config = CollectiveMemoryConfig.parse(collectiveMemoryConfig);
-  const endpoint = `${config.endpoint}/memorize`;
+  const endpointValue =
+    process.env.HDR_ENDPOINT! ??
+    collectiveMemoryConfig?.endpoint ??
+    "https://api.hdr.is";
 
+  const apiKey = collectiveMemoryConfig?.apiKey ?? process.env.HDR_API_KEY;
+  const endpoint = `${endpointValue}/memorize`;
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...(config.apiKey ? { Authorization: `Bearer ${config.apiKey}` } : {}),
+    ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
   };
 
   const resp = await fetch(endpoint, {
     method: "POST",
     headers,
     body: JSON.stringify({
-      sequence_id: sequnceId,
+      sequence_id: sequenceId,
       memory: {
         state,
         action,
