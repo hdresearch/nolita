@@ -109,7 +109,9 @@ const getConfig = (
   agentApiKey: string | undefined,
   hdrApiKey: string | undefined,
   headless: boolean | string | undefined,
-  hdrDisable: boolean | string | undefined
+  hdrDisable: boolean | string | undefined,
+  record: boolean | string | undefined,
+  replay: string | undefined
 ): any => ({
   startUrl: startUrl || mergedConfig.startUrl,
   objective: objective || mergedConfig.objective,
@@ -126,6 +128,8 @@ const getConfig = (
   headless: headless ?? mergedConfig.headless ?? process.env.HDR_HEADLESS,
   hdrDisable: hdrDisable ?? mergedConfig.hdrDisable ?? process.env.HDR_DISABLE,
   inventory: mergedConfig.inventory || [],
+  record: record ?? mergedConfig.record ?? process.env.HDR_RECORD,
+  replay: replay || mergedConfig.replay || process.env.HDR_REPLAY,
 });
 
 export const run = async (toolbox: GluegunToolbox) => {
@@ -140,6 +144,8 @@ export const run = async (toolbox: GluegunToolbox) => {
     headless,
     config,
     hdrDisable,
+    record,
+    replay
   } = toolbox.parameters.options;
 
   const mergedConfig = loadConfigs(config);
@@ -153,16 +159,21 @@ export const run = async (toolbox: GluegunToolbox) => {
     agentApiKey,
     hdrApiKey,
     headless,
-    hdrDisable
+    hdrDisable,
+    record,
+    replay
   );
+  // default true
   resolvedConfig.headless =
     resolvedConfig.headless !== undefined
       ? resolvedConfig.headless !== "false"
       : true;
+  // default false
   resolvedConfig.hdrDisable =
     resolvedConfig.hdrDisable !== undefined
       ? resolvedConfig.hdrDisable !== "false"
       : false;
+  resolvedConfig.record = resolvedConfig.record !== undefined ? resolvedConfig.record !== "false" : false;
 
   if (!resolvedConfig.hdrApiKey && !resolvedConfig.hdrDisable) {
     toolbox.print.muted(
@@ -170,7 +181,7 @@ export const run = async (toolbox: GluegunToolbox) => {
     );
   }
 
-  if (!resolvedConfig.startUrl) {
+  if (!resolvedConfig.startUrl && !resolvedConfig.replay) {
     await toolbox.prompt
       .ask({
         type: "input",
@@ -183,7 +194,7 @@ export const run = async (toolbox: GluegunToolbox) => {
       });
   }
 
-  if (!resolvedConfig.objective) {
+  if (!resolvedConfig.objective && !resolvedConfig.replay) {
     await toolbox.prompt
       .ask({
         type: "input",
@@ -199,7 +210,9 @@ export const run = async (toolbox: GluegunToolbox) => {
     return toolbox.print.error("No model config found. Please use `npx nolita auth` to set one.");
   }
 
-  validate(resolvedConfig);
+  if (!resolvedConfig.replay) {
+    validate(resolvedConfig);
+  }
 
   const spinner = toolbox.print.spin();
   spinner.stop();
@@ -218,7 +231,9 @@ export const run = async (toolbox: GluegunToolbox) => {
     spinner.text = parsedInput.progressAssessment;
     if (parsedInput?.["objectiveComplete"]) {
       spinner.succeed();
-      console.log(parsedInput?.objectiveComplete?.result);
+      console.log(record 
+        ? JSON.stringify({result: parsedInput?.objectiveComplete?.result, record: page.pageId})
+        : parsedInput?.objectiveComplete?.result);
     } else if (parsedInput?.["objectiveFailed"]) {
       spinner.fail(parsedInput?.objectiveFailed?.result);
     }
@@ -253,11 +268,15 @@ export const run = async (toolbox: GluegunToolbox) => {
   const page = await browser.newPage();
 
   spinner.start("Session starting...");
-  await page.goto(resolvedConfig.startUrl);
-  await page.browse(resolvedConfig.objective, {
-    agent,
-    schema: ModelResponseSchema(ObjectiveComplete),
-    maxTurns: resolvedConfig.maxIterations,
-  });
+  if (replay) {
+    await page.followRoute(replay, { schema: ModelResponseSchema(ObjectiveComplete) });
+  } else {
+    await page.goto(resolvedConfig.startUrl);
+    await page.browse(resolvedConfig.objective, {
+      agent,
+      schema: ModelResponseSchema(ObjectiveComplete),
+      maxTurns: resolvedConfig.maxIterations,
+    });
+  }
   await browser.close();
 };
