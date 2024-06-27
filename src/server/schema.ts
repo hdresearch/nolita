@@ -10,19 +10,6 @@ export const browseSchema = z.object({
   maxIterations: z.number().int().default(20).openapi({ example: 10 }),
 });
 
-export const providerSchema = z.object({
-  provider: z.string().openapi({ example: "openai" }),
-  apiKey: z
-    .string()
-    .default(process.env.OPENAI_API_KEY!)
-    .openapi({ example: "your-api-key" }),
-});
-
-export const modelSchema = z.object({
-  model: z.string().openapi({ example: "gpt-4" }),
-  temperature: z.number().optional().openapi({ example: 0 }),
-});
-
 export const InventorySchema = z.array(
   z.object({
     name: z.string().openapi({ example: "Username" }),
@@ -55,8 +42,6 @@ export const jsonSchema: z.ZodType<Json> = z
 export const apiSchema = z
   .object({
     browse_config: browseSchema,
-    provider_config: providerSchema,
-    model_config: modelSchema,
     response_type: z
       .any()
       .optional()

@@ -17,6 +17,7 @@ import { ErrorSchema, apiSchema } from "./schema";
 import { completionApiBuilder } from "../agent";
 import { pageRouter } from "./pages";
 import { browserRouter } from "./browser";
+import { nolitarc } from "../utils/config";
 
 export const setupServer = () => {
   const app = new OpenAPIHono();
@@ -56,26 +57,26 @@ export const setupServer = () => {
   app.openapi(route, async (c) => {
     const {
       browse_config,
-      provider_config,
-      model_config,
       response_type,
       headless,
       inventory,
-      hdr_config,
     } = c.req.valid("json");
+    const { hdrApiKey, agentProvider, agentApiKey, agentModel } = nolitarc();
 
     const logger = new Logger(["info"]);
-    const chatApi = completionApiBuilder(provider_config, model_config);
-
-    if (!chatApi) {
+    if (!agentProvider) {
       return c.json(
         {
           code: 400,
-          message: `Failed to create chat api for ${provider_config.provider}`,
-        },
-        400
-      );
+          message: "No agent provider found. Please use `npx nolita auth` to set a config.",
+        });
     }
+    const chatApi = completionApiBuilder({
+      provider: agentProvider,
+      apiKey: agentApiKey,
+    }, {
+      model: agentModel
+    });
 
     const agent = new Agent({ modelApi: chatApi });
     const browser = await Browser.launch(headless, agent);
@@ -99,10 +100,10 @@ export const setupServer = () => {
     }
 
     let collectiveMemoryConfig = undefined;
-    if (hdr_config?.apikey && hdr_config?.endpoint) {
+    if (hdrApiKey) {
       collectiveMemoryConfig = {
-        apiKey: hdr_config.apikey,
-        endpoint: hdr_config.endpoint,
+        apiKey: hdrApiKey,
+        endpoint: "https://api.hdr.is"
       };
     }
 

@@ -11,9 +11,9 @@ import { BrowserMode } from "../../types";
 import { BROWSER_LAUNCH_ARGS } from "../../browser/browserDefaults";
 import { Inventory } from "../../inventory";
 import { InventoryValue } from "../../inventory/inventory";
+import { nolitarc } from "../../utils/config";
 
 const BrowerSessionSchema = z.object({
-  agent: AgentSchema,
   headless: z.boolean().default(true).openapi({ example: true }),
   wsEndpoint: z.string().optional().openapi({ example: "ws://localhost:3000" }),
   launchArgs: z
@@ -70,27 +70,26 @@ export const launchRouter = new OpenAPIHono();
 
 launchRouter.openapi(route, async (c) => {
   const {
-    agent: agentArgs,
     inventory: inventoryArgs,
     mode,
     wsEndpoint,
     launchArgs,
     headless,
   } = c.req.valid("json");
-  const chatApi = completionApiBuilder(
-    { provider: agentArgs.provider, apiKey: agentArgs.apiKey },
-    { model: agentArgs.model, temperature: agentArgs.temperature }
-  );
-
-  if (!chatApi) {
+  const { agentApiKey, agentProvider, agentModel } = nolitarc();
+  if (!agentProvider) {
     return c.json(
       {
         code: 400,
-        message: `Failed to create chat api for ${agentArgs.provider}`,
+        message: "No agent provider specified. Please use `npx nolita auth` to set a config.",
       },
       400
     );
   }
+  const chatApi = completionApiBuilder(
+    { provider: agentProvider, apiKey: agentApiKey },
+    { model: agentModel }
+  );
 
   const inventory = inventoryArgs
     ? new Inventory(
