@@ -53,7 +53,9 @@ npx nolita serve
 
 ![](https://content.hdr.is/serve.gif)
 
-Runs a local API for objective-first agentic navigation of a local Chrome instance. After starting the server, you can see the `/doc` folder for the expected JSON payload.
+Runs a local API for objective-first agentic navigation of a local Chrome instance. 
+
+The server is set up with all keys first initialized with `npx nolita auth`. After starting the server, you can see the `/doc` folder for the expected JSON payload.
 
 Use `--port` to customize the port.
 
