@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.0
+
+- Adds a `--replay` and `--record` flag to `npx nolita`
+- Adds a `followRoute` methon to the `page` object which allows for deterministic execution of previous runs.
+- Expands browser commands to include `Goto` and `Get`
+- Simplification of the type system
+
 ## 2.0.1
 
 - Adds `npx nolita auth` for securing API keys to the memory index.
