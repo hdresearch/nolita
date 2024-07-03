@@ -10,8 +10,10 @@ export function stringifyObjects<T>(obj: T[]): string {
 }
 
 export type AgentMessageConfig = {
+  mode?: StateType;
   inventory?: Inventory;
   systemPrompt?: string;
+  memories?: Memory[];
 };
 
 export function handleConfigMessages(
@@ -42,10 +44,10 @@ export function handleConfigMessages(
 
 export function commandPrompt(
   currentState: ObjectiveState,
-  memories?: Memory[],
   config?: AgentMessageConfig
 ): ChatRequestMessage[] {
   let messages = handleConfigMessages(config || {});
+  const memories = config?.memories;
 
   if (memories) {
     for (const memory of memories) {
@@ -75,9 +77,9 @@ export function commandPrompt(
 
 export function getPrompt(
   state: string,
-  mode: StateType = "aria",
   config?: AgentMessageConfig
 ): ChatRequestMessage[] {
+  const mode = config?.mode || "aria";
   let messages = handleConfigMessages(config || {});
 
   messages.push({
