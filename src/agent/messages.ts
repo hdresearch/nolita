@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { ChatRequestMessage, CompletionApi } from "llm-api";
 import { Inventory } from "../inventory";
-import { ObjectiveState } from "../types/browser";
+import { ObjectiveState, StateType } from "../types/browser";
 import { Memory } from "../types/memory.types";
 
 export function stringifyObjects<T>(obj: T[]): string {
@@ -61,15 +61,28 @@ export function commandPrompt(
     }
   }
 
-  const userPrompt = `Remember to return a result only in the form of an ActionStep.
+  messages.push({
+    role: "user",
+    content: `Remember to return a result only in the form of an ActionStep.
     Please generate the next ActionStep for ${JSON.stringify({
       objectiveState: currentState,
     })} 
-    `;
+    `,
+  });
+
+  return messages;
+}
+
+export function getPrompt(
+  state: string,
+  mode: StateType = "aria",
+  config?: AgentMessageConfig
+): ChatRequestMessage[] {
+  let messages = handleConfigMessages(config || {});
 
   messages.push({
     role: "user",
-    content: userPrompt,
+    content: `Here is the current ${mode} of the page: ${state}`,
   });
 
   return messages;

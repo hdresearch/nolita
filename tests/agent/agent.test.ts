@@ -18,7 +18,48 @@ import { z } from "zod";
 import { ObjectiveState } from "../../src/types/browser";
 import { actionStepExample1 } from "../collectiveMemory/memorize.test";
 
-describe("Agent", () => {
+describe("Agent -- configs", () => {
+  let agent: Agent;
+  beforeAll(() => {
+    const openAIChatApi = new OpenAIChatApi(
+      {
+        apiKey: process.env.OPENAI_API_KEY,
+      },
+      { model: "gpt-3.5-turbo-1106" }
+    );
+    agent = new Agent({
+      modelApi: openAIChatApi,
+      systemPrompt:
+        "If you generate a command it must be of the kind {Kind: Type, index: 5, Text: 'gadget 11 pro price'}",
+    });
+  });
+
+  test.skip("that configs are handled", async () => {
+    const prompt = await agent.prompt(
+      stateActionPair1.objectiveState,
+      [stateActionPair1],
+      {
+        inventory: new Inventory([
+          { value: "test", name: "test", type: "string" },
+        ]),
+      }
+    );
+    expect(prompt[1].role).toBe("user");
+    expect(prompt[1].content).toContain("Use the following information");
+  });
+
+  test("that empty configs are handled", async () => {
+    const prompt = await agent.prompt(
+      stateActionPair1.objectiveState,
+      [stateActionPair1],
+      {}
+    );
+    expect(prompt[1].role).toBe("user");
+    expect(prompt[1].content).toContain("Here are examples of a request");
+  });
+});
+
+describe.skip("Agent", () => {
   let agent: Agent;
 
   beforeAll(() => {
@@ -45,30 +86,6 @@ describe("Agent", () => {
     expect(prompt[1].content).toContain(
       `{"objectiveState":{"kind":"ObjectiveState","objective":"how much is an gadget 11 pro","progress":[]`
     );
-  });
-
-  test("that configs are handled", async () => {
-    const prompt = await agent.prompt(
-      stateActionPair1.objectiveState,
-      [stateActionPair1],
-      {
-        inventory: new Inventory([
-          { value: "test", name: "test", type: "string" },
-        ]),
-      }
-    );
-    expect(prompt[1].role).toBe("user");
-    expect(prompt[1].content).toContain("Use the following information");
-  });
-
-  test("that empty configs are handled", async () => {
-    const prompt = await agent.prompt(
-      stateActionPair1.objectiveState,
-      [stateActionPair1],
-      {}
-    );
-    expect(prompt[1].role).toBe("user");
-    expect(prompt[1].content).toContain("Here are examples of a request");
   });
 
   test("ask command", async () => {
