@@ -28,7 +28,7 @@ const BrowerSessionSchema = z.object({
     .record(z.string(), z.string())
     .optional()
     .openapi({ example: { name: "YOUR NAME", creditCard: "555555555555" } }),
-  agent: AgentSchema,
+  agent: AgentSchema.optional(),
 });
 
 export const BROWSERS = new Map<string, Browser>();
@@ -79,22 +79,48 @@ launchRouter.openapi(route, async (c) => {
     headless,
   } = c.req.valid("json");
   const { agentApiKey, agentProvider, agentModel, hdrApiKey } = nolitarc();
-  if (!agentProvider && !agentArgs.provider) {
+  const provider = agentArgs?.provider ?? agentProvider;
+  const apiKey = agentArgs?.apiKey ?? agentApiKey;
+  const model = agentArgs?.model ?? agentModel;
+  if (!provider) {
     return c.json(
       {
         code: 400,
         message:
-          "No agent provider specified. Please use `npx nolita auth` to set a config.",
+          "No agent provider specified. Please use `npx nolita auth` to set a config or pass it directly.",
       },
       400
     );
   }
+
+  if (!apiKey) {
+    return c.json(
+      {
+        code: 400,
+        message:
+          "No agent API key specified. Please use `npx nolita auth` to set a config or pass it directly.",
+      },
+      400
+    );
+  }
+
+  if (!model) {
+    return c.json(
+      {
+        code: 400,
+        message:
+          "No agent model specified. Please use `npx nolita auth` to set a config or pass it directly.",
+      },
+      400
+    );
+  }
+
   const chatApi = completionApiBuilder(
     {
-      provider: agentArgs.provider ?? agentProvider,
-      apiKey: agentArgs.apiKey ?? agentApiKey,
+      provider,
+      apiKey: agentArgs?.apiKey ?? agentApiKey,
     },
-    { model: agentArgs.model ?? agentModel }
+    { model: agentArgs?.model ?? agentModel }
   );
 
   const inventory = inventoryArgs
