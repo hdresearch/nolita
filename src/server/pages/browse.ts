@@ -3,7 +3,7 @@ import { z } from "zod";
 import { JsonSchema } from "json-schema-to-zod";
 
 import { BROWSERS } from "../browser/launch";
-import { PageParamsSchema } from "../schemas/pageSchemas";
+import { PageParamsSchema } from "../schemas";
 import { Inventory, InventoryValue } from "../../inventory";
 import { jsonToZod } from "../utils";
 

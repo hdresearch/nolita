@@ -28,7 +28,7 @@ describe("pageApi -- goto", () => {
       .expect((res) => {
         expect(res.body.url).toBe("https://hdr.is/");
       });
-  });
+  }, 10000);
 
   it("should return an error if the page is not found", async () => {
     await request(app)

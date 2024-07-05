@@ -7,15 +7,16 @@ import {
   ModelResponseSchema,
   BrowserActionSchemaArray,
   ObjectiveCompleteResponse,
+  ObjectiveComplete,
 } from "../types/browser/actionStep.types";
 import { Memory } from "../types/memory.types";
 import { ObjectiveState } from "../types/browser/objectiveState.types";
 import { Inventory } from "../inventory";
-import { ObjectiveComplete } from "../types/browser/objectiveComplete.types";
 import { generateSchema, SchemaElement } from "./schemaGenerators";
 import { debug } from "../utils";
 import { completionApiBuilder } from "./config";
 import { nolitarc } from "../utils/config";
+import { handleConfigMessages } from "./messages";
 
 export function stringifyObjects<T>(obj: T[]): string {
   const strings = obj.map((o) => JSON.stringify(o));
@@ -66,36 +67,12 @@ export class Agent {
     })} 
     `;
 
-    let messages = this.handleConfig(config || {});
+    let messages = handleConfigMessages(config || {});
 
     messages.push({
       role: "user",
       content: userPrompt,
     });
-
-    return messages;
-  }
-
-  private handleConfig(config: {
-    inventory?: Inventory;
-    systemPrompt?: string;
-  }): ChatRequestMessage[] {
-    let messages: ChatRequestMessage[] = [];
-
-    const systemPrompt = config.systemPrompt || this.systemPrompt;
-    if (systemPrompt) {
-      messages.push({
-        role: "system",
-        content: systemPrompt,
-      });
-    }
-
-    if (config.inventory) {
-      messages.push({
-        role: "user",
-        content: `Use the following information to achieve your objective as needed: ${config.inventory.toString()}`,
-      });
-    }
 
     return messages;
   }
@@ -146,7 +123,7 @@ export class Agent {
     Please generate the action sequences for ${JSON.stringify(currentState)}
     `;
 
-    let messages = this.handleConfig(config || {});
+    let messages = handleConfigMessages(config || {});
     messages.push({
       role: "user",
       content: modifyActionsPrompt,
@@ -317,7 +294,7 @@ export class Agent {
    * @returns The response from the model
    */
   async chat(prompt: string) {
-    const messages = this.handleConfig({ systemPrompt: this.systemPrompt });
+    const messages = handleConfigMessages({ systemPrompt: this.systemPrompt });
     messages.push({
       role: "user",
       content: prompt,

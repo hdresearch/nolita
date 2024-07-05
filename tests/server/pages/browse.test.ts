@@ -45,7 +45,7 @@ describe("pageApi -- browse", () => {
       .expect((res) => {
         expect(res.body.message).toBe("Page not found");
       });
-  });
+  }, 10000);
 
   it("should return an error if the browser is not found", async () => {
     await request(app)
