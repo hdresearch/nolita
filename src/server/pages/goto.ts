@@ -2,7 +2,7 @@ import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 
 import { BROWSERS } from "../browser/launch";
-import { PageParamsSchema } from "../schemas/pageSchemas";
+import { PageParamsSchema } from "../schemas";
 
 const goToRequestSchema = z.object({
   url: z.string().url().openapi({ example: "https://example.com" }),
