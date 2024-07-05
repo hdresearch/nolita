@@ -9,14 +9,12 @@ import {
 import {
   ModelResponseSchema,
   ObjectiveComplete,
-  ModelResponseType,
 } from "../../src/types/browser/actionStep.types";
 
 import { Inventory } from "../../src/inventory";
 
 import { z } from "zod";
 import { ObjectiveState } from "../../src/types/browser";
-import { actionStepExample1 } from "../collectiveMemory/memorize.test";
 
 describe("Agent -- configs", () => {
   let agent: Agent;
@@ -34,7 +32,7 @@ describe("Agent -- configs", () => {
     });
   });
 
-  test.skip("that configs are handled", async () => {
+  test("that configs are handled", async () => {
     const prompt = await agent.prompt(
       stateActionPair1.objectiveState,
       [stateActionPair1],
@@ -44,8 +42,8 @@ describe("Agent -- configs", () => {
         ]),
       }
     );
-    expect(prompt[1].role).toBe("user");
-    expect(prompt[1].content).toContain("Use the following information");
+    expect(prompt[0].role).toBe("user");
+    expect(prompt[0].content).toContain("Use the following information");
   });
 
   test("that empty configs are handled", async () => {
@@ -54,12 +52,12 @@ describe("Agent -- configs", () => {
       [stateActionPair1],
       {}
     );
-    expect(prompt[1].role).toBe("user");
-    expect(prompt[1].content).toContain("Here are examples of a request");
+    expect(prompt[0].role).toBe("user");
+    expect(prompt[0].content).toContain("Here are examples of a request");
   });
 });
 
-describe.skip("Agent", () => {
+describe("Agent", () => {
   let agent: Agent;
 
   beforeAll(() => {
@@ -82,8 +80,9 @@ describe.skip("Agent", () => {
       [stateActionPair1],
       {}
     );
-    expect(prompt[1].role).toBe("user");
-    expect(prompt[1].content).toContain(
+    console.log("Prompt:", prompt);
+    expect(prompt[0].role).toBe("user");
+    expect(prompt[0].content).toContain(
       `{"objectiveState":{"kind":"ObjectiveState","objective":"how much is an gadget 11 pro","progress":[]`
     );
   });

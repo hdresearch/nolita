@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ChatRequestMessage, CompletionApi } from "llm-api";
+import { ChatRequestMessage } from "llm-api";
 import { Inventory } from "../inventory";
 import { ObjectiveState, StateType } from "../types/browser";
 import { Memory } from "../types/memory.types";
@@ -9,6 +9,13 @@ export function stringifyObjects<T>(obj: T[]): string {
   return strings.join("\n");
 }
 
+/**
+ * Configuration options for the prompt
+ * @param mode - The mode of the prompt
+ * @param inventory - The inventory to use for the prompt
+ * @param systemPrompt - The system prompt to use for the prompt
+ * @param memories - The memories to use as examples
+ */
 export type AgentMessageConfig = {
   mode?: StateType;
   inventory?: Inventory;
@@ -16,6 +23,11 @@ export type AgentMessageConfig = {
   memories?: Memory[];
 };
 
+/**
+ *
+ * @param {AgentMessageConfig} config - Configuration options for the prompt
+ * @returns {ChatRequestMessage[]} - The messages to send to the model
+ */
 export function handleConfigMessages(
   config: AgentMessageConfig
 ): ChatRequestMessage[] {
@@ -42,6 +54,12 @@ export function handleConfigMessages(
   return messages;
 }
 
+/**
+ *
+ * @param {ObjectiveState} currentState -- The current state of the objective
+ * @param {AgentMessageConfig} config -- Configuration options for the prompt
+ * @returns {ChatRequestMessage[]} -- The messages to send to the model
+ */
 export function commandPrompt(
   currentState: ObjectiveState,
   config?: AgentMessageConfig
@@ -75,6 +93,12 @@ export function commandPrompt(
   return messages;
 }
 
+/**
+ *
+ * @param {string} state - The current state of the page
+ * @param config -- Configuration options for the prompt
+ * @returns {ChatRequestMessage[]} -- The messages to send to the model
+ */
 export function getPrompt(
   state: string,
   config?: AgentMessageConfig
