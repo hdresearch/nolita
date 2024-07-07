@@ -446,7 +446,7 @@ export class Page {
     const agent = opts?.agent ?? this.agent;
     const memories = this.disableMemory
       ? DEFAULT_STATE_ACTION_PAIRS
-      : await remember(state, {
+      : await remember(state, this.pageId, {
           apiKey: this.apiKey,
           endpoint: this.endpoint,
         });

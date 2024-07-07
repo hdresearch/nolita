@@ -15,6 +15,7 @@ export type HDRConfig = z.infer<typeof HDRConfig>;
 
 export async function fetchStateActionPairs(
   state: ObjectiveState,
+  requestId: string,
   opts?: { apiKey?: string; endpoint?: string; limit?: number }
 ): Promise<Memory[]> {
   const endpoint =
@@ -29,6 +30,7 @@ export async function fetchStateActionPairs(
   }
   const body = JSON.stringify({
     state: ObjectiveState.parse(state),
+    requestId,
     limit,
   });
 
@@ -63,10 +65,15 @@ export async function fetchStateActionPairs(
 
 export async function remember(
   objectiveState: ObjectiveState,
+  requestId: string,
   opts?: { apiKey?: string; endpoint?: string; limit?: number }
 ): Promise<Memory[]> {
   try {
-    const memories = await fetchStateActionPairs(objectiveState, opts);
+    const memories = await fetchStateActionPairs(
+      objectiveState,
+      requestId,
+      opts
+    );
     const filteredMemories = memories.filter(
       (memory) => memory.actionStep.command !== undefined
     );
