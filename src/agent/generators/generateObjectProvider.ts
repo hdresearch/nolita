@@ -1,29 +1,13 @@
 import { z } from "zod";
 import Instructor from "@instructor-ai/instructor";
-import { Logger } from "../utils";
 
-export type ObjectGeneratorMode =
-  | "TOOLS"
-  | "JSON"
-  | "MD_JSON"
-  | "JSON_SCHEMA"
-  | "FUNCTIONS";
+import { ObjectGeneratorOptions } from "./types";
 
-export type ObjectGeneratorOptions<T extends z.ZodSchema<any>> = {
-  model: string;
-  objectMode: ObjectGeneratorMode;
-  maxTokens?: number;
-  temperature?: number;
-  topP?: number;
-  maxRetries?: number;
-  logger?: <T extends unknown[]>(level: string, ...args: T) => void;
-};
-
-export async function generateObjectProvider(
+export async function generateObjectProvider<T extends z.ZodSchema<any>>(
   client: any,
   messages: any,
-  options: ObjectGeneratorOptions<any> & {
-    schema: z.ZodSchema<any>;
+  options: ObjectGeneratorOptions & {
+    schema: T;
     name: string;
   }
 ) {

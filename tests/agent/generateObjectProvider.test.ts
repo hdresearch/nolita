@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 import "openai/shims/web";
 import OpenAI from "openai";
-import { generateObjectProvider } from "../../src/agent/generateObjectProvider";
+import { generateObjectProvider } from "../../src/agent/generators/generateObjectProvider";
 import { objectiveStateExample1 } from "../../src/collectiveMemory/examples";
 import { ModelResponseSchema } from "../../src/types/browser/actionStep.types";
 import { commandPrompt } from "../../src/agent";
