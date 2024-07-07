@@ -55,5 +55,6 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           HDR_API_KEY: ${{ secrets.HDR_API_KEY }}
           HDR_ENDPOINT: ${{ secrets.HDR_ENDPOINT }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CI: "true"
         run: pnpm run test

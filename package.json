@@ -37,6 +37,7 @@
     "json-schema-to-zod": "^2.0.14",
     "json-to-zod": "^1.1.2",
     "llm-api": "^1.2.0",
+    "llm-polyglot": "^2.0.0",
     "lodash": "^4.17.21",
     "node-llama-cpp": "^2.8.12",
     "openai": "^4.51.0",
