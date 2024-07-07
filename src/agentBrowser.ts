@@ -184,7 +184,7 @@ export class AgentBrowser {
   }
 
   async remember(state: ObjectiveState): Promise<Memory[]> {
-    return await remember(state, this.hdrConfig);
+    return await remember(state, this.memorySequenceId, this.hdrConfig);
   }
 
   async step<

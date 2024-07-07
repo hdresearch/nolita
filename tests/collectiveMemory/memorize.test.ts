@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 import { memorize } from "../../src/collectiveMemory/memorize";
 import { CollectiveMemoryConfig } from "../../src/types/collectiveMemory/index";
-import { ObjectiveState } from "../../src/types/browser/browser.types";
+import { ObjectiveState } from "../../src/types/browser";
 import { ModelResponseType } from "../../src/types/browser/actionStep.types";
 import { generateUUID } from "../../src/utils";
 
