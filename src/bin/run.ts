@@ -83,6 +83,7 @@ const validate = (config: any): void => {
         isValidUrl(value as string);
         return;
       case "objective":
+        isValidString(value, key);
       case "agentApiKey":
         isValidString(value, key);
         isValidApiKey(value as string, key);
@@ -95,7 +96,6 @@ const validate = (config: any): void => {
         isValidHdrApiKey(value as string);
         return;
       default:
-        isValidString(value, key);
         return;
     }
   });
