@@ -29,7 +29,7 @@ module.exports = {
       baseDir: process.cwd(),
       binary: "git",
       maxConcurrentProcesses: 6,
-    }).clone("git@github.com:hdresearch/create.git", name);
+    }).clone("https://github.com/hdresearch/create.git", name);
     filesystem.remove(`${name}/.git`);
     filesystem.remove(`${name}/LICENSE`);
     filesystem.move(
