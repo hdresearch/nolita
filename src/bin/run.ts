@@ -61,6 +61,9 @@ const isValidApiKey = (value: string, key: string): void => {
 };
 
 const isValidHdrApiKey = (value: string): void => {
+  if (typeof value !== "string") {
+    return;
+  }
   if (value.length > 0 && !value.startsWith("hdr-")) {
     throw new Error("Invalid HDR API key.");
   }
@@ -89,7 +92,6 @@ const validate = (config: any): void => {
         isValidProvider(value as string);
         return;
       case "hdrApiKey":
-        isValidString(value, key);
         isValidHdrApiKey(value as string);
         return;
       default:
@@ -145,7 +147,7 @@ export const run = async (toolbox: GluegunToolbox) => {
     config,
     hdrDisable,
     record,
-    replay
+    replay,
   } = toolbox.parameters.options;
 
   const mergedConfig = loadConfigs(config);
@@ -173,7 +175,10 @@ export const run = async (toolbox: GluegunToolbox) => {
     resolvedConfig.hdrDisable !== undefined
       ? resolvedConfig.hdrDisable !== "false"
       : false;
-  resolvedConfig.record = resolvedConfig.record !== undefined ? resolvedConfig.record !== "false" : false;
+  resolvedConfig.record =
+    resolvedConfig.record !== undefined
+      ? resolvedConfig.record !== "false"
+      : false;
 
   if (!resolvedConfig.hdrApiKey && !resolvedConfig.hdrDisable) {
     toolbox.print.muted(
@@ -207,7 +212,9 @@ export const run = async (toolbox: GluegunToolbox) => {
   }
 
   if (!resolvedConfig.agentProvider) {
-    return toolbox.print.error("No model config found. Please use `npx nolita auth` to set one.");
+    return toolbox.print.error(
+      "No model config found. Please use `npx nolita auth` to set one."
+    );
   }
 
   if (!resolvedConfig.replay) {
@@ -231,9 +238,14 @@ export const run = async (toolbox: GluegunToolbox) => {
     spinner.text = parsedInput.progressAssessment;
     if (parsedInput?.["objectiveComplete"]) {
       spinner.succeed();
-      console.log(record 
-        ? JSON.stringify({result: parsedInput?.objectiveComplete?.result, record: page.pageId})
-        : parsedInput?.objectiveComplete?.result);
+      console.log(
+        record
+          ? JSON.stringify({
+              result: parsedInput?.objectiveComplete?.result,
+              record: page.pageId,
+            })
+          : parsedInput?.objectiveComplete?.result
+      );
     } else if (parsedInput?.["objectiveFailed"]) {
       spinner.fail(parsedInput?.objectiveFailed?.result);
     }
@@ -269,7 +281,9 @@ export const run = async (toolbox: GluegunToolbox) => {
 
   spinner.start("Session starting...");
   if (replay) {
-    await page.followRoute(replay, { schema: ModelResponseSchema(ObjectiveComplete) });
+    await page.followRoute(replay, {
+      schema: ModelResponseSchema(ObjectiveComplete),
+    });
   } else {
     await page.goto(resolvedConfig.startUrl);
     await page.browse(resolvedConfig.objective, {
