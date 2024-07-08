@@ -1,6 +1,7 @@
 import * as chromePaths from "chrome-paths";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import puppeteer from "puppeteer-extra";
+import fs from "fs";
 
 import { Browser as PuppeteerBrowser } from "puppeteer";
 import { BROWSER_LAUNCH_ARGS } from "./browserDefaults";
@@ -19,6 +20,9 @@ export const getChromePath = (): string | undefined => {
     chromePath = process.env.CHROME_PATH;
   } else {
     chromePath = chromePaths.chrome;
+  }
+  if (chromePath === undefined || !fs.existsSync(chromePath)) {
+    return undefined;
   }
   return chromePath;
 };
