@@ -293,7 +293,7 @@ export class Agent {
 
 export function makeAgent(
   prodiverOpts?: { provider: string; apiKey: string },
-  modelConfig?: ModelConfig,
+  modelConfig?: Partial<ModelConfig>,
   customProvider?: { path: string },
   opts?: { systemPrompt?: string }
 ) {

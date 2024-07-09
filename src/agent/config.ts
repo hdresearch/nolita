@@ -1,8 +1,6 @@
 import { createLLMClient } from "llm-polyglot";
 
-import { Agent } from "./agent";
-import { nolitarc } from "../utils/config";
-import { ObjectGeneratorOptions } from "./generators";
+import { ObjectGeneratorOptions, DefaultObjectGeneratorOptions } from "./generators";
 
 export const CompletionDefaultRetries = 3;
 export const CompletionDefaultTimeout = 300_000;
@@ -15,19 +13,24 @@ export type AgentConfig = {
   apiKey: string;
 };
 
-export type ModelConfig = ObjectGeneratorOptions & { systemPrompt?: string };
+export type ModelConfig = DefaultObjectGeneratorOptions & Omit<ObjectGeneratorOptions, keyof DefaultObjectGeneratorOptions> & { systemPrompt?: string };
 
 export function completionApiBuilder(
   prodiverOpts: { provider: string; apiKey: string },
-  modelConfig: ModelConfig = { objectMode: "TOOLS", model: "gpt-4" },
+  modelConfig: Partial<ModelConfig> = {},
   customProvider?: { path: string }
 ): AgentConfig & ModelConfig {
+  const defaultConfig: ModelConfig = {
+    objectMode: "TOOLS",
+    model: "gpt-4"
+  };
+  const finalConfig: ModelConfig = { ...defaultConfig, ...modelConfig };
   const provider = prodiverOpts.provider.toLowerCase();
 
-  const systemPrompt = modelConfig.systemPrompt;
-  const maxTokens = modelConfig.maxTokens;
-  const temperature = modelConfig.temperature || 0;
-  const maxRetries = modelConfig.maxRetries || CompletionDefaultRetries;
+  const systemPrompt = finalConfig.systemPrompt;
+  const maxTokens = finalConfig.maxTokens;
+  const temperature = finalConfig.temperature || 0;
+  const maxRetries = finalConfig.maxRetries || CompletionDefaultRetries;
   if (customProvider) {
     throw new Error("Custom provider not implemented");
   }
@@ -53,7 +56,7 @@ export function completionApiBuilder(
     provider,
     objectMode: "TOOLS",
     apiKey: prodiverOpts.apiKey,
-    model: modelConfig.model,
+    model: finalConfig.model,
     systemPrompt,
     maxTokens,
     temperature,
