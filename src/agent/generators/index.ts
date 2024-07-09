@@ -1,4 +1,4 @@
-import { ObjectGeneratorOptions } from "./types";
+import { ObjectGeneratorOptions, DefaultObjectGeneratorOptions } from "./types";
 import { generateObject } from "./generateObject";
 
-export { ObjectGeneratorOptions, generateObject };
+export { ObjectGeneratorOptions, DefaultObjectGeneratorOptions, generateObject };

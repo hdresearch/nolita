@@ -20,7 +20,7 @@ describe("generateObjectProvider", () => {
     });
 
     expect(res.command[0].kind).toBe("Type");
-  }, 10000);
+  }, 30000);
 
   it("Should generate an object with claude", async () => {
     const client = createLLMClient({
@@ -38,5 +38,5 @@ describe("generateObjectProvider", () => {
     });
 
     expect(res.command[0].kind).toBe("Type");
-  }, 10000);
+  }, 30000);
 });

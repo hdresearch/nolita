@@ -36,7 +36,6 @@ export const getChromePath = (): string | undefined => {
  * @param {string[]} [browserLaunchArgs] - Optional arguments for launching the browser.
  * @returns {Promise<PuppeteerBrowser>} A promise that resolves to the Puppeteer browser instance.
  */
-
 export const browserContext = async (
   headless: boolean,
   browserWSEndpoint?: string,

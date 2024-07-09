@@ -120,7 +120,7 @@ launchRouter.openapi(route, async (c) => {
       provider,
       apiKey: agentArgs?.apiKey ?? agentApiKey,
     },
-    { model: agentArgs?.model ?? agentModel }
+    { model: agentArgs?.model ?? agentModel, objectMode: "TOOLS" }
   );
 
   const inventory = inventoryArgs

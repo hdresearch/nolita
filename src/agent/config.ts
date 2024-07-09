@@ -1,84 +1,65 @@
-import {
-  CompletionApi,
-  AnthropicChatApi,
-  OpenAIChatApi,
-  ModelConfig,
-} from "llm-api";
-import { Agent } from "./agent";
-import { nolitarc } from "../utils/config";
+import { createLLMClient } from "llm-polyglot";
+
+import { ObjectGeneratorOptions, DefaultObjectGeneratorOptions } from "./generators";
 
 export const CompletionDefaultRetries = 3;
 export const CompletionDefaultTimeout = 300_000;
 export const MinimumResponseTokens = 200;
 export const MaximumResponseTokens = 8_000;
 
+export type AgentConfig = {
+  client: any;
+  provider: string;
+  apiKey: string;
+};
+
+export type ModelConfig = DefaultObjectGeneratorOptions & Omit<ObjectGeneratorOptions, keyof DefaultObjectGeneratorOptions> & { systemPrompt?: string };
+
 export function completionApiBuilder(
   prodiverOpts: { provider: string; apiKey: string },
-  modelConfig: ModelConfig,
-  customProvider?: CompletionApi
-): CompletionApi | undefined {
-  const _provider = prodiverOpts.provider.toLowerCase();
+  modelConfig: Partial<ModelConfig> = {},
+  customProvider?: { path: string }
+): AgentConfig & ModelConfig {
+  const defaultConfig: ModelConfig = {
+    objectMode: "TOOLS",
+    model: "gpt-4"
+  };
+  const finalConfig: ModelConfig = { ...defaultConfig, ...modelConfig };
+  const provider = prodiverOpts.provider.toLowerCase();
 
-  if (_provider === "openai") {
-    return new OpenAIChatApi(
-      {
-        apiKey: prodiverOpts.apiKey,
-      },
-      modelConfig
-    );
-  } else if (_provider === "anthropic") {
-    return new AnthropicChatApi(
-      {
-        apiKey: prodiverOpts.apiKey,
-      },
-      modelConfig
-    );
-  } else if (customProvider) {
-    return customProvider;
+  const systemPrompt = finalConfig.systemPrompt;
+  const maxTokens = finalConfig.maxTokens;
+  const temperature = finalConfig.temperature || 0;
+  const maxRetries = finalConfig.maxRetries || CompletionDefaultRetries;
+  if (customProvider) {
+    throw new Error("Custom provider not implemented");
   }
 
-  throw new Error(`Unknown provider: ${_provider}`);
-}
+  let client: any;
 
-export function makeAgent(
-  prodiverOpts?: { provider: string; apiKey: string },
-  modelConfig?: ModelConfig,
-  customProvider?: CompletionApi,
-  opts?: { systemPrompt?: string }
-) {
-  if (!prodiverOpts) {
-    const { agentApiKey, agentProvider, agentModel } = nolitarc();
-    prodiverOpts = { provider: agentProvider, apiKey: agentApiKey };
-    modelConfig = { model: agentModel };
-  }
-  if (!prodiverOpts.provider) {
-    throw new Error("Provider is required");
-  }
-  if (!modelConfig?.model) {
-    throw new Error("Model is required");
-  }
-  const chatApi = completionApiBuilder(
-    prodiverOpts,
-    modelConfig,
-    customProvider
-  );
-
-  if (!chatApi) {
-    throw new Error(`Failed to create chat api for ${prodiverOpts.provider}`);
+  if (provider === "openai") {
+    client = createLLMClient({
+      provider,
+      apiKey: prodiverOpts.apiKey,
+    });
+  } else if (provider === "anthropic") {
+    client = createLLMClient({
+      provider,
+      apiKey: prodiverOpts.apiKey,
+    });
+  } else {
+    throw new Error(`Unknown provider: ${provider}`);
   }
 
-  return new Agent({
-    modelApi: chatApi,
-    systemPrompt: opts?.systemPrompt,
-  });
-}
-
-export function defaultAgent() {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    throw new Error(
-      "You must set OPENAI_API_KEY in your environment to use the default agent."
-    );
-  }
-  return makeAgent({ provider: "openai", apiKey }, { model: "gpt-4" });
+  return {
+    client,
+    provider,
+    objectMode: "TOOLS",
+    apiKey: prodiverOpts.apiKey,
+    model: finalConfig.model,
+    systemPrompt,
+    maxTokens,
+    temperature,
+    maxRetries,
+  };
 }

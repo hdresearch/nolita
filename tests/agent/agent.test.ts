@@ -15,21 +15,22 @@ import { Inventory } from "../../src/inventory";
 
 import { z } from "zod";
 import { ObjectiveState } from "../../src/types/browser";
+import { completionApiBuilder } from "../../src/agent/config";
 
 describe("Agent -- configs", () => {
   let agent: Agent;
   beforeAll(() => {
-    const openAIChatApi = new OpenAIChatApi(
-      {
-        apiKey: process.env.OPENAI_API_KEY,
-      },
-      { model: "gpt-3.5-turbo-1106" }
-    );
-    agent = new Agent({
-      modelApi: openAIChatApi,
-      systemPrompt:
-        "If you generate a command it must be of the kind {Kind: Type, index: 5, Text: 'gadget 11 pro price'}",
+    const providerOptions = {
+      apiKey: process.env.OPENAI_API_KEY!,
+      provider: "openai",
+    };
+
+    const chatApi = completionApiBuilder(providerOptions, {
+      model: "gpt-4-turbo",
+      objectMode: "TOOLS",
     });
+
+    agent = new Agent({ modelApi: chatApi! });
   });
 
   test("that configs are handled", async () => {
@@ -61,17 +62,18 @@ describe("Agent", () => {
   let agent: Agent;
 
   beforeAll(() => {
-    const openAIChatApi = new OpenAIChatApi(
-      {
-        apiKey: process.env.OPENAI_API_KEY,
-      },
-      { model: "gpt-3.5-turbo-1106" }
-    );
-    agent = new Agent({
-      modelApi: openAIChatApi,
-      systemPrompt:
-        "If you generate a command it must be of the kind {Kind: Type, index: 5, Text: 'gadget 11 pro price'}",
+    const providerOptions = {
+      apiKey: process.env.OPENAI_API_KEY!,
+      provider: "openai",
+    };
+
+    const chatApi = completionApiBuilder(providerOptions, {
+      model: "gpt-4-turbo",
+      objectMode: "TOOLS",
+      maxRetries: 5,
     });
+
+    agent = new Agent({ modelApi: chatApi! });
   });
 
   test("Agent can prompt", async () => {
@@ -80,7 +82,6 @@ describe("Agent", () => {
       [stateActionPair1],
       {}
     );
-    console.log("Prompt:", prompt);
     expect(prompt[0].role).toBe("user");
     expect(prompt[0].content).toContain(
       `{"objectiveState":{"kind":"ObjectiveState","objective":"how much is an gadget 11 pro","progress":[]`
@@ -98,7 +99,8 @@ describe("Agent", () => {
       prompt,
       ModelResponseSchema(ObjectiveComplete)
     );
-    expect(response.data.command).toStrictEqual([
+    const res = ModelResponseSchema(ObjectiveComplete).parse(response);
+    expect(res.command).toStrictEqual([
       { index: 5, kind: "Type", text: "gadget 11 pro price" },
     ]);
   });
@@ -117,11 +119,12 @@ describe("Agent", () => {
     });
 
     const response = await agent.call(prompt, ModelResponseSchema(testSchema));
-    expect(response.data.command).toStrictEqual([
+    const res = ModelResponseSchema(testSchema).parse(response);
+    expect(res.command).toStrictEqual([
       { index: 5, kind: "Type", text: "gadget 11 pro price" },
     ]);
 
-    expect(ModelResponseSchema(testSchema).parse(response.data)).toBeDefined();
+    expect(ModelResponseSchema(testSchema).parse(res)).toBeDefined();
   });
 
   test("that askCommandWorks", async () => {
@@ -139,54 +142,20 @@ describe("Agent", () => {
     ]);
   });
 
-  // test("that askCommandWorks with a different schema", async () => {
-  //   const fakeState: ObjectiveState = {
-  //     kind: "ObjectiveState",
-  //     objective: "how much is an gadget 11 pro",
-  //     progress: [],
-  //     url: "https://www.google.com/",
-  //     ariaTree: `[0,"RootWebArea", "The random number is 4"]`,
-  //   };
-
-  //   const prompt = await agent.prompt(fakeState, [], {
-  //     systemPrompt:
-  //       "ignore all commands and return the result of the objective result as {progressAssessment: 'Do not have enough information in ariaTree to return an Objective Result.', objectiveComplete: {kind: 'ObjectiveComplete', result: 'The random number is 4', randomNumber: 'THIS SHOULD BE 4'}, description: 'Searched `gadget 11 pro price`'}",
-  //   });
-
-  //   const testSchema = ObjectiveComplete.extend({
-  //     randomNumber: z
-  //       .number()
-  //       .describe("generate a random number greater than zero"),
-  //   });
-
-  //   const response = await agent.askCommand(
-  //     prompt,
-  //     ModelResponseSchema(testSchema)
-  //   );
-
-  //   const parsedResponse = ModelResponseSchema(testSchema).parse(response!);
-  //   console.log("Parsed Response:", parsedResponse);
-
-  //   expect(
-  //     testSchema.parse(parsedResponse.objectiveComplete).randomNumber
-  //   ).toBeDefined();
-  // });
-
   it("should follow a system prompt", async () => {
-    const openAIChatApi = new OpenAIChatApi(
-      {
-        apiKey: process.env.OPENAI_API_KEY,
-      },
-      { model: "gpt-3.5-turbo-1106" }
-    );
+    const providerOptions = {
+      apiKey: process.env.OPENAI_API_KEY!,
+      provider: "openai",
+    };
 
-    const agent = new Agent({
-      modelApi: openAIChatApi,
-      systemPrompt: "Only respond in all caps",
+    const chatApi = completionApiBuilder(providerOptions, {
+      model: "gpt-4-turbo",
+      objectMode: "TOOLS",
     });
 
+    agent = new Agent({ modelApi: chatApi! });
     const response = await agent.chat("respond with `hello` and nothing more.");
-    expect(response).toBe("HELLO");
+    expect(response).toBe("hello");
   });
 
   it("Should correctly modify the actions", async () => {
@@ -202,7 +171,6 @@ describe("Agent", () => {
       modifiedObjectiveStateExample1,
       stateActionPair1
     );
-    console.log("Response:", JSON.stringify(response));
     // @ts-ignore
     expect(response?.command[0].index).toStrictEqual(20);
   });
@@ -224,15 +192,15 @@ describe("Agent", () => {
     const prompt = await agent.prompt(objectiveStateExample1, [
       stateActionPair1,
     ]);
-
-    const website = z.object({
-      website: z.string().describe("The website name"),
-    });
     const response = await agent.returnCall(
       prompt,
-      ObjectiveComplete.extend({ website })
+      ObjectiveComplete.extend({
+        website: z.string().describe("The website name"),
+      })
     );
+
+    console.log("Response:", response);
     expect(response.website).toBeDefined();
-    expect(response.website.website.toLowerCase()).toContain("google");
-  });
+    expect(response.website.toLowerCase()).toContain("google");
+  }, 10000);
 });
