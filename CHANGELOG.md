@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.1.0
+
+- Adds a `followRoute` method to the `Page` API which allows for deterministic execution of previous runs.
+- Adds `replay` and `record` flags to `npx nolita` for retaining session IDs and replaying them from the index later.
+- Our chat completion API has been completely rewritten, and we now support Claude 3.5. This also opens the door for local models in future updates.
+- `npx nolita auth` is now the global key storage command for Nolita tasks and projects. If not specified when using any Nolita API, runner or server, Nolita will look for its model and HDR keys and fall back to them. This greatly simplifies what information needs to be passed to Nolita, as you only authenticate once.
+  - For example, `npx nolita serve` payloads no longer need a `model_config` or any HDR configuration.
+  - Additionally, `npx nolita create` projects can simply omit the calls to environment variables and fall back to Nolita's default keys.
+- Fixed an issue where pre-installed Chrome on Linux machines would prevent running Nolita, due to an incorrect PATH check.
+- Fixed an issue where users without a GitHub account could not run `npx nolita create`.
+
 ## 2.0.1
 
 - Adds `npx nolita auth` for securing API keys to the memory index.
