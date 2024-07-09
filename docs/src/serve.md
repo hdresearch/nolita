@@ -25,13 +25,6 @@ curl -X POST http://localhost:3000/browse \
             ],
             "maxIterations": 10
         },
-        "provider_config": {
-            "apiKey": "sk-***",
-            "provider": "openai"
-        },
-        "model_config": {
-            "model": "gpt-4"
-        },
         "headless": true
         }
       '
