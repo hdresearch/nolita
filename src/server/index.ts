@@ -55,28 +55,28 @@ export const setupServer = () => {
   // TODO: fix the type
   // @ts-ignore
   app.openapi(route, async (c) => {
-    const {
-      browse_config,
-      response_type,
-      headless,
-      inventory,
-    } = c.req.valid("json");
+    const { browse_config, response_type, headless, inventory } =
+      c.req.valid("json");
     const { hdrApiKey, agentProvider, agentApiKey, agentModel } = nolitarc();
 
     const logger = new Logger(["info"]);
     if (!agentProvider) {
-      return c.json(
-        {
-          code: 400,
-          message: "No agent provider found. Please use `npx nolita auth` to set a config.",
-        });
+      return c.json({
+        code: 400,
+        message:
+          "No agent provider found. Please use `npx nolita auth` to set a config.",
+      });
     }
-    const chatApi = completionApiBuilder({
-      provider: agentProvider,
-      apiKey: agentApiKey,
-    }, {
-      model: agentModel
-    });
+    const chatApi = completionApiBuilder(
+      {
+        provider: agentProvider,
+        apiKey: agentApiKey,
+      },
+      {
+        model: agentModel,
+        objectMode: "TOOLS",
+      }
+    );
 
     const agent = new Agent({ modelApi: chatApi });
     const browser = await Browser.launch(headless, agent);
@@ -103,7 +103,7 @@ export const setupServer = () => {
     if (hdrApiKey) {
       collectiveMemoryConfig = {
         apiKey: hdrApiKey,
-        endpoint: "https://api.hdr.is"
+        endpoint: "https://api.hdr.is",
       };
     }
 

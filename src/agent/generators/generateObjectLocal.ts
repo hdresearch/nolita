@@ -9,6 +9,7 @@ import {
 import { zodToJsonSchema } from "zod-to-json-schema";
 
 import { ObjectGeneratorOptions } from "./types";
+import { ChatRequestMessage } from "../messages";
 
 /**
  * Generate an object using the local model.
@@ -25,7 +26,7 @@ import { ObjectGeneratorOptions } from "./types";
  */
 export async function generateObjectLocal<T extends z.ZodSchema<any>>(
   model: LlamaModel,
-  messages: any,
+  messages: ChatRequestMessage[],
   options: ObjectGeneratorOptions & {
     schema: T;
     name: string;
@@ -40,7 +41,23 @@ export async function generateObjectLocal<T extends z.ZodSchema<any>>(
   const context = new LlamaContext({ model });
   const session = new LlamaChatSession({ context });
 
-  const messagesString = messages.map((m: any) => m.content).join("\n");
+  const messagesString = messages
+    .map((m: ChatRequestMessage) => {
+      const content = m.content;
+      if (typeof content === "string") {
+        return content;
+      } else if (Array.isArray(content)) {
+        let concatString = "";
+        content.forEach((c) => {
+          if (c.type === "text") {
+            // Since it's a text message, append its data
+            concatString += c.data;
+          }
+        });
+        return concatString;
+      }
+    })
+    .join("\n");
 
   const res = await await session.prompt(messagesString, {
     grammar,

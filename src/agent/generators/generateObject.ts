@@ -1,9 +1,10 @@
 import { z } from "zod";
-import { generateObjectLocal } from "./generateObjectLocal";
+// import { generateObjectLocal } from "./generateObjectLocal";
 import { generateObjectProvider } from "./generateObjectProvider";
+// import { LlamaModel } from "node-llama-cpp";
 
-import { LlamaModel } from "node-llama-cpp";
 import { ObjectGeneratorOptions } from "./types";
+import { ChatRequestMessage } from "../messages";
 
 /**
  * Wrapper function to generate an object using either the local model or a provider.
@@ -22,15 +23,16 @@ import { ObjectGeneratorOptions } from "./types";
  */
 export async function generateObject<T extends z.ZodSchema<any>>(
   client: any,
-  messages: any,
+  messages: ChatRequestMessage[],
   options: ObjectGeneratorOptions & {
     schema: T;
     name: string;
   }
 ) {
   switch (client) {
-    case client instanceof LlamaModel:
-      return generateObjectLocal(client, messages, options);
+    // case client instanceof LlamaModel:
+    //   return generateObjectLocal(client, messages, options);
+    //   throw new Error("Local modle generation not implemented");
     default:
       return generateObjectProvider(client, messages, options);
   }

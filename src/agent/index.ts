@@ -1,6 +1,7 @@
-import { Agent } from "./agent";
-import { completionApiBuilder, makeAgent, defaultAgent } from "./config";
+import { Agent, makeAgent, defaultAgent } from "./agent";
+import { completionApiBuilder } from "./config";
 import { commandPrompt, getPrompt, AgentMessageConfig } from "./messages";
+import { ObjectGeneratorOptions, generateObject } from "./generators";
 
 export {
   Agent,
@@ -10,4 +11,6 @@ export {
   commandPrompt,
   getPrompt,
   AgentMessageConfig,
+  ObjectGeneratorOptions,
+  generateObject,
 };

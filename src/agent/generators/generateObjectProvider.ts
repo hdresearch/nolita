@@ -1,6 +1,7 @@
 import { z } from "zod";
 import Instructor from "@instructor-ai/instructor";
 
+import { ChatRequestMessage } from "../messages";
 import { ObjectGeneratorOptions } from "./types";
 
 /**
@@ -19,7 +20,7 @@ import { ObjectGeneratorOptions } from "./types";
  */
 export async function generateObjectProvider<T extends z.ZodSchema<any>>(
   client: any,
-  messages: any,
+  messages: ChatRequestMessage[],
   options: ObjectGeneratorOptions & {
     schema: T;
     name: string;

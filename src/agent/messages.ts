@@ -1,12 +1,58 @@
 import { z } from "zod";
-import { ChatRequestMessage } from "llm-api";
+
 import { Inventory } from "../inventory";
 import { ObjectiveState, StateType } from "../types/browser";
 import { Memory } from "../types/memory.types";
 
+/**
+ * Stringify an array of objects
+ * @param obj - The array of objects to stringify
+ * @returns string - The stringified objects
+ */
 export function stringifyObjects<T>(obj: T[]): string {
   const strings = obj.map((o) => JSON.stringify(o));
   return strings.join("\n");
+}
+
+/**
+Data content. Can either be a base64-encoded string, a Uint8Array, an ArrayBuffer, or a Buffer.
+ */
+export type DataContent = string | Uint8Array | ArrayBuffer | Buffer;
+
+/**
+ * Chat message image partial
+ */
+export type ChatMessageImagePartial = {
+  type: "image";
+  data: URL | DataContent;
+};
+
+/**
+ * Chat message text partial
+ */
+export type ChatMessageTextPartial = {
+  type: "text";
+  data: string;
+};
+
+/**
+ * Chat message content
+ */
+export type ChatMessageContent =
+  | ChatMessageImagePartial
+  | ChatMessageTextPartial;
+
+/**
+ * Role of the chat request
+ */
+export type ChatRequestRole = "system" | "user" | "assistant" | "tool";
+
+/**
+ * Chat request message
+ */
+export interface ChatRequestMessage {
+  role: ChatRequestRole;
+  content: string | ChatMessageContent[];
 }
 
 /**
@@ -44,7 +90,6 @@ export function handleConfigMessages(
   }
 
   if (inventory) {
-    console.log("inventory", inventory);
     messages.push({
       role: "user",
       content: `Use the following information to achieve your objective as needed: ${inventory.toString()}`,

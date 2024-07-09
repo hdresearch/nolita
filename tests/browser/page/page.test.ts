@@ -19,6 +19,7 @@ describe("Page", () => {
 
     const chatApi = completionApiBuilder(providerOptions, {
       model: "gpt-4-turbo",
+      objectMode: "TOOLS",
     });
 
     agent = new Agent({ modelApi: chatApi! });

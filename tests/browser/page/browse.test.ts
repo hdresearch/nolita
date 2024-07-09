@@ -17,6 +17,7 @@ describe("Page", () => {
 
     const chatApi = completionApiBuilder(providerOptions, {
       model: "gpt-4",
+      objectMode: "TOOLS",
     });
 
     agent = new Agent({ modelApi: chatApi! });
@@ -41,6 +42,7 @@ describe("Page", () => {
       }
     );
 
+    // @ts-ignore
     expect(result?.objectiveComplete?.emails).toBeDefined();
     await browser.close();
   }, 60000);

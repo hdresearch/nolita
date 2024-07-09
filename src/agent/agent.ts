@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { backOff } from "exponential-backoff";
 import { chat } from "zod-gpt";
-import { ChatRequestMessage, CompletionApi } from "llm-api";
-
+import Instructor from "@instructor-ai/instructor";
 import {
   ModelResponseSchema,
   BrowserActionSchemaArray,
@@ -16,7 +15,10 @@ import { generateSchema, SchemaElement } from "./schemaGenerators";
 import { debug } from "../utils";
 import { completionApiBuilder } from "./config";
 import { nolitarc } from "../utils/config";
-import { handleConfigMessages } from "./messages";
+import { handleConfigMessages, ChatRequestMessage } from "./messages";
+import { ModelConfig, AgentConfig } from "./config";
+import { agent } from "supertest";
+import { generateObject } from "./generators";
 
 export function stringifyObjects<T>(obj: T[]): string {
   const strings = obj.map((o) => JSON.stringify(o));
@@ -24,19 +26,31 @@ export function stringifyObjects<T>(obj: T[]): string {
 }
 
 export class Agent {
-  private modelApi: CompletionApi;
+  private client: any;
+  private objectGeneratorOptions: ModelConfig;
+
   systemPrompt?: string;
 
-  constructor(agentArgs: { modelApi?: CompletionApi; systemPrompt?: string }) {
+  constructor(agentArgs: {
+    modelApi?: ModelConfig & AgentConfig;
+    systemPrompt?: string;
+  }) {
     if (agentArgs.modelApi) {
-      this.modelApi = agentArgs.modelApi;
+      this.client = agentArgs.modelApi.client;
+      this.objectGeneratorOptions = agentArgs.modelApi;
+      this.systemPrompt = agentArgs.systemPrompt;
     } else {
       try {
         const { agentApiKey, agentProvider, agentModel } = nolitarc();
-        this.modelApi = completionApiBuilder(
+        const savedAgentArgs = completionApiBuilder(
           { provider: agentProvider, apiKey: agentApiKey },
-          { model: agentModel }
-        ) as CompletionApi;
+          { model: agentModel, objectMode: "TOOLS" }
+        );
+        this.client = savedAgentArgs.client;
+        this.objectGeneratorOptions = {
+          model: agentModel,
+          objectMode: "TOOLS",
+        };
       } catch (error) {
         throw new Error("Failed to create chat api");
       }
@@ -77,15 +91,11 @@ export class Agent {
     return messages;
   }
 
-  async generateResponseType<
-    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
-  >(
+  async generateResponseType<T extends z.ZodObject<any>>(
     currentState: ObjectiveState,
     memories: Memory,
-    responseSchema: ReturnType<
-      typeof ObjectiveCompleteResponse<TObjectiveComplete>
-    >
-  ) {
+    responseSchema: T
+  ): Promise<z.infer<T>> {
     const messages: ChatRequestMessage[] = [
       {
         role: "user",
@@ -99,8 +109,10 @@ export class Agent {
       },
     ];
 
-    const response = await chat(this.modelApi, messages, {
-      schema: ObjectiveCompleteResponse(responseSchema),
+    const response = await generateObject(this.client, messages, {
+      schema: responseSchema,
+      ...this.objectGeneratorOptions,
+      name: "ObjectiveComplete",
     });
 
     return ObjectiveCompleteResponse(responseSchema).parse(response.data);
@@ -138,16 +150,17 @@ export class Agent {
 
     // Retry until the response is valid or the max number of attempts is reached
     if (safeParseResultSuccess == false) {
-      let response = await chat(this.modelApi, messages, {
+      let response = await generateObject(this.client, messages, {
         schema: z.object({
           progressAssessment: z.string(),
           command: BrowserActionSchemaArray,
           description: z.string(),
         }),
-        autoSlice: true,
+        ...this.objectGeneratorOptions,
+        name: "ActionStep",
       });
 
-      let safeParseResult = commandSchema.safeParse(response.data.command);
+      let safeParseResult = commandSchema.safeParse(response.command);
       safeParseResultSuccess = safeParseResult.success;
 
       while (safeParseResultSuccess == false && attempts <= maxAttempts) {
@@ -157,62 +170,46 @@ export class Agent {
             safeParseResult
           )}`
         );
-        safeParseResult = commandSchema.safeParse(response.data.command);
+        safeParseResult = commandSchema.safeParse(response.command);
         safeParseResultSuccess = safeParseResult.success;
       }
-      return ModelResponseSchema().parse(response.data);
+      return ModelResponseSchema().parse(response);
     }
 
     return undefined;
   }
 
-  async _call<T extends z.ZodSchema<any>>(
-    prompt: ChatRequestMessage[],
-    commandSchema: T,
-    opts?: { autoSlice?: boolean }
-  ) {
-    const response = await chat(this.modelApi, prompt, {
-      schema: commandSchema,
-      autoSlice: opts?.autoSlice ?? true,
-    });
-
-    return response;
-  }
-
   async askCommand<T extends z.ZodSchema<any>>(
     prompt: ChatRequestMessage[],
     schema: T,
-    backoffOptions = {
+    opts = {
       numOfAttempts: 5, // Maximum number of retries
       startingDelay: 1000, // Initial delay in milliseconds
       timeMultiple: 2, // Multiplier for the delay
       maxDelay: 10000, // Maximum delay
     }
   ) {
-    const operation = () => this._call(prompt, schema);
-
-    try {
-      const response = await backOff(operation, backoffOptions);
-
-      return schema.parse(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async call<
-    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
-  >(
-    prompt: ChatRequestMessage[],
-    responseSchema: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>,
-    opts?: { autoSlice?: boolean }
-  ) {
-    const response = await chat(this.modelApi, prompt, {
-      schema: responseSchema,
-      autoSlice: opts?.autoSlice ?? true,
+    const response = await generateObject(this.client, prompt, {
+      schema: schema,
+      ...this.objectGeneratorOptions,
+      name: "GenerateActionStep",
     });
 
     return response;
+  }
+
+  async call<T extends z.ZodSchema<any>>(
+    prompt: ChatRequestMessage[],
+    responseSchema: T,
+    opts?: { autoSlice?: boolean }
+  ): Promise<T> {
+    const response = await generateObject(this.client, prompt, {
+      schema: responseSchema,
+      ...this.objectGeneratorOptions,
+      name: "GenerateActionStep",
+    });
+
+    return responseSchema.parse(response);
   }
 
   /**  
@@ -238,19 +235,12 @@ export class Agent {
       maxDelay: 10000, // Maximum delay
     }
   ) {
-    const chatResponse = () =>
-      chat(this.modelApi, prompt, {
-        schema: commandSchema,
-        autoSlice: opts.autoSlice,
-      });
-
-    try {
-      const response = await backOff(chatResponse, opts);
-
-      return commandSchema.parse(response.data);
-    } catch (error) {
-      console.log(error);
-    }
+    const chatResponse = await generateObject(this.client, prompt, {
+      ...this.objectGeneratorOptions,
+      schema: commandSchema,
+      name: "GenerateActionStep",
+    });
+    return commandSchema.parse(chatResponse);
   }
 
   /**  
@@ -276,16 +266,8 @@ export class Agent {
       maxDelay: 10000, // Maximum delay
     }
   ): Promise<z.infer<T>> {
-    const chatResponse = () =>
-      this._call(prompt, responseSchema, { autoSlice: opts.autoSlice ?? true });
-
-    try {
-      const response = await backOff(chatResponse, opts);
-
-      return responseSchema.parse(response.data);
-    } catch (error) {
-      console.log(error);
-    }
+    const chatResponse = await this.call(prompt, responseSchema, opts);
+    return responseSchema.parse(chatResponse);
   }
 
   /**
@@ -299,8 +281,58 @@ export class Agent {
       role: "user",
       content: prompt,
     });
-    const response = await chat(this.modelApi, messages);
+    const response = await generateObject(this.client, messages, {
+      ...this.objectGeneratorOptions,
+      schema: z.object({ content: z.string() }).describe("ChatResponse"),
+      name: "Chat",
+    });
 
     return response.content;
   }
+}
+
+export function makeAgent(
+  prodiverOpts?: { provider: string; apiKey: string },
+  modelConfig?: ModelConfig,
+  customProvider?: { path: string },
+  opts?: { systemPrompt?: string }
+) {
+  if (!prodiverOpts) {
+    const { agentApiKey, agentProvider, agentModel } = nolitarc();
+    prodiverOpts = { provider: agentProvider, apiKey: agentApiKey };
+    modelConfig = { model: agentModel, objectMode: "TOOLS" };
+  }
+  if (!prodiverOpts.provider) {
+    throw new Error("Provider is required");
+  }
+  if (!modelConfig?.model) {
+    throw new Error("Model is required");
+  }
+  const chatApi = completionApiBuilder(
+    prodiverOpts,
+    modelConfig,
+    customProvider
+  );
+
+  if (!chatApi) {
+    throw new Error(`Failed to create chat api for ${prodiverOpts.provider}`);
+  }
+
+  return new Agent({
+    modelApi: chatApi,
+    systemPrompt: opts?.systemPrompt,
+  });
+}
+
+export function defaultAgent() {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      "You must set OPENAI_API_KEY in your environment to use the default agent."
+    );
+  }
+  return makeAgent(
+    { provider: "openai", apiKey },
+    { model: "gpt-4", objectMode: "TOOLS" }
+  );
 }
