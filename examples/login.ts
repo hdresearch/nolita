@@ -28,7 +28,7 @@ async function main() {
   // We can create a chat api using the completionApiBuilder.
   // These can be swapped out for other providers like OpenAI
   const chatApi = completionApiBuilder(providerOptions, {
-    model: "claude-2.1",
+    model: "claude-3-5-sonnet-20240620",
   });
 
   if (!chatApi) {
