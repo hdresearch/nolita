@@ -49,7 +49,7 @@ export class Nolita {
         provider: opts?.provider ?? "openai",
         apiKey: providerApiKey ?? process.env.OPENAI_API_KEY,
       },
-      { model: opts?.model ?? "gpt-4", ...opts },
+      { model: opts?.model ?? "gpt-4", objectMode: "TOOLS", ...opts },
       undefined,
       { systemPrompt: opts?.systemPrompt }
     );
