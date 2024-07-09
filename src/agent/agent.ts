@@ -1,12 +1,8 @@
 import { z } from "zod";
-import { backOff } from "exponential-backoff";
-import { chat } from "zod-gpt";
-import Instructor from "@instructor-ai/instructor";
 import {
   ModelResponseSchema,
   BrowserActionSchemaArray,
   ObjectiveCompleteResponse,
-  ObjectiveComplete,
 } from "../types/browser/actionStep.types";
 import { Memory } from "../types/memory.types";
 import { ObjectiveState } from "../types/browser/objectiveState.types";
@@ -17,7 +13,6 @@ import { completionApiBuilder } from "./config";
 import { nolitarc } from "../utils/config";
 import { handleConfigMessages, ChatRequestMessage } from "./messages";
 import { ModelConfig, AgentConfig } from "./config";
-import { agent } from "supertest";
 import { generateObject } from "./generators";
 
 export function stringifyObjects<T>(obj: T[]): string {
@@ -81,7 +76,7 @@ export class Agent {
     })} 
     `;
 
-    let messages = handleConfigMessages(config || {});
+    const messages = handleConfigMessages(config || {});
 
     messages.push({
       role: "user",
@@ -135,7 +130,7 @@ export class Agent {
     Please generate the action sequences for ${JSON.stringify(currentState)}
     `;
 
-    let messages = handleConfigMessages(config || {});
+    const messages = handleConfigMessages(config || {});
     messages.push({
       role: "user",
       content: modifyActionsPrompt,
@@ -146,7 +141,7 @@ export class Agent {
     );
 
     let safeParseResultSuccess = false;
-    let attempts = 0;
+    const attempts = 0;
 
     // Retry until the response is valid or the max number of attempts is reached
     if (safeParseResultSuccess == false) {
@@ -193,6 +188,7 @@ export class Agent {
       schema: schema,
       ...this.objectGeneratorOptions,
       name: "GenerateActionStep",
+      ...opts,
     });
 
     return response;
@@ -207,6 +203,7 @@ export class Agent {
       schema: responseSchema,
       ...this.objectGeneratorOptions,
       name: "GenerateActionStep",
+      ...opts,
     });
 
     return responseSchema.parse(response);
@@ -239,6 +236,7 @@ export class Agent {
       ...this.objectGeneratorOptions,
       schema: commandSchema,
       name: "GenerateActionStep",
+      maxRetries: opts.numOfAttempts,
     });
     return commandSchema.parse(chatResponse);
   }

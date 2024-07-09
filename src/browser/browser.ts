@@ -163,6 +163,7 @@ export class Browser {
             (error as Error).message ===
             "Protocol error: Connection closed. Most likely the page has been closed."
           ) {
+            return;
           }
         }
       })

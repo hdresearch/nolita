@@ -45,6 +45,8 @@ export class Logger {
   }
 
   streamHandler() {
-    this.events.on("logAdded", (input) => {});
+    this.events.on("logAdded", (input) => {
+      input;
+    });
   }
 }

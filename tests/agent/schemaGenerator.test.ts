@@ -1,5 +1,4 @@
 import { describe, expect, it } from "@jest/globals";
-import { BrowserActionSchemaArray } from "../../src/types";
 
 import { generateSchema as generateCommandSchema } from "../../src/agent/schemaGenerators";
 

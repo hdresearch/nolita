@@ -40,20 +40,20 @@ export function updateCommandIndices(
   const getKey = (item: any[]) => JSON.stringify(item.slice(1));
 
   const newMap = new Map();
-  newAriaTree.forEach((oldItem, oldIndex) => {
+  newAriaTree.forEach((oldItem) => {
     if (oldItem.length !== 3) return;
     const oldKey = getKey(oldItem);
     newMap.set(oldKey, oldItem);
   });
   const oldMap = new Map();
-  oldAriaTree.forEach((oldItem, oldIndex) => {
+  oldAriaTree.forEach((oldItem) => {
     if (oldItem.length > 3) {
       oldMap.set(oldItem[0], oldItem.slice(0, 3));
     }
     oldMap.set(oldItem[0], oldItem);
   });
 
-  let updatedCommands: any[] = [];
+  const updatedCommands: any[] = [];
   commands.forEach((command) => {
     if (command.index === undefined) {
       updatedCommands.push(command);

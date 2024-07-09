@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Hono } from "hono"; // this must be left in for setupServer to work
 import { serve } from "@hono/node-server";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
@@ -53,7 +54,7 @@ export const setupServer = () => {
     },
   });
   // TODO: fix the type
-  // @ts-ignore
+  // @ts-expect-error need to fix this type for the compiler but it works
   app.openapi(route, async (c) => {
     const { browse_config, response_type, headless, inventory } =
       c.req.valid("json");

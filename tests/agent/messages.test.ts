@@ -6,10 +6,7 @@ import {
 } from "../../src/agent/messages";
 import { Inventory } from "../../src/inventory";
 
-import {
-  stateActionPair1,
-  DEFAULT_STATE_ACTION_PAIRS,
-} from "../../src/collectiveMemory/examples";
+import { stateActionPair1 } from "../../src/collectiveMemory/examples";
 
 describe("handleConfigMessages", () => {
   it("should return a system prompt message", () => {
