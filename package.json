@@ -7,7 +7,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "husky",
     "lint": "eslint .",
     "build": "rm -rf ./dist && tsc",
     "build:docs": "./build-docs.sh",
