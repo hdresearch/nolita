@@ -9,3 +9,6 @@ node_modules/
 
 docs/book
 docs/src/reference
+
+### local models
+modes/
