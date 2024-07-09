@@ -9,7 +9,6 @@ import { completionApiBuilder } from "../src/agent";
 import { Logger } from "../src/utils";
 
 import { ModelResponseSchema, ObjectiveComplete } from "../src/types";
-import { ObjectiveCompleteResponse } from "../src/types/browser/actionStep.types";
 
 const parser = yargs(process.argv.slice(2)).options({
   headless: { type: "boolean", default: true },

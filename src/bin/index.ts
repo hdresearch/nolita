@@ -3,6 +3,7 @@
 import { build } from "gluegun";
 import { run } from "./run";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const cli = build()
   .brand("nolita")
   .src(__dirname)

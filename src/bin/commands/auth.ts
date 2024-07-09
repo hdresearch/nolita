@@ -2,6 +2,7 @@ import { GluegunToolbox } from "gluegun";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { open } = require("out-url");
 
 const loadConfigFile = (filePath: string): any => {
@@ -56,8 +57,8 @@ export const run = async (toolbox: GluegunToolbox) => {
               type: "input",
               name: "model",
               message: "Please enter your model name.",
-              initial: "gpt-4"
-            }
+              initial: "gpt-4",
+            },
           ]);
           writeToNolitarc("agentProvider", provider);
           writeToNolitarc("agentApiKey", apiKey);

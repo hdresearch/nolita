@@ -6,8 +6,8 @@ import {
   Protocol,
 } from "puppeteer";
 
-// Do not touch this. We're using undocumented puppeteer APIs
-// @ts-ignore
+// Do not touch this
+// @ts-expect-error We are using undocumented puppeteer APIs
 import { MAIN_WORLD } from "puppeteer";
 
 import { z } from "zod";
@@ -33,9 +33,6 @@ import { fetchMemorySequence, remember } from "../collectiveMemory/remember";
 import { ModelResponseType } from "../types";
 import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 import { Memory } from "../types/memory.types";
-
-import { updateCommandIndices } from "../collectiveMemory/compareAriaTrees";
-import { result } from "lodash";
 
 /**
  * Represents a web page and provides methods to interact with it.
@@ -240,11 +237,11 @@ export class Page {
    * @returns A promise that resolves to the found element handle.
    */
   private async findElement(index: number): Promise<ElementHandle<Element>> {
-    let e = this.idMapping.get(index);
-    let role = e[1];
-    let name = e[2];
+    const e = this.idMapping.get(index);
+    const role = e[1];
+    const name = e[2];
 
-    let client = (this.page as any)._client();
+    const client = (this.page as any)._client();
     const body = await this.page.$("body");
     const res = await this.queryAXTree(client, body!, name, role);
     if (!res[0] || !res[0].backendDOMNodeId) {
@@ -256,8 +253,7 @@ export class Page {
 
     const ret = (await this.page
       .mainFrame()
-      // this is black magic referring to the execution context
-      // @ts-ignore
+      // @ts-expect-error this is black magic referring to the execution context
       .worlds[MAIN_WORLD].adoptBackendNode(
         backendNodeId
       )) as ElementHandle<Element>;
@@ -285,13 +281,12 @@ export class Page {
       default:
         break;
     }
-    let index = this.idMapping.size;
-    let e: AccessibilityTree = [index, node.role, node.name!];
+    const index = this.idMapping.size;
+    const e: AccessibilityTree = [index, node.role, node.name!];
     this.idMapping.set(index, e);
     let children = [] as AccessibilityTree[];
     if (node.children) {
-      const self = this;
-      children = node.children.map((child) => self.simplifyTree(child));
+      children = node.children.map((child) => this.simplifyTree(child));
     } else if (node.value) {
       children = [node.value];
     }
@@ -310,8 +305,8 @@ export class Page {
     debug.write(`Aria tree: ${JSON.stringify(tree)}`);
 
     this.idMapping = new Map<number, any>();
-    let tree_ret = this.simplifyTree(tree!);
-    let ret = JSON.stringify(tree_ret);
+    const tree_ret = this.simplifyTree(tree!);
+    const ret = JSON.stringify(tree_ret);
     return ret;
   }
 
@@ -323,11 +318,10 @@ export class Page {
    */
   async state(
     objective: string,
-    objectiveProgress?: string[],
-    mode: StateType = "aria"
+    objectiveProgress?: string[]
   ): Promise<ObjectiveState> {
-    let contentJSON = await this.parseContent();
-    let content = ObjectiveState.parse({
+    const contentJSON = await this.parseContent();
+    const content = ObjectiveState.parse({
       kind: "ObjectiveState",
       url: this.url().replace(/[?].*/g, ""),
       ariaTree: contentJSON,
@@ -366,22 +360,24 @@ export class Page {
         case "GoTo":
           await this.goto(command.url, { delay });
           break;
-        case "Click":
-          let eClick = await this.findElement(command.index);
+        case "Click": {
+          const eClick = await this.findElement(command.index);
           await eClick.click();
           await new Promise((resolve) => setTimeout(resolve, delay));
           break;
-        case "Type":
+        }
+        case "Type": {
           let text = command.text;
           // repalce masked inventory values with real values
           if (inventory) {
             text = inventory.replaceMask(text);
           }
-          let eType = await this.findElement(command.index);
+          const eType = await this.findElement(command.index);
           await eType.click({ clickCount: 3 }); // click to select all text
           await eType.type(text + "\n");
           await new Promise((resolve) => setTimeout(resolve, delay));
           break;
+        }
         case "Wait":
           await new Promise((resolve) => setTimeout(resolve, 1000));
           break;
@@ -389,10 +385,11 @@ export class Page {
           await this.page.goBack();
           await new Promise((resolve) => setTimeout(resolve, delay));
           break;
-        case "Hover":
-          let eHover = await this.findElement(command.index);
+        case "Hover": {
+          const eHover = await this.findElement(command.index);
           await eHover.hover();
           break;
+        }
         case "Scroll":
           if ("direction" in command) {
             await this.page.evaluate((direction: "up" | "down") => {
@@ -422,7 +419,7 @@ export class Page {
     commands: BrowserAction[],
     opts?: { delay?: number; inventory?: Inventory }
   ) {
-    for (let command of commands) {
+    for (const command of commands) {
       await this.performAction(command, opts);
     }
   }
@@ -545,7 +542,7 @@ export class Page {
     opts?: { agent?: Agent; progress?: string[]; mode?: StateType }
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
-    const { prompt, state } = await this.makePrompt(request, opts);
+    const { prompt } = await this.makePrompt(request, opts);
 
     const result = await agent.returnCall(prompt, outputSchema);
 
@@ -710,7 +707,6 @@ export class Page {
       schema?: z.ZodObject<any>;
     }
   ) {
-    const maxTurns = opts?.maxTurns ?? 20;
     const memories = await fetchMemorySequence(memoryId, {
       apiKey: this.apiKey,
       endpoint: this.endpoint,
@@ -735,11 +731,11 @@ export class Page {
    */
   async injectBoundingBoxes() {
     await this.page.evaluate(() => {
-      // @ts-ignore
-      var labels = [];
+      // @ts-expect-error We are writing js
+      let labels = [];
 
       const unmarkPage = () => {
-        // @ts-ignore
+        // @ts-expect-error We are writing js
         for (const label of labels) {
           document.body.removeChild(label);
         }
@@ -747,7 +743,7 @@ export class Page {
       };
 
       // Function to generate random colors
-      // @ts-ignore
+      // @ts-expect-error We are writing js
       function getColor(elementType) {
         const colorMapping = {
           INPUT: "#FF0000", // Red for input fields
@@ -757,32 +753,36 @@ export class Page {
           A: "#FF00FF", // Magenta for links
           DEFAULT: "#CCCCCC", // Grey for any other elements
         };
-        // @ts-ignore
+        // @ts-expect-error We are writing js
         return colorMapping[elementType] || colorMapping.DEFAULT;
       }
 
       const markPage = () => {
         unmarkPage();
 
-        var bodyRect = document.body.getBoundingClientRect();
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const bodyRect = document.body.getBoundingClientRect();
 
-        var items = Array.prototype.slice
+        let items = Array.prototype.slice
           .call(document.querySelectorAll("*"))
           .map(function (element) {
-            var vw = Math.max(
+            const vw = Math.max(
               document.documentElement.clientWidth || 0,
               window.innerWidth || 0
             );
-            var vh = Math.max(
+            const vh = Math.max(
               document.documentElement.clientHeight || 0,
               window.innerHeight || 0
             );
 
-            var rects = [...element.getClientRects()]
+            const rects = [...element.getClientRects()]
               .filter((bb) => {
-                var center_x = bb.left + bb.width / 2;
-                var center_y = bb.top + bb.height / 2;
-                var elAtCenter = document.elementFromPoint(center_x, center_y);
+                const center_x = bb.left + bb.width / 2;
+                const center_y = bb.top + bb.height / 2;
+                const elAtCenter = document.elementFromPoint(
+                  center_x,
+                  center_y
+                );
 
                 return elAtCenter === element || element.contains(elAtCenter);
               })
@@ -799,7 +799,7 @@ export class Page {
                   height: rect.bottom - rect.top,
                 };
               });
-            var area = rects.reduce(
+            const area = rects.reduce(
               (acc, rect) => acc + rect.width * rect.height,
               0
             );
@@ -830,9 +830,9 @@ export class Page {
 
         items.forEach(function (item, index) {
           item.rects.forEach((bbox) => {
-            var newElement = document.createElement("div");
+            const newElement = document.createElement("div");
             newElement.id = `ai-label-${index}`;
-            var borderColor = getColor(item.element.tagName);
+            const borderColor = getColor(item.element.tagName);
             newElement.style.outline = `2px dashed ${borderColor}`;
             newElement.style.position = "absolute";
             newElement.style.left = bbox.left + window.scrollX + "px";
@@ -844,7 +844,7 @@ export class Page {
             newElement.style.zIndex = "2147483647";
 
             // Add floating label at the corner
-            var label = document.createElement("span");
+            const label = document.createElement("span");
             label.textContent = index.toString();
             label.style.position = "absolute";
             label.style.top = "-19px";
@@ -857,7 +857,6 @@ export class Page {
             newElement.appendChild(label);
 
             document.body.appendChild(newElement);
-            //@ts-ignore
             labels.push(newElement);
           });
         });

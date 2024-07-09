@@ -36,7 +36,7 @@ describe("Page", () => {
         .describe("The email addresses found on the page"),
     });
 
-    let result = await page.step(
+    const result = await page.step(
       "tell me the email addresses on the page",
       schema
     );
@@ -52,7 +52,7 @@ describe("Page", () => {
 
     await page.goto("https://hdr.is");
 
-    let result = await page.step("click on the company link");
+    const result = await page.step("click on the company link");
 
     expect(result.command).toBeDefined();
     await browser.close();

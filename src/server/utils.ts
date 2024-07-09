@@ -1,6 +1,4 @@
 import { jsonSchemaToZod } from "json-schema-to-zod";
-import { z } from "zod";
-import * as fs from "fs";
 
 import { ErrorSchema } from "./schema";
 

@@ -1,8 +1,8 @@
 import { z } from "zod";
-// import { generateObjectLocal } from "./generateObjectLocal";
-import { generateObjectProvider } from "./generateObjectProvider";
 // import { LlamaModel } from "node-llama-cpp";
+// import { generateObjectLocal } from "./generateObjectLocal";
 
+import { generateObjectProvider } from "./generateObjectProvider";
 import { ObjectGeneratorOptions } from "./types";
 import { ChatRequestMessage } from "../messages";
 

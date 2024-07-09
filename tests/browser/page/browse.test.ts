@@ -42,7 +42,7 @@ describe("Page", () => {
       }
     );
 
-    // @ts-ignore
+    // @ts-expect-error - Throwing some weird type inference error due to ObjectiveFailed
     expect(result?.objectiveComplete?.emails).toBeDefined();
     await browser.close();
   }, 60000);

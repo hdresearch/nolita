@@ -1,5 +1,4 @@
 import { describe, expect, test, it, beforeAll } from "@jest/globals";
-import { OpenAIChatApi } from "llm-api";
 
 import { Agent } from "../../src/agent/agent";
 import {
@@ -171,7 +170,7 @@ describe("Agent", () => {
       modifiedObjectiveStateExample1,
       stateActionPair1
     );
-    // @ts-ignore
+
     expect(response?.command[0].index).toStrictEqual(20);
   });
 

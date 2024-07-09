@@ -1,10 +1,8 @@
 import { describe, expect, it, beforeAll } from "@jest/globals";
-import { z } from "zod";
 
 import { Browser } from "../../../src/browser";
-import { ObjectiveComplete, ObjectiveState } from "../../../src/types/browser";
+import { ObjectiveState } from "../../../src/types/browser";
 import { Agent, completionApiBuilder } from "../../../src/agent";
-import { Logger } from "../../../src/utils";
 
 // jest.retryTimes(1);
 
