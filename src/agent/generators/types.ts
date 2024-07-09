@@ -27,3 +27,7 @@ export type ObjectGeneratorOptions = {
   maxRetries?: number;
   logger?: <T extends unknown[]>(level: string, ...args: T) => void;
 };
+
+export type DefaultObjectGeneratorOptions = {
+  objectMode: 'TOOLS';
+};

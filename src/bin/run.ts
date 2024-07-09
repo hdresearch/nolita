@@ -255,7 +255,6 @@ export const run = async (toolbox: GluegunToolbox) => {
   };
   const chatApi = completionApiBuilder(providerOptions, {
     model: resolvedConfig.agentModel,
-    objectMode: "TOOLS",
   });
 
   if (!chatApi) {
