@@ -31,7 +31,7 @@ jobs:
 
           # Generate OpenAPI spec
       - name: Generate OpenAPI spec
-        run: node --loader tsx dev_utils/generateOpenApiSpec.ts
+        run: npx tsx dev_utils/generateOpenApiSpec.ts
 
       - uses: stainless-api/upload-openapi-spec-action@main
         with:
