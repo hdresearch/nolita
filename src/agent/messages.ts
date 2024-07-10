@@ -77,20 +77,13 @@ export function handleConfigMessages(
 ): ChatRequestMessage[] {
   const messages: ChatRequestMessage[] = [];
 
-  const { systemPrompt, inventory } = config;
+  const { systemPrompt } = config;
 
   if (systemPrompt) {
     console.log("systemPrompt", systemPrompt);
     messages.push({
       role: "system",
       content: systemPrompt,
-    });
-  }
-
-  if (inventory) {
-    messages.push({
-      role: "user",
-      content: `Use the following information to achieve your objective as needed: ${inventory.toString()}`,
     });
   }
 
