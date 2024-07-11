@@ -77,7 +77,6 @@ export async function remember(
       requestId,
       opts
     );
-    let mems: Memory[] = [];
 
     const filteredMemories = memories.filter(
       // filter for memories that are not commands
