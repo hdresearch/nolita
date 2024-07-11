@@ -1,13 +1,11 @@
 import yargs from "yargs/yargs";
 import { z } from "zod";
 
-import { AgentBrowser } from "../src/agentBrowser";
 import { Browser } from "../src/browser";
 import { Agent } from "../src/agent/agent";
 import { completionApiBuilder } from "../src/agent";
 import { Logger } from "../src/utils";
-
-import { ModelResponseSchema, ObjectiveComplete } from "../src/types";
+import { nolitarc } from "../src/utils/config";
 
 const parser = yargs(process.argv.slice(2)).options({
   headless: { type: "boolean", default: true },
@@ -16,23 +14,19 @@ const parser = yargs(process.argv.slice(2)).options({
   maxIterations: { type: "number", default: 10 },
 });
 
+// these are imported from `npx nolita auth`
+// if you haven't set config, you can set the defaults for this example in your environment:
+// OPENAI_API_KEY
+const { agentApiKey, agentProvider, agentModel } = nolitarc();
+
 async function main() {
   const argv = await parser.parse();
-  console.log(argv);
-
-  if (!argv.startUrl) {
-    throw new Error("url is not provided");
-  }
-
-  if (!argv.objective) {
-    throw new Error("objective is not provided");
-  }
 
   const providerOptions = {
-    apiKey: process.env.OPENAI_API_KEY!,
-    provider: "openai",
+    apiKey: agentApiKey || process.env.OPENAI_API_KEY!,
+    provider: agentProvider || "openai",
   };
-  const chatApi = completionApiBuilder(providerOptions, { model: "gpt-4" });
+  const chatApi = completionApiBuilder(providerOptions, { model: agentModel || "gpt-4" });
 
   if (!chatApi) {
     throw new Error(
@@ -42,35 +36,20 @@ async function main() {
   const logger = new Logger(["info"], (msg) => console.log(msg));
   const agent = new Agent({ modelApi: chatApi });
 
-  const agentBrowser = new AgentBrowser({
-    agent: agent,
-    browser: await Browser.launch(argv.headless, agent),
-    logger,
+  const browser = await Browser.launch(argv.headless, agent, logger);
+  const page = await browser.newPage();
+  await page.goto(argv.startUrl || "https://google.com");
+  const answer = await page.browse(argv.objective || "How many accounts are on Wikipedia?", {
+    maxTurns: argv.maxIterations || 10,
+    schema: z.object({
+      numberOfEditors: z.number().int().describe("The number of accounts in int format"),
+    }),
   });
 
-  // Here we are defining a custom return schema
-  // Custom schemas extrend `ObjectiveComplete` by adding additional fields
-  // In addition to returning structured data, we find that using these fields
-  // improves the performance of the model by constraining the conditions
-  // under which the model can halt
-  const wikipediaAnswer = ObjectiveComplete.extend({
-    numberOfEditors: z
-      .number()
-      .int()
-      .describe("The number of editors in int format"),
-  });
-  const answer = await agentBrowser.browse(
-    {
-      startUrl: argv.startUrl,
-      objective: [argv.objective],
-      maxIterations: argv.maxIterations,
-    },
-    ModelResponseSchema(wikipediaAnswer)
-  );
+  // @ts-expect-error - we are not using the full response schema
+  console.log("Answer:", answer?.objectiveComplete?.numberOfEditors);
 
-  console.log("Answer:", answer?.result);
-
-  await agentBrowser.close();
+  await browser.close();
 }
 
 main();

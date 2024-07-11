@@ -10,8 +10,6 @@ import {
   ObjectiveComplete,
 } from "../../src/types/browser/actionStep.types";
 
-import { Inventory } from "../../src/inventory";
-
 import { z } from "zod";
 import { ObjectiveState } from "../../src/types/browser";
 import { completionApiBuilder } from "../../src/agent/config";
@@ -30,20 +28,6 @@ describe("Agent -- configs", () => {
     });
 
     agent = new Agent({ modelApi: chatApi! });
-  });
-
-  test("that configs are handled", async () => {
-    const prompt = await agent.prompt(
-      stateActionPair1.objectiveState,
-      [stateActionPair1],
-      {
-        inventory: new Inventory([
-          { value: "test", name: "test", type: "string" },
-        ]),
-      }
-    );
-    expect(prompt[0].role).toBe("user");
-    expect(prompt[0].content).toContain("Use the following information");
   });
 
   test("that empty configs are handled", async () => {

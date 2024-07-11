@@ -1,17 +1,19 @@
 import yargs from "yargs/yargs";
 
-import { AgentBrowser } from "../src/agentBrowser";
 import { Browser } from "../src/browser";
 import { Agent } from "../src/agent/agent";
 import { Inventory } from "../src/inventory";
 import { completionApiBuilder } from "../src/agent";
 import { Logger } from "../src/utils";
-
-import { ModelResponseSchema, ObjectiveComplete } from "../src/types";
+import { nolitarc } from "../src/utils/config";
 
 const parser = yargs(process.argv.slice(2)).options({
   headless: { type: "boolean", default: true },
 });
+
+// this imports your config from running `npx nolita auth`
+// if you haven't run `npx nolita auth` yet, you can set ANTHROPIC_API_KEY in your environment
+const { agentProvider, agentApiKey, agentModel } = nolitarc();
 
 async function main() {
   const argv = await parser.parse();
@@ -21,14 +23,14 @@ async function main() {
   const maxIterations = 10;
 
   const providerOptions = {
-    apiKey: process.env.ANTHROPIC_API_KEY!,
-    provider: "anthropic",
+    apiKey: agentApiKey || process.env.ANTHROPIC_API_KEY!,
+    provider: agentProvider || "anthropic",
   };
 
   // We can create a chat api using the completionApiBuilder.
   // These can be swapped out for other providers like OpenAI
   const chatApi = completionApiBuilder(providerOptions, {
-    model: "claude-3-5-sonnet-20240620",
+    model: agentModel || "claude-3-5-sonnet-20240620",
   });
 
   if (!chatApi) {
@@ -53,24 +55,18 @@ async function main() {
   ]);
 
   const agent = new Agent({ modelApi: chatApi });
-  const agentBrowser = new AgentBrowser({
-    agent,
-    browser: await Browser.launch(argv.headless, agent),
+  const browser = await Browser.launch(argv.headless, agent, logger, {
     inventory,
-    logger,
   });
 
-  const answer = await agentBrowser.browse(
-    {
-      startUrl: startUrl,
-      objective: [objective],
-      maxIterations: maxIterations,
-    },
-    ModelResponseSchema(ObjectiveComplete)
-  );
-
-  console.log("Answer:", answer?.result);
-  await agentBrowser.close();
+  const page = await browser.newPage();
+  await page.goto(startUrl);
+  const answer = await page.browse(objective, {
+    maxTurns: maxIterations
+  });
+  // @ts-expect-error - we are not using the full response schema
+  console.log("Answer:", answer?.objectiveComplete?.result);
+  await browser.close();
 }
 
 main();
