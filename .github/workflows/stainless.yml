@@ -31,11 +31,10 @@ jobs:
 
           # Generate OpenAPI spec
       - name: Generate OpenAPI spec
-        run: npx tsx dev_utils/generateOpenApiSpec.ts
+        run: pnpm run build:openapi
 
       - uses: stainless-api/upload-openapi-spec-action@main
         with:
           stainless_api_key: ${{ secrets.STAINLESS_API_KEY }}
-          input_path: "path/to/my-company-openapi.json"
-          config_path: "path/to/my-company.stainless.yaml"
-          project_name: "my-stainless-project"
+          input_path: "openapi.json"
+          project_name: "nolita"

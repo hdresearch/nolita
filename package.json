@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "build": "rm -rf ./dist && tsc",
     "build:docs": "./build-docs.sh",
+    "build:openapi": "node --import tsx ./dev_utils/generateOpenApiSpec.ts",
     "test": "jest",
     "server": "npx tsx ./src/server/index.ts"
   },
