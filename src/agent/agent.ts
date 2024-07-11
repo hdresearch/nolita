@@ -122,6 +122,9 @@ export class Agent {
       maxAttempts?: number;
     }
   ) {
+    if (memory.actionStep.kind !== "Command") {
+      return;
+    }
     const maxAttempts = config?.maxAttempts || 5;
     const modifyActionsPrompt = `
     

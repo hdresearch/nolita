@@ -195,6 +195,7 @@ export class Page {
     if (!this.disableMemory) {
       const state = await this.state("Navigate");
       const action: ModelResponseType = {
+        kind: "Command",
         command: [{ kind: "GoTo", url }],
         description: "Navigated to " + url,
         progressAssessment: "",
@@ -550,6 +551,7 @@ export class Page {
 
     if (!this.disableMemory) {
       const action: ModelResponseType = {
+        kind: "Command",
         command: [{ kind: "Get", type: "aria", request }],
         description: "Getting data from the page",
         progressAssessment: "",
@@ -574,7 +576,7 @@ export class Page {
    */
   async step(
     objective: string,
-    outputSchema?: z.ZodObject<any>,
+    outputSchema?: z.ZodSchema<any>,
     opts?: {
       agent?: Agent;
       progress?: string[];
@@ -627,7 +629,7 @@ export class Page {
   async browse(
     objective: string,
     opts: {
-      schema?: z.ZodObject<any>;
+      schema?: z.ZodSchema<any>;
       agent?: Agent;
       progress?: string[];
       inventory?: Inventory;
@@ -666,14 +668,14 @@ export class Page {
     opts?: {
       delay?: number;
       inventory?: Inventory;
-      schema?: z.ZodObject<any>;
+      schema?: z.ZodSchema<any>;
       agent?: Agent;
       memoryDelay?: number;
     }
   ) {
     const { actionStep, objectiveState } = Memory.parse(memory);
 
-    if (actionStep.command) {
+    if (actionStep.kind === "Command") {
       const commands = BrowserActionArray.parse(actionStep.command);
       for (const command of commands) {
         if (command.kind === "Get") {
@@ -681,7 +683,7 @@ export class Page {
         }
         await this.performAction(command, opts);
       }
-    } else if (actionStep.objectiveComplete) {
+    } else if (actionStep.kind === "ObjectiveComplete") {
       return await this.get(objectiveState.objective, opts?.schema, opts);
     }
   }
@@ -704,7 +706,7 @@ export class Page {
       delay?: number;
       maxTurns?: number;
       inventory?: Inventory;
-      schema?: z.ZodObject<any>;
+      schema?: z.ZodSchema<any>;
     }
   ) {
     const memories = await fetchMemorySequence(memoryId, {

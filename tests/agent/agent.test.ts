@@ -99,6 +99,9 @@ describe("Agent", () => {
       ModelResponseSchema(ObjectiveComplete)
     );
     const res = ModelResponseSchema(ObjectiveComplete).parse(response);
+    if (res.kind !== "Command") {
+      throw new Error("Response is not a command");
+    }
     expect(res.command).toStrictEqual([
       { index: 5, kind: "Type", text: "gadget 11 pro price" },
     ]);
@@ -119,6 +122,9 @@ describe("Agent", () => {
 
     const response = await agent.call(prompt, ModelResponseSchema(testSchema));
     const res = ModelResponseSchema(testSchema).parse(response);
+    if (res.kind !== "Command") {
+      throw new Error("Response is not a command");
+    }
     expect(res.command).toStrictEqual([
       { index: 5, kind: "Type", text: "gadget 11 pro price" },
     ]);
@@ -166,12 +172,14 @@ describe("Agent", () => {
       ariaTree: `[0,"RootWebArea","Google",[[1,"link","Gmail"],[2,"link","Images"],[3,"button","Google apps"],[4,"link","Sign in"],["img","Google"],[20,"combobox","Search"]]]`,
     };
 
-    const response = await agent.modifyActions(
+    const res = await agent.modifyActions(
       modifiedObjectiveStateExample1,
       stateActionPair1
     );
-
-    expect(response?.command[0].index).toStrictEqual(20);
+    if (res && res.kind !== "Command") {
+      throw new Error("Response is not a command");
+    }
+    expect(res?.command[0].index).toStrictEqual(20);
   });
 
   it("Should generate a command", async () => {

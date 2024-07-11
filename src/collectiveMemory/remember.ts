@@ -57,7 +57,10 @@ export async function fetchStateActionPairs(
 
   return data.map((m: any) =>
     Memory.parse({
-      actionStep: m.action,
+      actionStep: {
+        ...m.action,
+        kind: m.action.ObjectiveComplete ? "ObjectiveComplete" : "Command",
+      },
       objectiveState: m.state,
     })
   ) as Memory[];
@@ -74,8 +77,11 @@ export async function remember(
       requestId,
       opts
     );
+    let mems: Memory[] = [];
+
     const filteredMemories = memories.filter(
-      (memory) => memory.actionStep.command !== undefined
+      // filter for memories that are not commands
+      (m) => m.actionStep.kind !== "Command"
     );
     if (filteredMemories.length === 0) {
       return DEFAULT_STATE_ACTION_PAIRS;

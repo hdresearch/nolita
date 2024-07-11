@@ -5,7 +5,7 @@ import { ObjectiveState } from "./browser";
 import { BrowserActionArray } from "./browser/actions.types";
 
 export const Memory = z.object({
-  actionStep: ModelResponseSchema(undefined, BrowserActionArray),
+  actionStep: ModelResponseSchema(z.object({}), BrowserActionArray),
   objectiveState: ObjectiveState,
 });
 

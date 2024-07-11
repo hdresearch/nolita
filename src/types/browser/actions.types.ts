@@ -1,11 +1,11 @@
 import { z } from "zod";
 
-const Click = z.object({
+export const Click = z.object({
   kind: z.literal("Click").describe("Click on an element"),
   index: z.number().describe("The index of the aria tree"),
 });
 
-const Type = z.object({
+export const Type = z.object({
   kind: z.literal("Type").describe("Type text into an input"),
   index: z
     .number()
@@ -15,35 +15,35 @@ const Type = z.object({
   text: z.string().describe("The text to enter"), // input text
 });
 
-const Enter = z.object({
+export const Enter = z.object({
   kind: z.literal("Enter"),
   index: z.number(),
 });
 
-const Back = z.object({
+export const Back = z.object({
   kind: z.literal("Back").describe("Go back to the previous page"),
 });
 
-const Wait = z.object({
+export const Wait = z.object({
   kind: z.literal("Wait").describe("Wait for a certain amount of time"),
 });
 
-const Hover = z.object({
+export const Hover = z.object({
   kind: z.literal("Hover").describe("Hover over an element"),
   index: z.number(),
 });
 
-const Scroll = z.object({
+export const Scroll = z.object({
   kind: z.literal("Scroll").describe("Scroll the page up or down"),
   direction: z.enum(["up", "down"]).describe("The direction to scroll"),
 });
 
-const GoTo = z.object({
+export const GoTo = z.object({
   kind: z.literal("GoTo").describe("Go to a specific URL"),
   url: z.string().url().describe("The URL to navigate to"),
 });
 
-const Get = z.object({
+export const Get = z.object({
   kind: z.literal("Get").describe("Get information from the page"),
   request: z.string().describe("The request to get from the page"),
   type: z
