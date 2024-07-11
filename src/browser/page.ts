@@ -584,7 +584,7 @@ export class Page {
       delay?: number;
     }
   ) {
-    const schema = extendModelResponse(outputSchema);
+    const schema = extendModelResponse(outputSchema as z.ZodObject<any>);
     const step = await this.generateCommand(objective, {
       ...opts,
       schema: schema,
