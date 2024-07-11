@@ -27,7 +27,7 @@ jobs:
       # Install dependencies (if required)
       - name: Install dependencies
         run:
-          pnpm install --dev
+          pnpm install -P false
 
           # Generate OpenAPI spec
       - name: Generate OpenAPI spec
