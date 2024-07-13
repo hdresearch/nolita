@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.1
+
+- Updates our example files.
+- Cleans up packages to remove security vulnerability.
+- Fixes an issue where inventory was not always provided when using Page.browse().
+- Fixes an issue with the Anthropic API where consecutive user messages would cause a crash.
+
 ## 2.1.0
 
 - Adds a `followRoute` method to the `Page` API which allows for deterministic execution of previous runs.
