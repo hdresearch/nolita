@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.1
+
+- Removed now-unused dependencies, resolving some security vulnerabilities in the process.
+
 ## 2.1.0
 
 - Adds a `followRoute` method to the `Page` API which allows for deterministic execution of previous runs.

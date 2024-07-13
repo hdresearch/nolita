@@ -67,7 +67,9 @@ export class Agent {
     memories: Memory[],
     config?: { inventory?: Inventory; systemPrompt?: string }
   ): ChatRequestMessage[] {
-    const userPrompt = `Here are examples of a request: 
+    const userPrompt = `
+    ${config?.inventory ? `Use the following information to achieve your objective as needed: ${config?.inventory.toString()}` : ""}
+    Here are examples of a request: 
     ${stringifyObjects(memories)}
 
     remember to return a result only in the form of an ActionStep.

@@ -638,7 +638,10 @@ export class Page {
   ) {
     let currentTurn = 0;
     while (currentTurn < opts.maxTurns) {
-      const step = await this.step(objective, opts?.schema, opts);
+      const step = await this.step(objective, opts?.schema, {
+        ...opts,
+        inventory: opts.inventory ?? this.inventory,
+      });
 
       if (step?.objectiveComplete) {
         return step;
