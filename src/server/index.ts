@@ -142,6 +142,21 @@ export const setupServer = () => {
     );
   });
 
+  // Add Swagger UI route
+  app.get("/doc", swaggerUI({ url: "/openapi.json" }));
+
+  // Serve OpenAPI JSON
+  app.get("/openapi.json", (c) => {
+    return c.json(app.getOpenAPIDocument({
+      openapi: "3.0.0",
+      info: {
+        version: "1.0.0",
+        title: "HDR Browser API",
+      },
+    }));
+  });
+
+  // Add OpenAPI document metadata
   app.doc("/doc", {
     openapi: "3.0.0",
     info: {
@@ -149,10 +164,10 @@ export const setupServer = () => {
       title: "HDR Browser API",
     },
   });
+
   app.route("/", pageRouter);
   app.route("/", browserRouter);
 
-  app.get("/", swaggerUI({ url: "/doc" }));
   return app;
 };
 
