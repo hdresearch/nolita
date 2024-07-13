@@ -31,6 +31,7 @@ export async function generateObjectProvider<T extends z.ZodSchema<any>>(
     mode: options.objectMode,
     // log to void
     logger: undefined,
+    debug: false
   });
 
   const maxRetries = options.maxRetries || 3;

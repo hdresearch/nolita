@@ -60,9 +60,14 @@ export const ModelResponse = z.object({
   description: z.string(),
 });
 
+const CommandSchema = z.union([
+  BrowserActionSchemaArray,
+  z.array(BrowserActionSchemaArray).length(0)
+]);
+
 export const ModelResponseSchema = <TObjectiveComplete extends z.AnyZodObject>(
   objectiveCompleteExtension?: TObjectiveComplete,
-  commandSchema: z.ZodSchema<any> = BrowserActionSchemaArray
+  commandSchema: z.ZodSchema<any> = CommandSchema
 ) =>
   z.object({
     progressAssessment: z.string(),
