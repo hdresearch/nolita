@@ -1,0 +1,40 @@
+name: Upload OpenAPI spec to Stainless
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [dev]
+
+jobs:
+  stainless:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+        # Install Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+
+      # Install dependencies (if required)
+      - name: Install dependencies
+        run:
+          pnpm install -P false
+
+          # Generate OpenAPI spec
+      - name: Generate OpenAPI spec
+        run: pnpm run build:openapi
+
+      - uses: stainless-api/upload-openapi-spec-action@main
+        with:
+          stainless_api_key: ${{ secrets.STAINLESS_API_KEY }}
+          input_path: "openapi.json"
+          project_name: "nolita"

@@ -1,14 +1,17 @@
 {
   "name": "nolita",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "",
   "main": "dist/index.js",
   "files": [
     "dist/**/*"
   ],
   "scripts": {
+    "prepare": "husky",
+    "lint": "eslint .",
     "build": "rm -rf ./dist && tsc",
     "build:docs": "./build-docs.sh",
+    "build:openapi": "node --import tsx ./dev_utils/generateOpenApiSpec.ts",
     "test": "jest",
     "server": "npx tsx ./src/server/index.ts"
   },
@@ -33,10 +36,7 @@
     "exponential-backoff": "^3.1.1",
     "gluegun": "^5.1.6",
     "hono": "^4.1.1",
-    "js-tiktoken": "^1.0.10",
     "json-schema-to-zod": "^2.0.14",
-    "json-to-zod": "^1.1.2",
-    "llm-api": "^1.2.0",
     "llm-polyglot": "^2.0.0",
     "lodash": "^4.17.21",
     "node-llama-cpp": "^2.8.12",
@@ -48,24 +48,28 @@
     "simple-git": "^3.24.0",
     "turndown": "^7.1.3",
     "type-fest": "^4.10.2",
-    "typescript": "^5.3.3",
-    "zod": "^3.23.8",
-    "zod-gpt": "^0.12.1"
+    "typescript": "~5.3.3",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@eslint/js": "^8.56.0",
     "@jest/globals": "^29.7.0",
     "@types/debug": "^4.1.12",
     "@types/supertest": "^6.0.2",
     "@types/yargs": "^17.0.32",
+    "eslint": "^8.56.0",
+    "globals": "^15.8.0",
+    "husky": "^9.0.11",
     "jest": "^29.7.0",
     "jest-puppeteer": "^10.0.1",
     "supertest": "^7.0.0",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.7.1",
-    "typedoc": "^0.25.13",
-    "typedoc-plugin-markdown": "^4.0.3",
+    "typedoc": "^0.26.0",
+    "typedoc-plugin-markdown": "^4.1.2",
     "typedoc-plugin-zod": "^1.1.2",
+    "typescript-eslint": "^7.16.0",
     "yargs": "^17.7.2",
     "zod-to-json-schema": "^3.23.0"
   }

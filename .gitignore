@@ -9,3 +9,7 @@ node_modules/
 
 docs/book
 docs/src/reference
+openapi.json
+
+### local models
+models

@@ -84,6 +84,7 @@ const validate = (config: any): void => {
         return;
       case "objective":
         isValidString(value, key);
+        return;
       case "agentApiKey":
         isValidString(value, key);
         isValidApiKey(value as string, key);
@@ -135,7 +136,7 @@ const getConfig = (
 });
 
 export const run = async (toolbox: GluegunToolbox) => {
-  let {
+  const {
     startUrl,
     objective,
     maxIterations,

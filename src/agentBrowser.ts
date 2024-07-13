@@ -87,7 +87,7 @@ export class AgentBrowser {
       description = memory.actionStep.description;
     } else {
       debug.write("Modifying actions");
-      let modifiedActionStep = await this.agent.modifyActions(state, memory, {
+      const modifiedActionStep = await this.agent.modifyActions(state, memory, {
         inventory: this.inventory,
       });
 
@@ -286,8 +286,11 @@ export class AgentBrowser {
         }
 
         this.iterationCount++; // Increment the current iteration counter
+        // eslint-disable-next-line no-constant-condition
       } while (true);
-    } catch {}
+    } catch (e) {
+      console.warn("Error in browsing:", e);
+    }
   }
 
   reset() {

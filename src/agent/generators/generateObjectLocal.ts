@@ -32,7 +32,6 @@ export async function generateObjectLocal<T extends z.ZodSchema<any>>(
     name: string;
   }
 ) {
-  const maxRetries = options.maxRetries || 3;
   const maxTokens = options.maxTokens || 1000;
   const temperature = options.temperature || 0;
   const schema = zodToJsonSchema(options.schema) as GbnfJsonSchema;

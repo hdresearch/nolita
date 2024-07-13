@@ -1,5 +1,3 @@
-import { z } from "zod";
-
 import { Inventory } from "../inventory";
 import { ObjectiveState, StateType } from "../types/browser";
 import { Memory } from "../types/memory.types";
@@ -77,22 +75,15 @@ export type AgentMessageConfig = {
 export function handleConfigMessages(
   config: AgentMessageConfig
 ): ChatRequestMessage[] {
-  let messages: ChatRequestMessage[] = [];
+  const messages: ChatRequestMessage[] = [];
 
-  const { systemPrompt, inventory } = config;
+  const { systemPrompt } = config;
 
   if (systemPrompt) {
     console.log("systemPrompt", systemPrompt);
     messages.push({
       role: "system",
       content: systemPrompt,
-    });
-  }
-
-  if (inventory) {
-    messages.push({
-      role: "user",
-      content: `Use the following information to achieve your objective as needed: ${inventory.toString()}`,
     });
   }
 
@@ -109,7 +100,7 @@ export function commandPrompt(
   currentState: ObjectiveState,
   config?: AgentMessageConfig
 ): ChatRequestMessage[] {
-  let messages = handleConfigMessages(config || {});
+  const messages = handleConfigMessages(config || {});
   const memories = config?.memories;
 
   if (memories) {
@@ -149,7 +140,7 @@ export function getPrompt(
   config?: AgentMessageConfig
 ): ChatRequestMessage[] {
   const mode = config?.mode || "aria";
-  let messages = handleConfigMessages(config || {});
+  const messages = handleConfigMessages(config || {});
 
   messages.push({
     role: "user",
