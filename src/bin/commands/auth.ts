@@ -41,7 +41,7 @@ export const run = async (toolbox: GluegunToolbox) => {
       })
       .then(async ({ model }) => {
         if (model) {
-          const { provider, apiKey } = await prompt.ask([
+          const { provider, apiKey, model } = await prompt.ask([
             {
               type: "select",
               name: "provider",
