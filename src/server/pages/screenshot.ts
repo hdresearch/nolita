@@ -1,4 +1,5 @@
-import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
+import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
+import { z } from "zod";
 
 import { BROWSERS } from "../browser/launch";
 import { PageParamsSchema } from "../schemas";
