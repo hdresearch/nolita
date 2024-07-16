@@ -1,4 +1,4 @@
-import { z } from "@hono/zod-openapi";
+import { z } from "zod";
 
 export const browseSchema = z.object({
   startUrl: z.string().url().openapi({ example: "https://google.com" }),
