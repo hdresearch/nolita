@@ -1,4 +1,4 @@
-import { z } from "@hono/zod-openapi";
+import { z } from "zod";
 
 export const AgentSchema = z.object({
   provider: z.string().default("openai").openapi({ example: "openai" }),
