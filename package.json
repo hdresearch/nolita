@@ -18,6 +18,7 @@
   "bin": {
     "nolita": "dist/bin/index.js"
   },
+  "types": "dist/types/index.d.ts",
   "keywords": [],
   "author": "HDR",
   "license": "MIT",
