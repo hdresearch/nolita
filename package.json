@@ -2,7 +2,7 @@
   "name": "nolita",
   "version": "2.1.2",
   "description": "",
-  "main": "dist/index.js",
+  "main": "./dist/index.js",
   "files": [
     "dist/**/*"
   ],
@@ -16,9 +16,9 @@
     "server": "npx tsx ./src/server/index.ts"
   },
   "bin": {
-    "nolita": "dist/bin/index.js"
+    "nolita": "./dist/bin/index.js"
   },
-  "types": "dist/types/index.d.ts",
+  "types": "./dist/types/index.d.ts",
   "keywords": [],
   "author": "HDR",
   "license": "MIT",
