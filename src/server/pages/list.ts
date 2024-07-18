@@ -62,5 +62,5 @@ ListRouter.openapi(route, async (c) => {
 
   console.log("PAGES", pages);
 
-  return c.json(pages);
+  return c.json(pages, 200);
 });

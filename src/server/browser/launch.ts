@@ -70,6 +70,7 @@ const route = createRoute({
 export const launchRouter = new OpenAPIHono();
 
 launchRouter.openapi(route, async (c) => {
+  try {
   const {
     agent: agentArgs,
     inventory: inventoryArgs,
@@ -82,37 +83,8 @@ launchRouter.openapi(route, async (c) => {
   const provider = agentArgs?.provider ?? agentProvider;
   const apiKey = agentArgs?.apiKey ?? agentApiKey;
   const model = agentArgs?.model ?? agentModel;
-  if (!provider) {
-    return c.json(
-      {
-        code: 400,
-        message:
-          "No agent provider specified. Please use `npx nolita auth` to set a config or pass it directly.",
-      },
-      400
-    );
-  }
-
-  if (!apiKey) {
-    return c.json(
-      {
-        code: 400,
-        message:
-          "No agent API key specified. Please use `npx nolita auth` to set a config or pass it directly.",
-      },
-      400
-    );
-  }
-
-  if (!model) {
-    return c.json(
-      {
-        code: 400,
-        message:
-          "No agent model specified. Please use `npx nolita auth` to set a config or pass it directly.",
-      },
-      400
-    );
+  if (!provider || !apiKey || !model) {
+    throw new Error("Missing agent configuration. Use `npx nolita auth` to set it.");
   }
 
   const chatApi = completionApiBuilder(
@@ -143,5 +115,8 @@ launchRouter.openapi(route, async (c) => {
 
   const sessionId = generateUUID();
   BROWSERS.set(sessionId, browser);
-  return c.json({ sessionId });
+  return c.json({ sessionId }, 200);
+} catch (e) {
+  return c.json({ code: 400, message: JSON.stringify(e) }, 400);
+}
 });

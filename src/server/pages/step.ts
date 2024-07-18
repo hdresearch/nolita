@@ -112,5 +112,5 @@ stepRouter.openapi(route, async (c) => {
   return c.json({
     result: step,
     state: await page.state(command, page.progress),
-  });
+  }, 200);
 });

@@ -70,5 +70,5 @@ screenshotRouter.openapi(route, async (c) => {
     return c.json({ message: "Failed to take screenshot" }, 500);
   }
 
-  return c.json({ image });
+  return c.json({ image }, 200);
 });

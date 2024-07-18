@@ -65,5 +65,5 @@ infoRouter.openapi(route, async (c) => {
     url: page.url(),
     title: await page.title(),
     progress: page.progress,
-  });
+  }, 200);
 });

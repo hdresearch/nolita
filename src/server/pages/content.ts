@@ -85,6 +85,6 @@ contentRouter.openapi(route, async (c) => {
       pageContent: content,
       type: type,
       url: page.url(),
-    })
+    }), 200
   );
 });

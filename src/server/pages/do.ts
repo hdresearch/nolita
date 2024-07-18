@@ -77,5 +77,5 @@ doRouter.openapi(route, async (c) => {
 
   await page.do(command, { inventory, delay });
 
-  return c.json(await page.state(command, page.progress));
+  return c.json(await page.state(command, page.progress), 200);
 });

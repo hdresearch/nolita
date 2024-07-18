@@ -102,5 +102,5 @@ browseRouter.openapi(route, async (c) => {
     inventory,
   });
 
-  return c.json(result);
+  return c.json(result, 200);
 });

@@ -43,5 +43,5 @@ newPageRouter.openapi(route, async (c) => {
 
   const page = await browser.newPage();
 
-  return c.json({ pageId: page.pageId });
+  return c.json({ pageId: page.pageId }, 200);
 });
