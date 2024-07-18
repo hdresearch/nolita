@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "lib/zod"
 
 import { Agent } from "./agent";
 import { makeAgent } from "./agent";

@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeAll } from "@jest/globals";
-import { z } from "zod";
+import { z } from "lib/zod"
 
 import { Browser } from "../../../src/browser";
 import { ObjectiveComplete } from "../../../src/types/browser";

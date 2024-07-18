@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "lib/zod"
 
 export const browseSchema = z.object({
   startUrl: z.string().url().openapi({ example: "https://google.com" }),

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "lib/zod"
 
 export enum BrowserMode {
   vision = "vision",

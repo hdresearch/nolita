@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "lib/zod"
 import { URL } from "url";
 
 import { ObjectiveState } from "../types/browser";

@@ -2,7 +2,7 @@
 import { Hono } from "hono"; // this must be left in for setupServer to work
 import { serve } from "@hono/node-server";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { z } from "zod";
+import { z } from "lib/zod"
 import { JsonSchema } from "json-schema-to-zod";
 import { swaggerUI } from "@hono/swagger-ui";
 

@@ -1,5 +1,5 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { z } from "zod";
+import { z } from "lib/zod"
 
 import { BROWSERS } from "./launch";
 
