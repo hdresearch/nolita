@@ -15,14 +15,14 @@ importers:
         specifier: ^0.2.1
         version: 0.2.2(hono@4.4.12)
       '@hono/zod-openapi':
-        specifier: ^0.9.8
-        version: 0.9.10(hono@4.4.12)(zod@3.23.8)
+        specifier: ^0.15.0
+        version: 0.15.0(hono@4.4.12)(zod@3.22.4)
       '@hono/zod-validator':
         specifier: ^0.2.0
-        version: 0.2.2(hono@4.4.12)(zod@3.23.8)
+        version: 0.2.2(hono@4.4.12)(zod@3.22.4)
       '@instructor-ai/instructor':
         specifier: ^1.5.0
-        version: 1.5.0(openai@4.52.4)(zod@3.23.8)
+        version: 1.5.0(openai@4.52.4)(zod@3.22.4)
       '@types/inquirer':
         specifier: ^9.0.7
         version: 9.0.7
@@ -90,8 +90,8 @@ importers:
         specifier: ~5.3.3
         version: 5.3.3
       zod:
-        specifier: ^3.23.8
-        version: 3.23.8
+        specifier: 3.22.4
+        version: 3.22.4
     devDependencies:
       '@eslint/js':
         specifier: ^8.56.0
@@ -152,7 +152,7 @@ importers:
         version: 17.7.2
       zod-to-json-schema:
         specifier: ^3.23.0
-        version: 3.23.1(zod@3.23.8)
+        version: 3.23.1(zod@3.22.4)
 
 packages:
 
@@ -163,8 +163,8 @@ packages:
   '@anthropic-ai/sdk@0.22.0':
     resolution: {integrity: sha512-dv4BCC6FZJw3w66WNLsHlUFjhu19fS1L/5jMPApwhZLa/Oy1j0A2i3RypmDtHEPp4Wwg3aZkSHksp7VzYWjzmw==}
 
-  '@asteasolutions/zod-to-openapi@5.5.0':
-    resolution: {integrity: sha512-d5HwrvM6dOKr3XdeF+DmashGvfEc+1oiEfbscugsiwSTrFtuMa7ETpW9sTNnVgn+hJaz+PRxPQUYD7q9/5dUig==}
+  '@asteasolutions/zod-to-openapi@7.1.1':
+    resolution: {integrity: sha512-lF0d1gAc0lYLO9/BAGivwTwE2Sh9h6CHuDcbk5KnGBfIuAsAkDC+Fdat4dkQY3CS/zUWKHRmFEma0B7X132Ymw==}
     peerDependencies:
       zod: ^3.20.2
 
@@ -510,18 +510,12 @@ packages:
     peerDependencies:
       hono: '*'
 
-  '@hono/zod-openapi@0.9.10':
-    resolution: {integrity: sha512-v/b/z0qPxDo952gjRyhJ0n9ifbPoIluR2KmXDL20np0hj99+XvakoIHK5/T/3+hUmXlTj1Kn3TiGsSV6hwZesg==}
+  '@hono/zod-openapi@0.15.0':
+    resolution: {integrity: sha512-NdCoF3AyM4+TW3PM5c2fFI7Sf4hPYBH0ywkN5BA88w9SepSK08P66Qp3QFh2HVYccxxwtLbgFTE0MMMCfvtCrw==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
-      hono: '>=3.11.3'
+      hono: '>=4.3.6'
       zod: 3.*
-
-  '@hono/zod-validator@0.2.1':
-    resolution: {integrity: sha512-HFoxln7Q6JsE64qz2WBS28SD33UB2alp3aRKmcWnNLDzEL1BLsWfbdX6e1HIiUprHYTIXf5y7ax8eYidKUwyaA==}
-    peerDependencies:
-      hono: '>=3.9.0'
-      zod: ^3.19.1
 
   '@hono/zod-validator@0.2.2':
     resolution: {integrity: sha512-dSDxaPV70Py8wuIU2QNpoVEIOSzSXZ/6/B/h4xA7eOMz7+AarKTSGV8E6QwrdcCbBLkpqfJ4Q2TmBO0eP1tCBQ==}
@@ -3386,6 +3380,9 @@ packages:
     peerDependencies:
       zod: ^3.18.0
 
+  zod@3.22.4:
+    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
+
   zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
@@ -3409,10 +3406,10 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@asteasolutions/zod-to-openapi@5.5.0(zod@3.23.8)':
+  '@asteasolutions/zod-to-openapi@7.1.1(zod@3.22.4)':
     dependencies:
       openapi3-ts: 4.3.3
-      zod: 3.23.8
+      zod: 3.22.4
 
   '@babel/code-frame@7.24.7':
     dependencies:
@@ -3729,22 +3726,17 @@ snapshots:
     dependencies:
       hono: 4.4.12
 
-  '@hono/zod-openapi@0.9.10(hono@4.4.12)(zod@3.23.8)':
+  '@hono/zod-openapi@0.15.0(hono@4.4.12)(zod@3.22.4)':
     dependencies:
-      '@asteasolutions/zod-to-openapi': 5.5.0(zod@3.23.8)
-      '@hono/zod-validator': 0.2.1(hono@4.4.12)(zod@3.23.8)
+      '@asteasolutions/zod-to-openapi': 7.1.1(zod@3.22.4)
+      '@hono/zod-validator': 0.2.2(hono@4.4.12)(zod@3.22.4)
       hono: 4.4.12
-      zod: 3.23.8
+      zod: 3.22.4
 
-  '@hono/zod-validator@0.2.1(hono@4.4.12)(zod@3.23.8)':
+  '@hono/zod-validator@0.2.2(hono@4.4.12)(zod@3.22.4)':
     dependencies:
       hono: 4.4.12
-      zod: 3.23.8
-
-  '@hono/zod-validator@0.2.2(hono@4.4.12)(zod@3.23.8)':
-    dependencies:
-      hono: 4.4.12
-      zod: 3.23.8
+      zod: 3.22.4
 
   '@humanwhocodes/config-array@0.11.14':
     dependencies:
@@ -3758,12 +3750,12 @@ snapshots:
 
   '@humanwhocodes/object-schema@2.0.3': {}
 
-  '@instructor-ai/instructor@1.5.0(openai@4.52.4)(zod@3.23.8)':
+  '@instructor-ai/instructor@1.5.0(openai@4.52.4)(zod@3.22.4)':
     dependencies:
       openai: 4.52.4
-      zod: 3.23.8
-      zod-stream: 1.0.3(openai@4.52.4)(zod@3.23.8)
-      zod-validation-error: 2.1.0(zod@3.23.8)
+      zod: 3.22.4
+      zod-stream: 1.0.3(openai@4.52.4)(zod@3.22.4)
+      zod-validation-error: 2.1.0(zod@3.22.4)
 
   '@istanbuljs/load-nyc-config@1.1.0':
     dependencies:
@@ -6575,10 +6567,10 @@ snapshots:
 
   safe-buffer@5.2.1: {}
 
-  schema-stream@3.1.0(zod@3.23.8):
+  schema-stream@3.1.0(zod@3.22.4):
     dependencies:
       ramda: 0.29.1
-      zod: 3.23.8
+      zod: 3.22.4
 
   semver@6.3.1: {}
 
@@ -7048,19 +7040,21 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zod-stream@1.0.3(openai@4.52.4)(zod@3.23.8):
+  zod-stream@1.0.3(openai@4.52.4)(zod@3.22.4):
     dependencies:
       openai: 4.52.4
-      schema-stream: 3.1.0(zod@3.23.8)
-      zod: 3.23.8
-      zod-to-json-schema: 3.23.1(zod@3.23.8)
+      schema-stream: 3.1.0(zod@3.22.4)
+      zod: 3.22.4
+      zod-to-json-schema: 3.23.1(zod@3.22.4)
 
-  zod-to-json-schema@3.23.1(zod@3.23.8):
+  zod-to-json-schema@3.23.1(zod@3.22.4):
     dependencies:
-      zod: 3.23.8
+      zod: 3.22.4
 
-  zod-validation-error@2.1.0(zod@3.23.8):
+  zod-validation-error@2.1.0(zod@3.22.4):
     dependencies:
-      zod: 3.23.8
+      zod: 3.22.4
+
+  zod@3.22.4: {}
 
   zod@3.23.8: {}
