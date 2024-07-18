@@ -1,4 +1,4 @@
-import { z } from "lib/zod";
+import { z } from "../../lib/zod";
 
 export const CollectiveMemoryConfig = z.object({
   endpoint: z

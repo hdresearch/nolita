@@ -10,7 +10,7 @@ import {
   ObjectiveComplete,
 } from "../../src/types/browser/actionStep.types";
 
-import { z } from "lib/zod";
+import { z } from "../../src/lib/zod";
 import { ObjectiveState } from "../../src/types/browser";
 import { completionApiBuilder } from "../../src/agent/config";
 

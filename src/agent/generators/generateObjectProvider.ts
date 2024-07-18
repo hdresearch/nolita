@@ -1,4 +1,4 @@
-import { z } from "lib/zod";
+import { z } from "../../lib/zod";
 import Instructor from "@instructor-ai/instructor";
 
 import { ChatRequestMessage } from "../messages";

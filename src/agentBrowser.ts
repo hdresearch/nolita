@@ -1,4 +1,4 @@
-import { z } from "lib/zod";
+import { z } from "./lib/zod";
 import { Browser, Page } from "./browser";
 import { Logger, generateUUID } from "./utils";
 

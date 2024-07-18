@@ -1,4 +1,4 @@
-import { z } from "lib/zod";
+import { z } from "../../lib/zod";
 
 export const Click = z.object({
   kind: z.literal("Click").describe("Click on an element"),
