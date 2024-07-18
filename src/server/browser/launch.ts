@@ -1,5 +1,5 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 
 import { Logger, generateUUID } from "../../utils";
 
@@ -71,52 +71,54 @@ export const launchRouter = new OpenAPIHono();
 
 launchRouter.openapi(route, async (c) => {
   try {
-  const {
-    agent: agentArgs,
-    inventory: inventoryArgs,
-    mode,
-    wsEndpoint,
-    launchArgs,
-    headless,
-  } = c.req.valid("json");
-  const { agentApiKey, agentProvider, agentModel, hdrApiKey } = nolitarc();
-  const provider = agentArgs?.provider ?? agentProvider;
-  const apiKey = agentArgs?.apiKey ?? agentApiKey;
-  const model = agentArgs?.model ?? agentModel;
-  if (!provider || !apiKey || !model) {
-    throw new Error("Missing agent configuration. Use `npx nolita auth` to set it.");
-  }
+    const {
+      agent: agentArgs,
+      inventory: inventoryArgs,
+      mode,
+      wsEndpoint,
+      launchArgs,
+      headless,
+    } = c.req.valid("json");
+    const { agentApiKey, agentProvider, agentModel, hdrApiKey } = nolitarc();
+    const provider = agentArgs?.provider ?? agentProvider;
+    const apiKey = agentArgs?.apiKey ?? agentApiKey;
+    const model = agentArgs?.model ?? agentModel;
+    if (!provider || !apiKey || !model) {
+      throw new Error(
+        "Missing agent configuration. Use `npx nolita auth` to set it.",
+      );
+    }
 
-  const chatApi = completionApiBuilder(
-    {
-      provider,
-      apiKey: agentArgs?.apiKey ?? agentApiKey,
-    },
-    { model: agentArgs?.model ?? agentModel, objectMode: "TOOLS" }
-  );
+    const chatApi = completionApiBuilder(
+      {
+        provider,
+        apiKey: agentArgs?.apiKey ?? agentApiKey,
+      },
+      { model: agentArgs?.model ?? agentModel, objectMode: "TOOLS" },
+    );
 
-  const inventory = inventoryArgs
-    ? new Inventory(
-        Object.entries(inventoryArgs).map(
-          ([name, value]) => ({ name, value } as InventoryValue)
+    const inventory = inventoryArgs
+      ? new Inventory(
+          Object.entries(inventoryArgs).map(
+            ([name, value]) => ({ name, value }) as InventoryValue,
+          ),
         )
-      )
-    : undefined;
-  const logger = new Logger(["info"]);
+      : undefined;
+    const logger = new Logger(["info"]);
 
-  const modelAgent = new Agent({ modelApi: chatApi });
-  const browser = await Browser.launch(headless, modelAgent, logger, {
-    inventory,
-    mode,
-    browserWSEndpoint: wsEndpoint,
-    browserLaunchArgs: launchArgs,
-    ...(hdrApiKey && { apiKey: hdrApiKey }),
-  });
+    const modelAgent = new Agent({ modelApi: chatApi });
+    const browser = await Browser.launch(headless, modelAgent, logger, {
+      inventory,
+      mode,
+      browserWSEndpoint: wsEndpoint,
+      browserLaunchArgs: launchArgs,
+      ...(hdrApiKey && { apiKey: hdrApiKey }),
+    });
 
-  const sessionId = generateUUID();
-  BROWSERS.set(sessionId, browser);
-  return c.json({ sessionId }, 200);
-} catch (e) {
-  return c.json({ code: 400, message: JSON.stringify(e) }, 400);
-}
+    const sessionId = generateUUID();
+    BROWSERS.set(sessionId, browser);
+    return c.json({ sessionId }, 200);
+  } catch (e) {
+    return c.json({ code: 400, message: JSON.stringify(e) }, 400);
+  }
 });

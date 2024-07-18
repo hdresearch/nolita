@@ -1,4 +1,4 @@
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 
 export const Click = z.object({
   kind: z.literal("Click").describe("Click on an element"),
@@ -10,7 +10,7 @@ export const Type = z.object({
   index: z
     .number()
     .describe(
-      "The index of the elements in the aria tree. This should be an element that you can enter text such as textarea, combobox, textbox, or searchbox"
+      "The index of the elements in the aria tree. This should be an element that you can enter text such as textarea, combobox, textbox, or searchbox",
     ),
   text: z.string().describe("The text to enter"), // input text
 });
@@ -52,17 +52,17 @@ export type ActionStep = z.infer<typeof ActionStep>;
 export const ModelResponse = z.object({
   progressAssessment: z.string(),
   command: BrowserActionSchemaArray.optional().describe(
-    "List of browser actions"
+    "List of browser actions",
   ),
   objectiveComplete: ObjectiveComplete.optional().describe(
-    "Only return description of result if objective is complete"
+    "Only return description of result if objective is complete",
   ),
   description: z.string(),
 });
 
 export const ModelResponseSchema = <TObjectiveComplete extends z.AnyZodObject>(
   objectiveCompleteExtension?: TObjectiveComplete,
-  commandSchema: z.ZodSchema<any> = BrowserActionSchemaArray
+  commandSchema: z.ZodSchema<any> = BrowserActionSchemaArray,
 ) =>
   z.object({
     progressAssessment: z.string(),
@@ -71,40 +71,40 @@ export const ModelResponseSchema = <TObjectiveComplete extends z.AnyZodObject>(
       ? ObjectiveComplete.merge(objectiveCompleteExtension)
           .optional()
           .describe(
-            "Only return description of result if objective is complete"
+            "Only return description of result if objective is complete",
           )
       : ObjectiveComplete.optional().describe(
-          "Only return description of result if objective is complete"
+          "Only return description of result if objective is complete",
         ),
     description: z.string(),
   });
 
 export type ModelResponseType<
-  TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
+  TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete,
 > = z.infer<ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>>;
 
 export const ObjectiveCompleteResponse = <T extends z.AnyZodObject>(
-  extension?: T
+  extension?: T,
 ) =>
   z.object({
     progressAssessment: z.string(),
     objectiveComplete: extension
       ? extension.describe(
-          "Only return description of result if objective is complete"
+          "Only return description of result if objective is complete",
         )
       : ObjectiveComplete.describe(
-          "Only return description of result if objective is complete"
+          "Only return description of result if objective is complete",
         ),
     description: z.string(),
   });
 
 export type ObjectiveCompleteResponse<
-  TObjectiveComplete extends z.AnyZodObject
+  TObjectiveComplete extends z.AnyZodObject,
 > = z.infer<ReturnType<typeof ObjectiveCompleteResponse<TObjectiveComplete>>>;
 
 // Function to merge a ZodObject into objectiveComplete within ModelResponse with a default empty schema
 export const extendModelResponse = <T extends z.ZodObject<any>>(
-  additionalSchema: T = z.object({}) as T
+  additionalSchema: T = z.object({}) as T,
 ) => {
   const updatedObjectiveComplete = ObjectiveComplete.merge(additionalSchema)
     .optional()

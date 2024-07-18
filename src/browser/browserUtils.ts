@@ -39,7 +39,7 @@ export const getChromePath = (): string | undefined => {
 export const browserContext = async (
   headless: boolean,
   browserWSEndpoint?: string,
-  browserLaunchArgs?: string[]
+  browserLaunchArgs?: string[],
 ) => {
   let browser: PuppeteerBrowser;
   if (browserWSEndpoint) {

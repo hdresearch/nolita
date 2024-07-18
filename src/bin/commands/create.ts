@@ -22,7 +22,7 @@ module.exports = {
     // validate the name to ensure it's npm compatible
     if (!/^[a-z0-9-@]+$/.test(name)) {
       return toolbox.print.error(
-        "Invalid folder name. Use @, lowercase, and dashes only."
+        "Invalid folder name. Use @, lowercase, and dashes only.",
       );
     }
     await simpleGit({
@@ -34,7 +34,7 @@ module.exports = {
     filesystem.remove(`${name}/LICENSE`);
     filesystem.move(
       `${name}/extensions/.inventory.example`,
-      `${name}/extensions/.inventory`
+      `${name}/extensions/.inventory`,
     );
     toolbox.print.success(`Created ${name} project`);
     toolbox.system.run(`cd ${name} && npm install`);
@@ -54,7 +54,7 @@ module.exports = {
       maxConcurrentProcesses: 6,
     }).commit("Initial commit");
     toolbox.print.success(
-      `Your project is ready! Get started in the ${name} directory.`
+      `Your project is ready! Get started in the ${name} directory.`,
     );
   },
 };

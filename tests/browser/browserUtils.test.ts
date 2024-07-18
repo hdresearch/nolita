@@ -7,7 +7,7 @@ describe("chromePaths", () => {
 
     if (!(process.env.CI === "true")) {
       expect(chromePath).toBe(
-        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
       );
       expect(chromePath).toBeDefined();
       expect(chromePath!.toLocaleLowerCase()).toContain("chrome");

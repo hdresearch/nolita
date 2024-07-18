@@ -1,4 +1,4 @@
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 // import { LlamaModel } from "node-llama-cpp";
 // import { generateObjectLocal } from "./generateObjectLocal";
 
@@ -27,7 +27,7 @@ export async function generateObject<T extends z.ZodSchema<any>>(
   options: ObjectGeneratorOptions & {
     schema: T;
     name: string;
-  }
+  },
 ) {
   switch (client) {
     // case client instanceof LlamaModel:

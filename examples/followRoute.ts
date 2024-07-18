@@ -10,7 +10,7 @@ async function makeRoute(browser: Browser, schema: z.ZodObject<any>) {
   await page.do("click on the company link");
   const answer = await page.get(
     "Find all the email addresses on the page",
-    schema
+    schema,
   );
 
   console.log(answer);
@@ -20,7 +20,7 @@ async function makeRoute(browser: Browser, schema: z.ZodObject<any>) {
 async function followRoute(
   browser: Browser,
   routeId: string,
-  schema: z.ZodObject<any>
+  schema: z.ZodObject<any>,
 ) {
   const page = await browser.newPage();
 
@@ -31,7 +31,7 @@ async function followRoute(
 async function main() {
   const agent = makeAgent(
     { provider: "openai", apiKey: process.env.OPENAI_API_KEY! },
-    { model: "gpt-4" }
+    { model: "gpt-4" },
   );
   const logger = new Logger(["info"], (msg) => console.log(msg));
   const browser = await Browser.launch(false, agent, logger);

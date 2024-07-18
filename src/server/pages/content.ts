@@ -1,5 +1,5 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 
 import { BROWSERS } from "../browser/launch";
 import { PageParamsSchema } from "../schemas";
@@ -85,6 +85,7 @@ contentRouter.openapi(route, async (c) => {
       pageContent: content,
       type: type,
       url: page.url(),
-    }), 200
+    }),
+    200,
   );
 });

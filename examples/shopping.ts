@@ -30,11 +30,13 @@ async function main() {
     apiKey: agentApiKey || process.env.OPENAI_API_KEY!,
     provider: agentProvider || "openai",
   };
-  const chatApi = completionApiBuilder(providerOptions, { model: agentModel || "gpt-4" });
+  const chatApi = completionApiBuilder(providerOptions, {
+    model: agentModel || "gpt-4",
+  });
 
   if (!chatApi) {
     throw new Error(
-      `Failed to create chat api for ${providerOptions.provider}`
+      `Failed to create chat api for ${providerOptions.provider}`,
     );
   }
   const logger = new Logger(["info"], (msg) => console.log(msg));
@@ -48,7 +50,9 @@ async function main() {
   const answer = await page.browse(objective, {
     maxTurns: maxIterations,
     schema: z.object({
-      orderTotals: z.array(z.number()).describe("The order total in number format"),
+      orderTotals: z
+        .array(z.number())
+        .describe("The order total in number format"),
     }),
     inventory: new Inventory([
       { value: "emma.lopez@gmail.com", name: "email", type: "string" },
@@ -56,7 +60,10 @@ async function main() {
     ]),
   });
   // @ts-expect-error - we are not using the full response schema
-  console.log("\x1b[32m Answer:", JSON.stringify(answer?.objectiveComplete?.orderTotals));
+  console.log(
+    "\x1b[32m Answer:",
+    JSON.stringify(answer?.objectiveComplete?.orderTotals),
+  );
   await browser.close();
 }
 

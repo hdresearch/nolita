@@ -1,4 +1,4 @@
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 import {
   LlamaModel,
   LlamaJsonSchemaGrammar,
@@ -30,7 +30,7 @@ export async function generateObjectLocal<T extends z.ZodSchema<any>>(
   options: ObjectGeneratorOptions & {
     schema: T;
     name: string;
-  }
+  },
 ) {
   const maxTokens = options.maxTokens || 1000;
   const temperature = options.temperature || 0;

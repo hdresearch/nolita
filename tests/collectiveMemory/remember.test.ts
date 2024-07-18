@@ -17,7 +17,7 @@ describe("Remember", () => {
       {
         apiKey: process.env.HDR_API_KEY!,
         endpoint: process.env.HDR_ENDPOINT!,
-      }
+      },
     );
 
     const memory = memories[0].actionStep.command![0];
@@ -31,7 +31,7 @@ describe("Remember", () => {
       {
         apiKey: process.env.HDR_API_KEY!,
         endpoint: process.env.HDR_ENDPOINT!,
-      }
+      },
     );
 
     const memory = memories[0].actionStep.command![0];
@@ -48,7 +48,7 @@ describe("Fetch state actions pairs", () => {
       {
         apiKey: process.env.HDR_API_KEY!,
         endpoint: process.env.HDR_ENDPOINT!,
-      }
+      },
     );
     expect(stateActionPairs.length).toBe(2);
   });
@@ -61,7 +61,7 @@ describe("Fetch state actions sequences", () => {
       {
         apiKey: process.env.HDR_API_KEY!,
         endpoint: "https://api.hdr.is",
-      }
+      },
     );
     expect(stateActionPairs.length).toBe(5);
   });

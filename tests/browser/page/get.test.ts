@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeAll } from "@jest/globals";
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 
 import { Browser } from "../../../src/browser";
 import { ObjectiveComplete } from "../../../src/types/browser";
@@ -38,7 +38,7 @@ describe("Page -- get", () => {
           .array(z.string())
           .describe("The email addresses found on the page"),
       }),
-      { agent }
+      { agent },
     );
     expect(result).toBeDefined();
     expect(result.email).toContain("tynan.daly@hdr.is");
@@ -59,7 +59,7 @@ describe("Page -- get", () => {
           .array(z.string())
           .describe("The email addresses found on the page"),
       }),
-      { agent }
+      { agent },
     );
 
     expect(result).toBeDefined();
@@ -76,7 +76,7 @@ describe("Page -- get", () => {
 
     const result = await page.get(
       "Find all the email addresses on the page",
-      ObjectiveComplete
+      ObjectiveComplete,
     );
 
     expect(result).toBeDefined();

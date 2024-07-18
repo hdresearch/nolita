@@ -1,4 +1,4 @@
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 
 const Click = z.object({
   kind: z.literal("Click").describe("Click on an element"),
@@ -10,7 +10,7 @@ const Type = z.object({
   index: z
     .number()
     .describe(
-      "The index of the elements in the aria tree. This should be an element that you can enter text such as textarea, combobox, textbox, or searchbox"
+      "The index of the elements in the aria tree. This should be an element that you can enter text such as textarea, combobox, textbox, or searchbox",
     ),
   text: z.string().describe("The text to enter"), // input text
 });

@@ -66,7 +66,7 @@ describe("updateCommandIndices", () => {
     const res = updateCommandIndices(
       objectiveStateOld,
       objectiveStateNew,
-      commands
+      commands,
     );
 
     expect(res).toStrictEqual(expectedCommands);

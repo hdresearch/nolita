@@ -26,11 +26,13 @@ async function main() {
     apiKey: agentApiKey || process.env.OPENAI_API_KEY!,
     provider: agentProvider || "openai",
   };
-  const chatApi = completionApiBuilder(providerOptions, { model: agentModel || "gpt-4" });
+  const chatApi = completionApiBuilder(providerOptions, {
+    model: agentModel || "gpt-4",
+  });
 
   if (!chatApi) {
     throw new Error(
-      `Failed to create chat api for ${providerOptions.provider}`
+      `Failed to create chat api for ${providerOptions.provider}`,
     );
   }
   const logger = new Logger(["info"], (msg) => console.log(msg));
@@ -39,12 +41,18 @@ async function main() {
   const browser = await Browser.launch(argv.headless, agent, logger);
   const page = await browser.newPage();
   await page.goto(argv.startUrl || "https://google.com");
-  const answer = await page.browse(argv.objective || "How many accounts are on Wikipedia?", {
-    maxTurns: argv.maxIterations || 10,
-    schema: z.object({
-      numberOfEditors: z.number().int().describe("The number of accounts in int format"),
-    }),
-  });
+  const answer = await page.browse(
+    argv.objective || "How many accounts are on Wikipedia?",
+    {
+      maxTurns: argv.maxIterations || 10,
+      schema: z.object({
+        numberOfEditors: z
+          .number()
+          .int()
+          .describe("The number of accounts in int format"),
+      }),
+    },
+  );
 
   // @ts-expect-error - we are not using the full response schema
   console.log("Answer:", answer?.objectiveComplete?.numberOfEditors);

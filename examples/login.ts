@@ -35,7 +35,7 @@ async function main() {
 
   if (!chatApi) {
     throw new Error(
-      `Failed to create chat api for ${providerOptions.provider}`
+      `Failed to create chat api for ${providerOptions.provider}`,
     );
   }
 
@@ -62,7 +62,7 @@ async function main() {
   const page = await browser.newPage();
   await page.goto(startUrl);
   const answer = await page.browse(objective, {
-    maxTurns: maxIterations
+    maxTurns: maxIterations,
   });
   // @ts-expect-error - we are not using the full response schema
   console.log("Answer:", answer?.objectiveComplete?.result);

@@ -55,7 +55,7 @@ export class Browser {
       endpoint?: string;
       inventory?: Inventory;
       disableMemory?: boolean;
-    }
+    },
   ) {
     const { hdrApiKey } = nolitarc();
     this.disableMemory = opts?.disableMemory || false;
@@ -98,17 +98,17 @@ export class Browser {
       endpoint?: string;
       inventory?: Inventory;
       disableMemory?: boolean;
-    }
+    },
   ): Promise<Browser> {
     const browser = new Browser(
       await browserContext(
         headless,
         opts?.browserWSEndpoint,
-        opts?.browserLaunchArgs
+        opts?.browserLaunchArgs,
       ),
       agent,
       logger,
-      opts
+      opts,
     );
 
     return browser;
@@ -166,7 +166,7 @@ export class Browser {
             return;
           }
         }
-      })
+      }),
     );
 
     await this.browser.close();

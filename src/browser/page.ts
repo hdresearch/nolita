@@ -10,7 +10,7 @@ import {
 // @ts-expect-error We are using undocumented puppeteer APIs
 import { MAIN_WORLD } from "puppeteer";
 
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 import Turndown from "turndown";
 
 import {
@@ -74,7 +74,7 @@ export class Page {
       apiKey?: string;
       endpoint?: string;
       disableMemory?: boolean;
-    }
+    },
   ) {
     this.page = page;
     this.agent = agent;
@@ -111,7 +111,7 @@ export class Page {
   async setViewport(
     width: number,
     height: number,
-    deviceScaleFactor: number = 1
+    deviceScaleFactor: number = 1,
   ) {
     this.page.setViewport({ width, height, deviceScaleFactor });
   }
@@ -174,7 +174,7 @@ export class Page {
           pageId: this.pageId,
           timestamp: Date.now(),
           message: msg,
-        })
+        }),
       );
     }
   }
@@ -216,7 +216,7 @@ export class Page {
     client: CDPSession,
     element: ElementHandle<Node>,
     accessibleName?: string,
-    role?: string
+    role?: string,
   ): Promise<Protocol.Accessibility.AXNode[]> {
     const { nodes } = await client.send("Accessibility.queryAXTree", {
       objectId: element.remoteObject().objectId,
@@ -226,7 +226,7 @@ export class Page {
     const filteredNodes: Protocol.Accessibility.AXNode[] = nodes.filter(
       (node: Protocol.Accessibility.AXNode) => {
         return !node.role || node.role.value !== "StaticText"; /// hmmm maybe we should remove?
-      }
+      },
     );
     return filteredNodes;
   }
@@ -246,7 +246,7 @@ export class Page {
     const res = await this.queryAXTree(client, body!, name, role);
     if (!res[0] || !res[0].backendDOMNodeId) {
       throw new Error(
-        `Could not find element with role ${res[0].role} and name ${res[0].name}`
+        `Could not find element with role ${res[0].role} and name ${res[0].name}`,
       );
     }
     const backendNodeId = res[0].backendDOMNodeId;
@@ -255,12 +255,12 @@ export class Page {
       .mainFrame()
       // @ts-expect-error this is black magic referring to the execution context
       .worlds[MAIN_WORLD].adoptBackendNode(
-        backendNodeId
+        backendNodeId,
       )) as ElementHandle<Element>;
 
     if (!ret) {
       throw new Error(
-        `Could not find element by backendNodeId with role ${role} and name ${name}`
+        `Could not find element by backendNodeId with role ${role} and name ${name}`,
       );
     }
     return ret;
@@ -318,7 +318,7 @@ export class Page {
    */
   async state(
     objective: string,
-    objectiveProgress?: string[]
+    objectiveProgress?: string[],
   ): Promise<ObjectiveState> {
     const contentJSON = await this.parseContent();
     const content = ObjectiveState.parse({
@@ -350,7 +350,7 @@ export class Page {
    */
   async performAction(
     command: BrowserAction,
-    opts?: { delay?: number; inventory?: Inventory }
+    opts?: { delay?: number; inventory?: Inventory },
   ) {
     const inventory = opts?.inventory ?? this.inventory;
     const delay = opts?.delay ?? 100;
@@ -403,7 +403,7 @@ export class Page {
     } catch (e) {
       this.error = (e as Error).toString();
       debug.error(
-        ` Error ${this.error} on command: ${JSON.stringify(command)}`
+        ` Error ${this.error} on command: ${JSON.stringify(command)}`,
       );
     }
   }
@@ -417,7 +417,7 @@ export class Page {
    */
   async performManyActions(
     commands: BrowserAction[],
-    opts?: { delay?: number; inventory?: Inventory }
+    opts?: { delay?: number; inventory?: Inventory },
   ) {
     for (const command of commands) {
       await this.performAction(command, opts);
@@ -434,11 +434,11 @@ export class Page {
    */
   async makePrompt(
     request: string,
-    opts?: { progress?: string[]; agent?: Agent; inventory?: Inventory }
+    opts?: { progress?: string[]; agent?: Agent; inventory?: Inventory },
   ) {
     const state = (await this.state(
       request,
-      opts?.progress ?? this.progress
+      opts?.progress ?? this.progress,
     )) as ObjectiveState;
     const agent = opts?.agent ?? this.agent;
     const memories = this.disableMemory
@@ -471,7 +471,7 @@ export class Page {
       agent?: Agent;
       schema: T;
       inventory?: Inventory;
-    }
+    },
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
     const { prompt, state } = await this.makePrompt(request, opts);
@@ -509,7 +509,7 @@ export class Page {
       progress?: string[];
       delay?: number;
       schema?: z.ZodSchema<any>;
-    }
+    },
   ) {
     const schema = z.object({
       command: opts?.schema ?? z.array(BrowserAction).min(1),
@@ -539,7 +539,7 @@ export class Page {
   async get<T extends z.ZodSchema<any>>(
     request: string,
     outputSchema: z.ZodSchema<any> = ObjectiveComplete,
-    opts?: { agent?: Agent; progress?: string[]; mode?: StateType }
+    opts?: { agent?: Agent; progress?: string[]; mode?: StateType },
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
     const { prompt } = await this.makePrompt(request, opts);
@@ -580,7 +580,7 @@ export class Page {
       progress?: string[];
       inventory?: Inventory;
       delay?: number;
-    }
+    },
   ) {
     const schema = extendModelResponse(outputSchema);
     const step = await this.generateCommand(objective, {
@@ -634,7 +634,7 @@ export class Page {
       maxTurns: number;
     } = {
       maxTurns: 20,
-    }
+    },
   ) {
     let currentTurn = 0;
     while (currentTurn < opts.maxTurns) {
@@ -672,7 +672,7 @@ export class Page {
       schema?: z.ZodObject<any>;
       agent?: Agent;
       memoryDelay?: number;
-    }
+    },
   ) {
     const { actionStep, objectiveState } = Memory.parse(memory);
 
@@ -708,7 +708,7 @@ export class Page {
       maxTurns?: number;
       inventory?: Inventory;
       schema?: z.ZodObject<any>;
-    }
+    },
   ) {
     const memories = await fetchMemorySequence(memoryId, {
       apiKey: this.apiKey,
@@ -771,11 +771,11 @@ export class Page {
           .map(function (element) {
             const vw = Math.max(
               document.documentElement.clientWidth || 0,
-              window.innerWidth || 0
+              window.innerWidth || 0,
             );
             const vh = Math.max(
               document.documentElement.clientHeight || 0,
-              window.innerHeight || 0
+              window.innerHeight || 0,
             );
 
             const rects = [...element.getClientRects()]
@@ -784,7 +784,7 @@ export class Page {
                 const center_y = bb.top + bb.height / 2;
                 const elAtCenter = document.elementFromPoint(
                   center_x,
-                  center_y
+                  center_y,
                 );
 
                 return elAtCenter === element || element.contains(elAtCenter);
@@ -804,7 +804,7 @@ export class Page {
               });
             const area = rects.reduce(
               (acc, rect) => acc + rect.width * rect.height,
-              0
+              0,
             );
 
             return {
@@ -828,7 +828,7 @@ export class Page {
 
         // Only keep inner clickable items
         items = items.filter(
-          (x) => !items.some((y) => x.element.contains(y.element) && !(x == y))
+          (x) => !items.some((y) => x.element.contains(y.element) && !(x == y)),
         );
 
         items.forEach(function (item, index) {

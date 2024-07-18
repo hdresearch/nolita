@@ -39,7 +39,7 @@ describe("Page interaction -- Type", () => {
     await page.goto(dataUrl);
 
     const initialValue = await page.page.evaluate(() =>
-      document.querySelector("textarea")!.value.trim()
+      document.querySelector("textarea")!.value.trim(),
     );
     expect(initialValue).toEqual("Hello, World!");
 
@@ -50,7 +50,7 @@ describe("Page interaction -- Type", () => {
       text: "High Dimensional Research",
     });
     const value = await page.page.evaluate(() =>
-      document.querySelector("textarea")!.value.trim()
+      document.querySelector("textarea")!.value.trim(),
     );
 
     expect(value).toEqual("High Dimensional Research");
@@ -63,7 +63,7 @@ describe("Page interaction -- Type", () => {
     await page.goto(dataUrl);
 
     const initialValue = await page.page.evaluate(() =>
-      document.querySelector("textarea")!.value.trim()
+      document.querySelector("textarea")!.value.trim(),
     );
     expect(initialValue).toEqual("Hello, World!");
 
@@ -76,7 +76,7 @@ describe("Page interaction -- Type", () => {
       },
     ]);
     const value = await page.page.evaluate(() =>
-      document.querySelector("textarea")!.value.trim()
+      document.querySelector("textarea")!.value.trim(),
     );
 
     expect(value).toEqual("High Dimensional Research");
@@ -93,10 +93,10 @@ describe("Page interaction -- Type", () => {
       "type `High Dimensional Research` into the text box. Please make sure to capitalize the type in the command array",
       {
         agent,
-      }
+      },
     );
     const value = await page.page.evaluate(() =>
-      document.querySelector("textarea")!.value.trim()
+      document.querySelector("textarea")!.value.trim(),
     );
 
     expect(value).toEqual("High Dimensional Research");

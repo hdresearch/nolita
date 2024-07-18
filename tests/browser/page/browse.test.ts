@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeAll } from "@jest/globals";
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 
 import { Browser } from "../../../src/browser";
 
@@ -39,7 +39,7 @@ describe("Page", () => {
             .describe("The email addresses found on the page"),
         }),
         maxTurns: 5,
-      }
+      },
     );
     expect(result).toBeDefined();
     await browser.close();

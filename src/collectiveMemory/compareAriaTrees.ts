@@ -32,7 +32,7 @@ export function parseAriaTree(array: any[]): any[] {
 export function updateCommandIndices(
   objectiveStateOld: ObjectiveState,
   objectiveStateNew: ObjectiveState,
-  commands: any[]
+  commands: any[],
 ) {
   const oldAriaTree = parseAriaTree(JSON.parse(objectiveStateOld.ariaTree));
   const newAriaTree = parseAriaTree(JSON.parse(objectiveStateNew.ariaTree));

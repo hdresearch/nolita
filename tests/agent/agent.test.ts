@@ -10,7 +10,7 @@ import {
   ObjectiveComplete,
 } from "../../src/types/browser/actionStep.types";
 
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 import { ObjectiveState } from "../../src/types/browser";
 import { completionApiBuilder } from "../../src/agent/config";
 
@@ -34,7 +34,7 @@ describe("Agent -- configs", () => {
     const prompt = await agent.prompt(
       stateActionPair1.objectiveState,
       [stateActionPair1],
-      {}
+      {},
     );
     expect(prompt[0].role).toBe("user");
     expect(prompt[0].content).toContain("Here are examples of a request");
@@ -63,11 +63,11 @@ describe("Agent", () => {
     const prompt = await agent.prompt(
       stateActionPair1.objectiveState,
       [stateActionPair1],
-      {}
+      {},
     );
     expect(prompt[0].role).toBe("user");
     expect(prompt[0].content).toContain(
-      `{"objectiveState":{"kind":"ObjectiveState","objective":"how much is an gadget 11 pro","progress":[]`
+      `{"objectiveState":{"kind":"ObjectiveState","objective":"how much is an gadget 11 pro","progress":[]`,
     );
   });
 
@@ -75,12 +75,12 @@ describe("Agent", () => {
     const prompt = await agent.prompt(
       objectiveStateExample1,
       [stateActionPair1],
-      {}
+      {},
     );
 
     const response = await agent.call(
       prompt,
-      ModelResponseSchema(ObjectiveComplete)
+      ModelResponseSchema(ObjectiveComplete),
     );
     const res = ModelResponseSchema(ObjectiveComplete).parse(response);
     expect(res.command).toStrictEqual([
@@ -92,7 +92,7 @@ describe("Agent", () => {
     const prompt = await agent.prompt(
       objectiveStateExample1,
       [stateActionPair1],
-      {}
+      {},
     );
 
     const testSchema = ObjectiveComplete.extend({
@@ -114,11 +114,11 @@ describe("Agent", () => {
     const prompt = await agent.prompt(
       objectiveStateExample1,
       [stateActionPair1],
-      {}
+      {},
     );
     const response = await agent.askCommand(
       prompt,
-      ModelResponseSchema(ObjectiveComplete)
+      ModelResponseSchema(ObjectiveComplete),
     );
     expect(response!.command).toStrictEqual([
       { index: 5, kind: "Type", text: "gadget 11 pro price" },
@@ -152,7 +152,7 @@ describe("Agent", () => {
 
     const response = await agent.modifyActions(
       modifiedObjectiveStateExample1,
-      stateActionPair1
+      stateActionPair1,
     );
 
     expect(response?.command[0].index).toStrictEqual(20);
@@ -164,7 +164,7 @@ describe("Agent", () => {
     ]);
     const response = await agent.actionCall(
       prompt,
-      ModelResponseSchema(ObjectiveComplete)
+      ModelResponseSchema(ObjectiveComplete),
     );
 
     expect(response?.command[0].index).toStrictEqual(5);
@@ -179,7 +179,7 @@ describe("Agent", () => {
       prompt,
       ObjectiveComplete.extend({
         website: z.string().describe("The website name"),
-      })
+      }),
     );
 
     console.log("Response:", response);

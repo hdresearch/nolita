@@ -24,7 +24,7 @@ export class Logger {
 
   constructor(
     logLevels?: string[],
-    callback?: (input: string) => any | undefined
+    callback?: (input: string) => any | undefined,
   ) {
     this.logStream = [];
     this.logLevels = logLevels || ["info"];

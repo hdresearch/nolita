@@ -1,5 +1,5 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 
 import { BROWSERS } from "../browser/launch";
 import { PageParamsSchema } from "../schemas";
@@ -70,8 +70,8 @@ doRouter.openapi(route, async (c) => {
   const inventory = inventoryArgs
     ? new Inventory(
         Object.entries(inventoryArgs).map(
-          ([name, value]) => ({ name, value } as InventoryValue)
-        )
+          ([name, value]) => ({ name, value }) as InventoryValue,
+        ),
       )
     : undefined;
 

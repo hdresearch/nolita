@@ -12,7 +12,7 @@ describe("Fetch Route", () => {
       {
         apiKey: process.env.HDR_API_KEY!,
         endpoint: process.env.HDR_ENDPOINT!,
-      }
+      },
     );
     expect(res.length).toBeGreaterThan(0);
   });
@@ -29,7 +29,7 @@ describe("Find Route", () => {
       {
         apiKey: process.env.HDR_API_KEY!,
         endpoint: process.env.HDR_ENDPOINT!,
-      }
+      },
     );
     expect(res!.length).toBeGreaterThan(0);
   });

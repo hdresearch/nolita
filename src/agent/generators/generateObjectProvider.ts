@@ -1,4 +1,4 @@
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 import Instructor from "@instructor-ai/instructor";
 
 import { ChatRequestMessage } from "../messages";
@@ -24,7 +24,7 @@ export async function generateObjectProvider<T extends z.ZodSchema<any>>(
   options: ObjectGeneratorOptions & {
     schema: T;
     name: string;
-  }
+  },
 ) {
   const instructor = Instructor<typeof client>({
     client,

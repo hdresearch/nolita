@@ -35,7 +35,7 @@ describe("pageApi -- content", () => {
       .expect(async (res) => {
         expect(res.body.type).toBe("html");
         expect(res.body.pageContent).toContain(
-          '<a href="https://www.iana.org/domains/example">More information...</a>'
+          '<a href="https://www.iana.org/domains/example">More information...</a>',
         );
       });
   });
@@ -47,7 +47,7 @@ describe("pageApi -- content", () => {
       .expect(async (res) => {
         expect(res.body.type).toBe("markdown");
         expect(res.body.pageContent).toContain(
-          "[More information...](https://www.iana.org/domains/example)"
+          "[More information...](https://www.iana.org/domains/example)",
         );
       });
   });
@@ -59,7 +59,7 @@ describe("pageApi -- content", () => {
       .expect(async (res) => {
         expect(res.body.type).toBe("text");
         expect(res.body.pageContent).toContain(
-          "This domain is for use in illustrative examples in documents. You may use this domain in literature without prior coordination or asking for permission."
+          "This domain is for use in illustrative examples in documents. You may use this domain in literature without prior coordination or asking for permission.",
         );
       });
   });

@@ -1,5 +1,5 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 
 import { BROWSERS } from "../browser/launch";
 import { PageParamsSchema } from "../schemas";
@@ -60,10 +60,13 @@ infoRouter.openapi(route, async (c) => {
     return c.json({ message: "Page not found" }, 400);
   }
 
-  return c.json({
-    id: page.pageId,
-    url: page.url(),
-    title: await page.title(),
-    progress: page.progress,
-  }, 200);
+  return c.json(
+    {
+      id: page.pageId,
+      url: page.url(),
+      title: await page.title(),
+      progress: page.progress,
+    },
+    200,
+  );
 });

@@ -73,7 +73,7 @@ export type AgentMessageConfig = {
  * @returns {ChatRequestMessage[]} - The messages to send to the model
  */
 export function handleConfigMessages(
-  config: AgentMessageConfig
+  config: AgentMessageConfig,
 ): ChatRequestMessage[] {
   const messages: ChatRequestMessage[] = [];
 
@@ -98,7 +98,7 @@ export function handleConfigMessages(
  */
 export function commandPrompt(
   currentState: ObjectiveState,
-  config?: AgentMessageConfig
+  config?: AgentMessageConfig,
 ): ChatRequestMessage[] {
   const messages = handleConfigMessages(config || {});
   const memories = config?.memories;
@@ -137,7 +137,7 @@ export function commandPrompt(
  */
 export function getPrompt(
   state: string,
-  config?: AgentMessageConfig
+  config?: AgentMessageConfig,
 ): ChatRequestMessage[] {
   const mode = config?.mode || "aria";
   const messages = handleConfigMessages(config || {});

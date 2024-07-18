@@ -30,7 +30,7 @@ export class Inventory {
   replaceMask(value: string): string {
     // TODO: maybe look for substrings instead of exact matches
     const found = this.maskedInventory.find(
-      (item) => `${item.value}` === `${value}`
+      (item) => `${item.value}` === `${value}`,
     );
     if (found) {
       return this.inventory.find((item) => item.name === found.name)
@@ -45,7 +45,7 @@ export class Inventory {
     this.inventory.forEach((item, idx) => {
       censoredStr = censoredStr.replace(
         new RegExp(`${item.value}`, "g"),
-        `${this.maskedInventory[idx].value}`
+        `${this.maskedInventory[idx].value}`,
       );
     });
     return censoredStr;

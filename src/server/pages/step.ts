@@ -1,5 +1,5 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 import { JsonSchema } from "json-schema-to-zod";
 
 import { BROWSERS } from "../browser/launch";
@@ -97,8 +97,8 @@ stepRouter.openapi(route, async (c) => {
   if (userOpts?.inventory) {
     inventory = new Inventory(
       Object.entries(userOpts.inventory).map(
-        ([name, value]) => ({ name, value } as InventoryValue)
-      )
+        ([name, value]) => ({ name, value }) as InventoryValue,
+      ),
     );
   }
 
@@ -109,8 +109,11 @@ stepRouter.openapi(route, async (c) => {
 
   const step = await page.step(command, responseSchema, opts);
 
-  return c.json({
-    result: step,
-    state: await page.state(command, page.progress),
-  }, 200);
+  return c.json(
+    {
+      result: step,
+      state: await page.state(command, page.progress),
+    },
+    200,
+  );
 });

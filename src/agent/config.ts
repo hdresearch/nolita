@@ -1,6 +1,9 @@
 import { createLLMClient } from "llm-polyglot";
 
-import { ObjectGeneratorOptions, DefaultObjectGeneratorOptions } from "./generators";
+import {
+  ObjectGeneratorOptions,
+  DefaultObjectGeneratorOptions,
+} from "./generators";
 
 export const CompletionDefaultRetries = 3;
 export const CompletionDefaultTimeout = 300_000;
@@ -13,16 +16,19 @@ export type AgentConfig = {
   apiKey: string;
 };
 
-export type ModelConfig = DefaultObjectGeneratorOptions & Omit<ObjectGeneratorOptions, keyof DefaultObjectGeneratorOptions> & { systemPrompt?: string };
+export type ModelConfig = DefaultObjectGeneratorOptions &
+  Omit<ObjectGeneratorOptions, keyof DefaultObjectGeneratorOptions> & {
+    systemPrompt?: string;
+  };
 
 export function completionApiBuilder(
   prodiverOpts: { provider: string; apiKey: string },
   modelConfig: Partial<ModelConfig> = {},
-  customProvider?: { path: string }
+  customProvider?: { path: string },
 ): AgentConfig & ModelConfig {
   const defaultConfig: ModelConfig = {
     objectMode: "TOOLS",
-    model: "gpt-4"
+    model: "gpt-4",
   };
   const finalConfig: ModelConfig = { ...defaultConfig, ...modelConfig };
   const provider = prodiverOpts.provider.toLowerCase();

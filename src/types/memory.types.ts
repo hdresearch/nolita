@@ -1,4 +1,4 @@
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 
 import { ModelResponseSchema } from "./browser/actionStep.types";
 import { ObjectiveState } from "./browser";

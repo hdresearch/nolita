@@ -32,7 +32,7 @@ describe("CommandPrompt", () => {
     const messages = commandPrompt(stateActionPair1.objectiveState);
     expect(messages[0].role).toBe("user");
     expect(messages[0].content).toContain(
-      "Please generate the next ActionStep for"
+      "Please generate the next ActionStep for",
     );
 
     expect(messages.length).toBe(1);
@@ -47,12 +47,12 @@ describe("CommandPrompt", () => {
         inventory: new Inventory([
           { value: "test", name: "test", type: "string" },
         ]),
-      }
+      },
     );
 
     expect(messages[1].role).toBe("user");
     expect(messages[1].content).toContain(
-      "Please generate the next ActionStep for"
+      "Please generate the next ActionStep for",
     );
 
     expect(messages.length).toBe(2);
@@ -67,7 +67,7 @@ describe("CommandPrompt", () => {
 
     expect(messages[1].role).toBe("user");
     expect(messages[1].content).toContain(
-      "Please generate the next ActionStep for"
+      "Please generate the next ActionStep for",
     );
 
     expect(messages.length).toBe(2);
@@ -83,12 +83,12 @@ describe("CommandPrompt", () => {
 
     expect(messages[1].role).toBe("user");
     expect(messages[1].content).toContain(
-      "Here are examples of a previous request"
+      "Here are examples of a previous request",
     );
 
     expect(messages[2].role).toBe("user");
     expect(messages[2].content).toContain(
-      "Please generate the next ActionStep for"
+      "Please generate the next ActionStep for",
     );
 
     expect(messages.length).toBe(3);
@@ -101,7 +101,7 @@ describe("CommandPrompt", () => {
 
     expect(messages[1].role).toBe("user");
     expect(messages[1].content).toContain(
-      "Please generate the next ActionStep for"
+      "Please generate the next ActionStep for",
     );
 
     expect(messages.length).toBe(2);
@@ -117,7 +117,7 @@ describe("getPrompt", () => {
     const messages = getPrompt(stateActionPair1.objectiveState.ariaTree);
     expect(messages[0].role).toBe("user");
     expect(messages[0].content).toContain(
-      "Here is the current aria of the page"
+      "Here is the current aria of the page",
     );
 
     expect(messages.length).toBe(1);
@@ -130,7 +130,7 @@ describe("getPrompt", () => {
 
     expect(messages[0].role).toBe("user");
     expect(messages[0].content).toContain(
-      "Here is the current aria of the page"
+      "Here is the current aria of the page",
     );
 
     expect(messages.length).toBe(1);
@@ -145,7 +145,7 @@ describe("getPrompt", () => {
 
     expect(messages[1].role).toBe("user");
     expect(messages[1].content).toContain(
-      "Here is the current aria of the page"
+      "Here is the current aria of the page",
     );
 
     expect(messages.length).toBe(2);
@@ -161,12 +161,12 @@ describe("getPrompt", () => {
 
     expect(messages[1].role).toBe("user");
     expect(messages[1].content).toContain(
-      "Here are examples of a previous request"
+      "Here are examples of a previous request",
     );
 
     expect(messages[2].role).toBe("user");
     expect(messages[2].content).toContain(
-      "Please generate the next ActionStep for"
+      "Please generate the next ActionStep for",
     );
 
     expect(messages.length).toBe(3);
@@ -179,7 +179,7 @@ describe("getPrompt", () => {
 
     expect(messages[0].role).toBe("user");
     expect(messages[0].content).toContain(
-      "Here is the current aria of the page"
+      "Here is the current aria of the page",
     );
 
     expect(messages.length).toBe(1);

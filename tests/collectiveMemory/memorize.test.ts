@@ -35,7 +35,7 @@ describe("Memorize", () => {
       objectiveStateExample1,
       actionStepExample1,
       generateUUID(),
-      cmConfig
+      cmConfig,
     );
 
     expect(memory).toBe(true);
@@ -49,7 +49,7 @@ describe("Memorize", () => {
       objectiveStateExample1,
       actionStepExample1,
       generateUUID(),
-      cmConfig
+      cmConfig,
     );
 
     expect(memory).toBe(true);

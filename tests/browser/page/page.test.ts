@@ -63,7 +63,7 @@ describe("Page", () => {
     const expectedStringPartial = "iVBOR";
     const screenshotB64 = screenshot.toString("base64");
     expect(screenshotB64.slice(0, expectedStringPartial.length)).toBe(
-      expectedStringPartial
+      expectedStringPartial,
     );
     await browser.close();
   });

@@ -41,7 +41,7 @@ describe("pageApi -- newPage", () => {
       .expect((res) => {
         expect(res.body.pageId).toBeDefined();
         expect(
-          BROWSERS.get(sessionId)?.pages.get(res.body.pageId)
+          BROWSERS.get(sessionId)?.pages.get(res.body.pageId),
         ).toBeDefined();
       });
   });

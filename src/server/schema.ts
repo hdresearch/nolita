@@ -1,4 +1,4 @@
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 
 export const browseSchema = z.object({
   startUrl: z.string().url().openapi({ example: "https://google.com" }),
@@ -17,7 +17,7 @@ export const InventorySchema = z.array(
     type: z
       .union([z.literal("string"), z.literal("number")])
       .openapi({ example: "string" }),
-  })
+  }),
 );
 
 // types to handle arbitrary json output
@@ -26,7 +26,7 @@ type Literal = z.infer<typeof literalSchema>;
 type Json = Literal | { [key: string]: Json } | Json[];
 export const jsonSchema: z.ZodType<Json> = z
   .lazy(() =>
-    z.union([literalSchema, z.array(jsonSchema), z.record(jsonSchema)])
+    z.union([literalSchema, z.array(jsonSchema), z.record(jsonSchema)]),
   )
   .openapi({
     example: {

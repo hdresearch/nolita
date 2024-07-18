@@ -54,7 +54,7 @@ describe("Page interaction -- TYPE", () => {
     await page.goto(dataUrl);
 
     let resultText = await page.page.evaluate(
-      () => document.getElementById("result")!.textContent
+      () => document.getElementById("result")!.textContent,
     );
     expect(resultText).toEqual("");
 
@@ -66,7 +66,7 @@ describe("Page interaction -- TYPE", () => {
 
     // Verify the updated state of the result paragraph after the click
     resultText = await page.page.evaluate(
-      () => document.getElementById("result")!.textContent
+      () => document.getElementById("result")!.textContent,
     );
     expect(resultText).toBe("Button clicked!");
     await browser.close();
@@ -79,7 +79,7 @@ describe("Page interaction -- TYPE", () => {
     await page.goto(dataUrl);
 
     let resultText = await page.page.evaluate(
-      () => document.getElementById("result")!.textContent
+      () => document.getElementById("result")!.textContent,
     );
     expect(resultText).toEqual("");
 
@@ -93,7 +93,7 @@ describe("Page interaction -- TYPE", () => {
 
     // Verify the updated state of the result paragraph after the click
     resultText = await page.page.evaluate(
-      () => document.getElementById("result")!.textContent
+      () => document.getElementById("result")!.textContent,
     );
     expect(resultText).toBe("Button clicked!");
     await browser.close();
@@ -105,7 +105,7 @@ describe("Page interaction -- TYPE", () => {
 
     await page.goto(dataUrl);
     let resultText = await page.page.evaluate(
-      () => document.getElementById("result")!.textContent
+      () => document.getElementById("result")!.textContent,
     );
     expect(resultText).toEqual("");
 
@@ -114,7 +114,7 @@ describe("Page interaction -- TYPE", () => {
     // Verify the updated state of the result paragraph after the command
 
     resultText = await page.page.evaluate(
-      () => document.getElementById("result")!.textContent
+      () => document.getElementById("result")!.textContent,
     );
     expect(resultText).toBe("Button clicked!");
     await browser.close();

@@ -20,7 +20,7 @@ const loadConfigFile = (filePath: string): any => {
 
 const loadConfigs = (config: string | undefined): any => {
   const commandLineConfig = loadConfigFile(
-    path.resolve(process.cwd(), config || "")
+    path.resolve(process.cwd(), config || ""),
   );
   const homeConfig = loadConfigFile(path.resolve(os.homedir(), ".nolitarc"));
   const mergedConfig = { ...homeConfig, ...commandLineConfig };
@@ -114,7 +114,7 @@ const getConfig = (
   headless: boolean | string | undefined,
   hdrDisable: boolean | string | undefined,
   record: boolean | string | undefined,
-  replay: string | undefined
+  replay: string | undefined,
 ): any => ({
   startUrl: startUrl || mergedConfig.startUrl,
   objective: objective || mergedConfig.objective,
@@ -164,7 +164,7 @@ export const run = async (toolbox: GluegunToolbox) => {
     headless,
     hdrDisable,
     record,
-    replay
+    replay,
   );
   // default true
   resolvedConfig.headless =
@@ -183,7 +183,7 @@ export const run = async (toolbox: GluegunToolbox) => {
 
   if (!resolvedConfig.hdrApiKey && !resolvedConfig.hdrDisable) {
     toolbox.print.muted(
-      "No API key for Memory Index provided. Use `npx nolita auth` to authenticate or suppress this message with --hdrDisable."
+      "No API key for Memory Index provided. Use `npx nolita auth` to authenticate or suppress this message with --hdrDisable.",
     );
   }
 
@@ -214,7 +214,7 @@ export const run = async (toolbox: GluegunToolbox) => {
 
   if (!resolvedConfig.agentProvider) {
     return toolbox.print.error(
-      "No model config found. Please use `npx nolita auth` to set one."
+      "No model config found. Please use `npx nolita auth` to set one.",
     );
   }
 
@@ -245,7 +245,7 @@ export const run = async (toolbox: GluegunToolbox) => {
               result: parsedInput?.objectiveComplete?.result,
               record: page.pageId,
             })
-          : parsedInput?.objectiveComplete?.result
+          : parsedInput?.objectiveComplete?.result,
       );
     } else if (parsedInput?.["objectiveFailed"]) {
       spinner.fail(parsedInput?.objectiveFailed?.result);
@@ -262,7 +262,7 @@ export const run = async (toolbox: GluegunToolbox) => {
 
   if (!chatApi) {
     throw new Error(
-      `Failed to create chat api for ${providerOptions.provider}`
+      `Failed to create chat api for ${providerOptions.provider}`,
     );
   }
 

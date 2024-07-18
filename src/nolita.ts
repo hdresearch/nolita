@@ -1,4 +1,4 @@
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 
 import { Agent } from "./agent";
 import { makeAgent } from "./agent";
@@ -40,7 +40,7 @@ export class Nolita {
       temperature?: number;
       systemPrompt?: string;
       endpoint?: string;
-    }
+    },
   ) {
     this.hdrApiKey = hdrApiKey;
     this.hdrEndpoint = opts?.endpoint ?? this.hdrEndpoint;
@@ -51,7 +51,7 @@ export class Nolita {
       },
       { model: opts?.model ?? "gpt-4", ...opts },
       undefined,
-      { systemPrompt: opts?.systemPrompt }
+      { systemPrompt: opts?.systemPrompt },
     );
   }
 
@@ -73,7 +73,7 @@ export class Nolita {
       objective: string;
       returnSchema: z.ZodObject<any>;
     },
-    opts?: { maxTurns?: number; headless?: boolean; inventory: Inventory }
+    opts?: { maxTurns?: number; headless?: boolean; inventory: Inventory },
   ) {
     const browser = await Browser.launch(
       opts?.headless ?? false,
@@ -83,7 +83,7 @@ export class Nolita {
         apiKey: this.hdrApiKey,
         endpoint: this.hdrEndpoint,
         ...opts,
-      }
+      },
     );
 
     const page = await browser.newPage();

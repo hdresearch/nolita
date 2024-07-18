@@ -1,4 +1,4 @@
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 import {
   ModelResponseSchema,
   BrowserActionSchemaArray,
@@ -39,7 +39,7 @@ export class Agent {
         const { agentApiKey, agentProvider, agentModel } = nolitarc();
         const savedAgentArgs = completionApiBuilder(
           { provider: agentProvider, apiKey: agentApiKey },
-          { model: agentModel, objectMode: "TOOLS" }
+          { model: agentModel, objectMode: "TOOLS" },
         );
         this.client = savedAgentArgs.client;
         this.objectGeneratorOptions = {
@@ -65,7 +65,7 @@ export class Agent {
   prompt(
     currentState: ObjectiveState,
     memories: Memory[],
-    config?: { inventory?: Inventory; systemPrompt?: string }
+    config?: { inventory?: Inventory; systemPrompt?: string },
   ): ChatRequestMessage[] {
     const userPrompt = `
     ${config?.inventory ? `Use the following information to achieve your objective as needed: ${config?.inventory.toString()}` : ""}
@@ -91,7 +91,7 @@ export class Agent {
   async generateResponseType<T extends z.ZodObject<any>>(
     currentState: ObjectiveState,
     memories: Memory,
-    responseSchema: T
+    responseSchema: T,
   ): Promise<z.infer<T>> {
     const messages: ChatRequestMessage[] = [
       {
@@ -101,7 +101,7 @@ export class Agent {
         Please generate the objectiveComplete response for the current state: ${JSON.stringify(
           {
             objectiveState: currentState,
-          }
+          },
         )}. You may cannot issue commands. All the information you need is in the the current state.`,
       },
     ];
@@ -122,7 +122,7 @@ export class Agent {
       inventory?: Inventory;
       systemPrompt?: string;
       maxAttempts?: number;
-    }
+    },
   ) {
     const maxAttempts = config?.maxAttempts || 5;
     const modifyActionsPrompt = `
@@ -139,7 +139,7 @@ export class Agent {
     });
 
     const commandSchema = generateSchema(
-      memory.actionStep.command! as SchemaElement[]
+      memory.actionStep.command! as SchemaElement[],
     );
 
     let safeParseResultSuccess = false;
@@ -164,8 +164,8 @@ export class Agent {
         debug.log("Invalid response type. Retrying...");
         response = await response.respond(
           `Invalid response type. Error messages: ${JSON.stringify(
-            safeParseResult
-          )}`
+            safeParseResult,
+          )}`,
         );
         safeParseResult = commandSchema.safeParse(response.command);
         safeParseResultSuccess = safeParseResult.success;
@@ -184,7 +184,7 @@ export class Agent {
       startingDelay: 1000, // Initial delay in milliseconds
       timeMultiple: 2, // Multiplier for the delay
       maxDelay: 10000, // Maximum delay
-    }
+    },
   ) {
     const response = await generateObject(this.client, prompt, {
       schema: schema,
@@ -199,7 +199,7 @@ export class Agent {
   async call<T extends z.ZodSchema<any>>(
     prompt: ChatRequestMessage[],
     responseSchema: T,
-    opts?: { autoSlice?: boolean }
+    opts?: { autoSlice?: boolean },
   ): Promise<T> {
     const response = await generateObject(this.client, prompt, {
       schema: responseSchema,
@@ -232,7 +232,7 @@ export class Agent {
       startingDelay: 1000, // Initial delay in milliseconds
       timeMultiple: 2, // Multiplier for the delay
       maxDelay: 10000, // Maximum delay
-    }
+    },
   ) {
     const chatResponse = await generateObject(this.client, prompt, {
       ...this.objectGeneratorOptions,
@@ -264,7 +264,7 @@ export class Agent {
       startingDelay: 1000, // Initial delay in milliseconds
       timeMultiple: 2, // Multiplier for the delay
       maxDelay: 10000, // Maximum delay
-    }
+    },
   ): Promise<z.infer<T>> {
     const chatResponse = await this.call(prompt, responseSchema, opts);
     return responseSchema.parse(chatResponse);
@@ -295,7 +295,7 @@ export function makeAgent(
   prodiverOpts?: { provider: string; apiKey: string },
   modelConfig?: Partial<ModelConfig>,
   customProvider?: { path: string },
-  opts?: { systemPrompt?: string }
+  opts?: { systemPrompt?: string },
 ) {
   if (!prodiverOpts) {
     const { agentApiKey, agentProvider, agentModel } = nolitarc();
@@ -311,7 +311,7 @@ export function makeAgent(
   const chatApi = completionApiBuilder(
     prodiverOpts,
     modelConfig,
-    customProvider
+    customProvider,
   );
 
   if (!chatApi) {
@@ -328,11 +328,11 @@ export function defaultAgent() {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error(
-      "You must set OPENAI_API_KEY in your environment to use the default agent."
+      "You must set OPENAI_API_KEY in your environment to use the default agent.",
     );
   }
   return makeAgent(
     { provider: "openai", apiKey },
-    { model: "gpt-4", objectMode: "TOOLS" }
+    { model: "gpt-4", objectMode: "TOOLS" },
   );
 }

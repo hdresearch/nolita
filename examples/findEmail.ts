@@ -5,12 +5,12 @@ import { z } from "zod";
 async function main() {
   // If you run npx nolita auth, and save your keys during any `npx nolita` session,
   // you can simply use the following instead:
-  // 
+  //
   // const agent = makeAgent();
-  // 
+  //
   const agent = makeAgent(
     { apiKey: process.env.OPENAI_API_KEY!, provider: "openai" },
-    { model: "gpt-4" }
+    { model: "gpt-4" },
   );
 
   const browser = await Browser.launch(false, agent);
@@ -26,7 +26,7 @@ async function main() {
       emails: z
         .array(z.string())
         .describe("The email addresses found on the page"),
-    })
+    }),
   );
 
   console.log(answer);

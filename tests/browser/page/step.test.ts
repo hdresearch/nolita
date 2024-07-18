@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeAll } from "@jest/globals";
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 
 import { Browser } from "../../../src/browser";
 
@@ -38,7 +38,7 @@ describe("Page", () => {
 
     const result = await page.step(
       "tell me the email addresses on the page",
-      schema
+      schema,
     );
 
     expect(result.objectiveComplete?.emails).toBeDefined();

@@ -1,4 +1,4 @@
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 import { URL } from "url";
 
 import { ObjectiveState } from "../types/browser";
@@ -16,7 +16,7 @@ export type HDRConfig = z.infer<typeof HDRConfig>;
 export async function fetchStateActionPairs(
   state: ObjectiveState,
   requestId: string,
-  opts?: { apiKey?: string; endpoint?: string; limit?: number }
+  opts?: { apiKey?: string; endpoint?: string; limit?: number },
 ): Promise<Memory[]> {
   const endpoint =
     opts?.endpoint ?? process.env.HDR_ENDPOINT ?? "https://api.hdr.is";
@@ -46,7 +46,7 @@ export async function fetchStateActionPairs(
 
   if (!response.ok) {
     throw new Error(
-      `HDR API request failed with status ${response.status} to url ${response.url}`
+      `HDR API request failed with status ${response.status} to url ${response.url}`,
     );
   }
   const data = await response.json();
@@ -59,23 +59,23 @@ export async function fetchStateActionPairs(
     Memory.parse({
       actionStep: m.action,
       objectiveState: m.state,
-    })
+    }),
   ) as Memory[];
 }
 
 export async function remember(
   objectiveState: ObjectiveState,
   requestId: string,
-  opts?: { apiKey?: string; endpoint?: string; limit?: number }
+  opts?: { apiKey?: string; endpoint?: string; limit?: number },
 ): Promise<Memory[]> {
   try {
     const memories = await fetchStateActionPairs(
       objectiveState,
       requestId,
-      opts
+      opts,
     );
     const filteredMemories = memories.filter(
-      (memory) => memory.actionStep.command !== undefined
+      (memory) => memory.actionStep.command !== undefined,
     );
     if (filteredMemories.length === 0) {
       return DEFAULT_STATE_ACTION_PAIRS;
@@ -89,7 +89,7 @@ export async function remember(
 
 export async function fetchMemorySequence(
   sequenceId: string,
-  opts?: { apiKey?: string; endpoint?: string }
+  opts?: { apiKey?: string; endpoint?: string },
 ) {
   const { apiKey, endpoint } = opts
     ? opts
@@ -112,7 +112,7 @@ export async function fetchMemorySequence(
 
   if (!response.ok) {
     throw new Error(
-      `HDR API request failed with status ${response.status} to url ${response.url}`
+      `HDR API request failed with status ${response.status} to url ${response.url}`,
     );
   }
 
@@ -122,13 +122,13 @@ export async function fetchMemorySequence(
     Memory.parse({
       actionStep: m.actionState,
       objectiveState: m.ObjectiveState,
-    })
+    }),
   ) as Memory[];
 }
 
 export async function fetchRoute(
   routeParams: { url: string; objective: string },
-  opts?: { apiKey?: string; endpoint?: string }
+  opts?: { apiKey?: string; endpoint?: string },
 ) {
   const { apiKey, endpoint } = opts!;
 
@@ -149,7 +149,7 @@ export async function fetchRoute(
   if (!response.ok) {
     console.error("Error calling HDR API:", await response.text());
     throw new Error(
-      `HDR API request failed with status ${response.status} to url ${response.url}`
+      `HDR API request failed with status ${response.status} to url ${response.url}`,
     );
   }
 
@@ -160,7 +160,7 @@ export async function fetchRoute(
 
 export async function findRoute(
   routeParams: { url: string; objective: string },
-  opts?: { apiKey?: string; endpoint?: string }
+  opts?: { apiKey?: string; endpoint?: string },
 ): Promise<Memory[] | undefined> {
   const { apiKey, endpoint } = opts
     ? opts

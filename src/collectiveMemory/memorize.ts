@@ -8,7 +8,7 @@ export async function memorize(
   state: ObjectiveState,
   action: ModelResponseType,
   sequenceId: string,
-  collectiveMemoryConfig?: CollectiveMemoryConfig
+  collectiveMemoryConfig?: CollectiveMemoryConfig,
 ) {
   const endpointValue =
     process.env.HDR_ENDPOINT! ??

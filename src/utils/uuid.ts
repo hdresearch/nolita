@@ -8,11 +8,11 @@ export function generateUUID() {
   const uuid = `${bytes.toString("hex", 0, 4)}-${bytes.toString(
     "hex",
     4,
-    6
+    6,
   )}-${bytes.toString("hex", 6, 8)}-${bytes.toString(
     "hex",
     8,
-    10
+    10,
   )}-${bytes.toString("hex", 10, 16)}`;
   return uuid;
 }

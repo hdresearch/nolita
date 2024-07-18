@@ -1,4 +1,4 @@
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 import { Browser, Page } from "./browser";
 import { Logger, generateUUID } from "./utils";
 
@@ -53,7 +53,7 @@ export class AgentBrowser {
     this.config =
       agentBrowserArgs.behaviorConfig ??
       BrowserBehaviorConfig.parse(
-        {} as any // for zod optionals
+        {} as any, // for zod optionals
       );
     this.inventory = agentBrowserArgs.inventory;
 
@@ -72,10 +72,10 @@ export class AgentBrowser {
     // call this so the browser's internal page state is updated
     const state = await page.state(
       memory.objectiveState.objective,
-      this.objectiveProgress
+      this.objectiveProgress,
     );
     const hasText = memory.actionStep.command?.some(
-      (action: any) => action.kind === "Type"
+      (action: any) => action.kind === "Type",
     );
     let description = "";
     // we should relax this condition in the future
@@ -108,18 +108,18 @@ export class AgentBrowser {
   }
 
   async followPath<
-    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
+    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete,
   >(
     memorySequenceId: string,
     page: Page,
     browserObjective: BrowserObjective,
     responseSchema: ReturnType<
       typeof ObjectiveCompleteResponse<TObjectiveComplete>
-    >
+    >,
   ) {
     const memoriesBackwards = await fetchMemorySequence(
       memorySequenceId,
-      this.hdrConfig
+      this.hdrConfig,
     );
 
     this.logger.log("Following memory sequence: " + memorySequenceId);
@@ -139,12 +139,12 @@ export class AgentBrowser {
         if (memory.actionStep.objectiveComplete) {
           const state: ObjectiveState = await page.state(
             memory.objectiveState.objective,
-            this.objectiveProgress
+            this.objectiveProgress,
           );
           const step = await this.agent.generateResponseType(
             state,
             memory,
-            responseSchema
+            responseSchema,
           );
           // todo: this is messy because it is not returning the correct type. Need to fix.
           const stepResponse = responseSchema.parse(step.objectiveComplete);
@@ -188,15 +188,15 @@ export class AgentBrowser {
   }
 
   async step<
-    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
+    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete,
   >(
     page: Page,
     currentObjective: string,
-    responseType: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>
+    responseType: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>,
   ) {
     const state: ObjectiveState = await page.state(
       currentObjective,
-      this.objectiveProgress
+      this.objectiveProgress,
     );
     const memories = await this.remember(state);
     let config = {};
@@ -211,7 +211,7 @@ export class AgentBrowser {
     }
     this.memorize(
       state,
-      ModelResponseSchema(ObjectiveComplete).parse(response)
+      ModelResponseSchema(ObjectiveComplete).parse(response),
     );
     this.objectiveProgress.push(response.description);
 
@@ -219,10 +219,10 @@ export class AgentBrowser {
   }
 
   async browse<
-    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
+    TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete,
   >(
     browserObjective: BrowserObjective,
-    responseType: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>
+    responseType: ReturnType<typeof ModelResponseSchema<TObjectiveComplete>>,
   ) {
     const { startUrl, objective, maxIterations } =
       BrowserObjective.parse(browserObjective);
@@ -235,7 +235,7 @@ export class AgentBrowser {
 
     const memoryRoute = await findRoute(
       { url: startUrl, objective: objective[0] },
-      this.hdrConfig
+      this.hdrConfig,
     );
 
     if (memoryRoute) {
@@ -252,7 +252,7 @@ export class AgentBrowser {
           if (this.iterationCount > maxIterations) {
             return await this.returnErrorState(
               page,
-              "Maximum number of iterations exceeded"
+              "Maximum number of iterations exceeded",
             );
           }
           const step = await this.step(page, currentObjective, responseType);
@@ -264,7 +264,7 @@ export class AgentBrowser {
 
           if (stepResponse.command) {
             debug.write(
-              "Performing action:" + JSON.stringify(stepResponse.command)
+              "Performing action:" + JSON.stringify(stepResponse.command),
             );
             page.performManyActions(stepResponse.command as BrowserAction[], {
               inventory: this.inventory,

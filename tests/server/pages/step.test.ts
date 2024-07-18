@@ -39,7 +39,7 @@ describe("pageApi -- step", () => {
       .expect(200)
       .expect((res) => {
         expect(res.body.state.url).toBe(
-          "https://www.iana.org/help/example-domains"
+          "https://www.iana.org/help/example-domains",
         );
       });
   }, 20000);

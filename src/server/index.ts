@@ -2,7 +2,7 @@
 import { Hono } from "hono"; // this must be left in for setupServer to work
 import { serve } from "@hono/node-server";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { z } from "lib/zod"
+import { z } from "lib/zod";
 import { JsonSchema } from "json-schema-to-zod";
 import { swaggerUI } from "@hono/swagger-ui";
 
@@ -76,7 +76,7 @@ export const setupServer = () => {
       {
         model: agentModel,
         objectMode: "TOOLS",
-      }
+      },
     );
 
     const agent = new Agent({ modelApi: chatApi });
@@ -124,7 +124,7 @@ export const setupServer = () => {
         objective: browse_config.objective,
         maxIterations: browse_config.maxIterations,
       },
-      ModelResponseSchema(responseType)
+      ModelResponseSchema(responseType),
     );
 
     await agentBrowser.close();
@@ -138,7 +138,7 @@ export const setupServer = () => {
         code: 400,
         message: "No response from the agent",
       },
-      400
+      400,
     );
   });
 
