@@ -2,7 +2,7 @@ name: Push alpha artifact to npm
 on:
   push:
     branches:
-      - dev
+      - mp/zod2
 
 jobs:
   test:
@@ -48,7 +48,7 @@ jobs:
           git config --global user.email "matilde.park@hdr.is"
           git_hash=$(git rev-parse --short "$GITHUB_SHA")
           echo "//registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN" > ~/.npmrc
-          pnpm version prerelease --preid alpha.$git_hash --no-git-tag-version
-          pnpm publish --tag alpha --no-git-checks
+          pnpm version prerelease --preid experimental.$git_hash --no-git-tag-version
+          pnpm publish --tag experimental --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
