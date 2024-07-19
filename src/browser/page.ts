@@ -10,7 +10,7 @@ import {
 // @ts-expect-error We are using undocumented puppeteer APIs
 import { MAIN_WORLD } from "puppeteer";
 
-import { z } from "../lib/zod";
+import { z } from "@hono/zod-openapi";
 import Turndown from "turndown";
 
 import {

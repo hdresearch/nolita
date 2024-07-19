@@ -1,4 +1,4 @@
-import { z } from "../../lib/zod";
+import { z } from "@hono/zod-openapi";
 
 export const ObjectiveComplete = z.object({
   kind: z.literal("ObjectiveComplete").describe("Objective is complete"),

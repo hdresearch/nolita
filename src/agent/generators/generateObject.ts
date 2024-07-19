@@ -1,4 +1,4 @@
-import { z } from "../../lib/zod";
+import { z } from "@hono/zod-openapi";
 // import { LlamaModel } from "node-llama-cpp";
 // import { generateObjectLocal } from "./generateObjectLocal";
 

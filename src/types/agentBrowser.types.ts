@@ -1,4 +1,4 @@
-import { z } from "../lib/zod";
+import { z } from "@hono/zod-openapi";
 
 export const BrowserBehaviorConfig = z.object({
   goToDelay: z.number().int().default(1000),

@@ -1,4 +1,4 @@
-import { z } from "../../lib/zod";
+import { z } from "@hono/zod-openapi";
 
 export const CollectiveMemoryConfig = z.object({
   endpoint: z

@@ -1,4 +1,4 @@
-import { z } from "../../lib/zod";
+import { z } from "@hono/zod-openapi";
 
 const Click = z.object({
   kind: z.literal("Click").describe("Click on an element"),

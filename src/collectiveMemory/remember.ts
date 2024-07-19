@@ -1,4 +1,4 @@
-import { z } from "../lib/zod";
+import { z } from "@hono/zod-openapi";
 import { URL } from "url";
 
 import { ObjectiveState } from "../types/browser";

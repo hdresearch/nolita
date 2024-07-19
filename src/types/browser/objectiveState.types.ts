@@ -1,4 +1,4 @@
-import { z } from "../../lib/zod";
+import { z } from "@hono/zod-openapi";
 
 export const StateType = z.enum(["html", "text", "markdown", "image", "aria"]);
 export type StateType = z.infer<typeof StateType>;

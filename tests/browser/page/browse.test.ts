@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeAll } from "@jest/globals";
-import { z } from "../../../src/lib/zod";
+import { z } from "@hono/zod-openapi";
 
 import { Browser } from "../../../src/browser";
 
