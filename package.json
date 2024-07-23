@@ -1,6 +1,6 @@
 {
   "name": "nolita",
-  "version": "2.1.2-lmao3",
+  "version": "2.1.2",
   "description": "",
   "main": "./dist/index.js",
   "files": [
