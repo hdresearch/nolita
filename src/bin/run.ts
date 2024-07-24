@@ -9,6 +9,7 @@ import { Inventory } from "../inventory";
 import { completionApiBuilder } from "../agent/config";
 import { GluegunToolbox } from "gluegun";
 import "dotenv/config";
+import { z } from "zod";
 
 const loadConfigFile = (filePath: string): any => {
   try {
@@ -282,14 +283,11 @@ export const run = async (toolbox: GluegunToolbox) => {
 
   spinner.start("Session starting...");
   if (replay) {
-    await page.followRoute(replay, {
-      schema: ModelResponseSchema(ObjectiveComplete),
-    });
+    await page.followRoute(replay);
   } else {
     await page.goto(resolvedConfig.startUrl);
     await page.browse(resolvedConfig.objective, {
       agent,
-      schema: ModelResponseSchema(ObjectiveComplete),
       maxTurns: resolvedConfig.maxIterations,
     });
   }
