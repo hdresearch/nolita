@@ -66,18 +66,21 @@ export const ModelResponseSchema = <TObjectiveComplete extends z.AnyZodObject>(
 ) =>
   z.object({
     progressAssessment: z.string(),
-    command: commandSchema.optional().describe("List of browser actions"),
-    objectiveComplete: objectiveCompleteExtension
-      ? ObjectiveComplete.merge(objectiveCompleteExtension)
-          .optional()
-          .describe(
-            "Only return description of result if objective is complete"
-          )
-      : ObjectiveComplete.optional().describe(
-          "Only return description of result if objective is complete"
-        ),
     description: z.string(),
-  });
+  }).and(
+    z.union([
+      z.object({
+        command: commandSchema.optional().describe("List of browser actions"),
+        objectiveComplete: z.undefined(),
+      }),
+      z.object({
+        command: z.array(z.any()).max(0).optional(),
+        objectiveComplete: objectiveCompleteExtension
+          ? ObjectiveComplete.merge(objectiveCompleteExtension)
+          : ObjectiveComplete,
+      }),
+    ])
+  );
 
 export type ModelResponseType<
   TObjectiveComplete extends z.AnyZodObject = typeof ObjectiveComplete
