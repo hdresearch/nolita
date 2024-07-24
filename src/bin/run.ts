@@ -4,12 +4,10 @@ import * as fs from "fs";
 import { Browser } from "../browser";
 import { Agent } from "../agent/agent";
 import { Logger } from "../utils";
-import { ModelResponseSchema, ObjectiveComplete } from "../types";
 import { Inventory } from "../inventory";
 import { completionApiBuilder } from "../agent/config";
 import { GluegunToolbox } from "gluegun";
 import "dotenv/config";
-import { z } from "zod";
 
 const loadConfigFile = (filePath: string): any => {
   try {
