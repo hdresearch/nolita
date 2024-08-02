@@ -185,5 +185,5 @@ describe("Agent", () => {
     console.log("Response:", response);
     expect(response.website).toBeDefined();
     expect(response.website.toLowerCase()).toContain("google");
-  }, 10000);
+  });
 });
