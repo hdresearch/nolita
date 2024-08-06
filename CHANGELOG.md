@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.3
+
+- Fixes an issue with dependency resolution leading to crashes on 2.1.2 and 2.1.1, which were unpublished.
+- Fixes an issue where setting the agent model with `npx nolita auth` was setting the wrong value.
+- Fixes an issue where class declarations were not properly being exported.
+
+## 2.1.2
+
+- Re-push.
+
 ## 2.1.1
 
 - Updates our example files.
