@@ -1,17 +1,16 @@
-#! /usr/bin/env node
+#!/usr/bin/env node
 
-import { build } from "gluegun";
-import { run } from "./run";
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import { run as defaultRun } from './run';
+import { run as authRun } from './commands/auth';
+import * as createCommand from './commands/create';
+import * as serveCommand from './commands/serve';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const cli = build()
-  .brand("nolita")
-  .src(__dirname)
-  .plugins("./node_modules", { matching: "hdr-*", hidden: true })
+yargs(hideBin(process.argv))
+  .command('$0', 'Run the default Nolita command', {}, defaultRun)
+  .command('auth', 'Authenticate and configure Nolita', {}, authRun)
+  .command(createCommand)
+  .command(serveCommand)
   .help()
-  .defaultCommand(run)
-  .create()
-  .run()
-  .then(() => {
-    process.exit(0);
-  });
+  .argv;
