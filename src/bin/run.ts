@@ -1,13 +1,14 @@
 import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
+import { input } from "@inquirer/prompts";
+import ora from "ora";
 import { Browser } from "../browser";
 import { Agent } from "../agent/agent";
 import { Logger } from "../utils";
 import { ModelResponseSchema, ObjectiveComplete } from "../types";
 import { Inventory } from "../inventory";
 import { completionApiBuilder } from "../agent/config";
-import { GluegunToolbox } from "gluegun";
 import "dotenv/config";
 
 const loadConfigFile = (filePath: string): any => {
@@ -27,7 +28,6 @@ const loadConfigs = (config: string | undefined): any => {
 
   return mergedConfig;
 };
-
 const isValidBoolean = (value: any): boolean => typeof value === "boolean";
 
 const isValidNumber = (value: any, key: string): void => {
@@ -104,68 +104,31 @@ const validate = (config: any): void => {
 
 const getConfig = (
   mergedConfig: any,
-  startUrl: string | undefined,
-  objective: string | undefined,
-  maxIterations: number | undefined,
-  agentProvider: string | undefined,
-  agentModel: string | undefined,
-  agentApiKey: string | undefined,
-  hdrApiKey: string | undefined,
-  headless: boolean | string | undefined,
-  hdrDisable: boolean | string | undefined,
-  record: boolean | string | undefined,
-  replay: string | undefined
+  argv: any
 ): any => ({
-  startUrl: startUrl || mergedConfig.startUrl,
-  objective: objective || mergedConfig.objective,
-  maxIterations: maxIterations || mergedConfig.maxIterations || 10,
+  startUrl: argv.startUrl || mergedConfig.startUrl,
+  objective: argv.objective || mergedConfig.objective,
+  maxIterations: argv.maxIterations || mergedConfig.maxIterations || 10,
   agentProvider:
-    agentProvider ||
+    argv.agentProvider ||
     mergedConfig.agentProvider ||
     process.env.HDR_AGENT_PROVIDER,
   agentModel:
-    agentModel || mergedConfig.agentModel || process.env.HDR_AGENT_MODEL,
+    argv.agentModel || mergedConfig.agentModel || process.env.HDR_AGENT_MODEL,
   agentApiKey:
-    agentApiKey || mergedConfig.agentApiKey || process.env.HDR_AGENT_API_KEY,
-  hdrApiKey: hdrApiKey || mergedConfig.hdrApiKey || process.env.HDR_API_KEY,
-  headless: headless ?? mergedConfig.headless ?? process.env.HDR_HEADLESS,
-  hdrDisable: hdrDisable ?? mergedConfig.hdrDisable ?? process.env.HDR_DISABLE,
+    argv.agentApiKey || mergedConfig.agentApiKey || process.env.HDR_AGENT_API_KEY,
+  hdrApiKey: argv.hdrApiKey || mergedConfig.hdrApiKey || process.env.HDR_API_KEY,
+  headless: argv.headless ?? mergedConfig.headless ?? process.env.HDR_HEADLESS,
+  hdrDisable: argv.hdrDisable ?? mergedConfig.hdrDisable ?? process.env.HDR_DISABLE,
   inventory: mergedConfig.inventory || [],
-  record: record ?? mergedConfig.record ?? process.env.HDR_RECORD,
-  replay: replay || mergedConfig.replay || process.env.HDR_REPLAY,
+  record: argv.record ?? mergedConfig.record ?? process.env.HDR_RECORD,
+  replay: argv.replay || mergedConfig.replay || process.env.HDR_REPLAY,
 });
 
-export const run = async (toolbox: GluegunToolbox) => {
-  const {
-    startUrl,
-    objective,
-    maxIterations,
-    agentProvider,
-    agentModel,
-    agentApiKey,
-    hdrApiKey,
-    headless,
-    config,
-    hdrDisable,
-    record,
-    replay,
-  } = toolbox.parameters.options;
+export const run = async (argv: any) => {
+  const mergedConfig = loadConfigs(argv.config);
+  const resolvedConfig = getConfig(mergedConfig, argv);
 
-  const mergedConfig = loadConfigs(config);
-  const resolvedConfig = getConfig(
-    mergedConfig,
-    startUrl,
-    objective,
-    maxIterations,
-    agentProvider,
-    agentModel,
-    agentApiKey,
-    hdrApiKey,
-    headless,
-    hdrDisable,
-    record,
-    replay
-  );
   // default true
   resolvedConfig.headless =
     resolvedConfig.headless !== undefined
@@ -182,48 +145,37 @@ export const run = async (toolbox: GluegunToolbox) => {
       : false;
 
   if (!resolvedConfig.hdrApiKey && !resolvedConfig.hdrDisable) {
-    toolbox.print.muted(
+    console.log(
       "No API key for Memory Index provided. Use `npx nolita auth` to authenticate or suppress this message with --hdrDisable."
     );
   }
 
   if (!resolvedConfig.startUrl && !resolvedConfig.replay) {
-    await toolbox.prompt
-      .ask({
-        type: "input",
-        name: "startUrl",
-        message: "No start URL provided. Where should the session start?",
-        initial: "https://",
-      })
-      .then((answers) => {
-        resolvedConfig.startUrl = answers.startUrl;
-      });
+    resolvedConfig.startUrl = await promptForInput(
+      "No start URL provided. Where should the session start?",
+      "https://"
+    );
   }
 
   if (!resolvedConfig.objective && !resolvedConfig.replay) {
-    await toolbox.prompt
-      .ask({
-        type: "input",
-        name: "objective",
-        message: "What is the objective of this session?",
-      })
-      .then((answers) => {
-        resolvedConfig.objective = answers.objective;
-      });
+    resolvedConfig.objective = await promptForInput(
+      "What is the objective of this session?"
+    );
   }
 
   if (!resolvedConfig.agentProvider) {
-    return toolbox.print.error(
+    console.error(
       "No model config found. Please use `npx nolita auth` to set one."
     );
+    process.exit(1);
   }
 
   if (!resolvedConfig.replay) {
     validate(resolvedConfig);
   }
 
-  const spinner = toolbox.print.spin();
-  spinner.stop();
+  const spinner = ora("Session starting...").start();
+
   const logger = new Logger(["info"], (input: any) => {
     const incMsg = JSON.parse(input);
     let parsedInput;
@@ -240,7 +192,7 @@ export const run = async (toolbox: GluegunToolbox) => {
     if (parsedInput?.["objectiveComplete"]) {
       spinner.succeed();
       console.log(
-        record
+        resolvedConfig.record
           ? JSON.stringify({
               result: parsedInput?.objectiveComplete?.result,
               record: page.pageId,
@@ -280,9 +232,8 @@ export const run = async (toolbox: GluegunToolbox) => {
   });
   const page = await browser.newPage();
 
-  spinner.start("Session starting...");
-  if (replay) {
-    await page.followRoute(replay, {
+  if (resolvedConfig.replay) {
+    await page.followRoute(resolvedConfig.replay, {
       schema: ModelResponseSchema(ObjectiveComplete),
     });
   } else {
@@ -294,4 +245,13 @@ export const run = async (toolbox: GluegunToolbox) => {
     });
   }
   await browser.close();
+};
+
+const promptForInput = async (message: string, initial?: string): Promise<string> => {
+  const answer = await input({
+      message,
+      default: initial,
+    },
+  );
+  return answer;
 };
