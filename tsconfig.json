@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
       "target": "ESNext",                    // Set the JavaScript version for emitted JavaScript and include compatible lib types
-      "module": "CommonJS",                  // Use CommonJS module system, as used by Node.js
+      "module": "ESNext",                  // Use CommonJS module system, as used by Node.js
       "declaration": true,
       "declarationDir": "./dist/types",      // Output directory for type definitions         
       "declarationMap": true,
@@ -9,7 +9,7 @@
       "esModuleInterop": true,               // Enables compatibility with Babel-generated ES modules
       "skipLibCheck": true,                  // Skip type checking of default library declaration files
       "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references to the same file
-      "moduleResolution": "node",            // Resolve modules using Node.js's module resolution strategy
+      "moduleResolution": "Node",            // Resolve modules using Node.js's module resolution strategy
       "outDir": "./dist",                    // Redirect output structure to the directory
       "lib": [                               // Specify library files to be included in the compilation
         "dom",                               // Puppeteer requires 'dom' for types related to DOM manipulation
