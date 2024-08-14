@@ -19,7 +19,7 @@
   "bin": {
     "nolita": "./dist/bin/index.js"
   },
-  "types": "./dist/types/index.d.ts",
+  "types": "./dist/index.d.ts",
   "type": "module",
   "keywords": [],
   "author": "HDR",

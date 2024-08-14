@@ -3,7 +3,6 @@
       "target": "ESNext",                    // Set the JavaScript version for emitted JavaScript and include compatible lib types
       "module": "ESNext",                  // Use CommonJS module system, as used by Node.js
       "declaration": true,
-      "declarationDir": "./dist/types",      // Output directory for type definitions         
       "declarationMap": true,
       "strict": true,                        // Enable all strict type-checking options
       "esModuleInterop": true,               // Enables compatibility with Babel-generated ES modules
