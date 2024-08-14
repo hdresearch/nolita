@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { URL } from "url";
 
-import { ObjectiveState } from "../types/browser";
-import { DEFAULT_STATE_ACTION_PAIRS } from "./examples";
-import { Memory } from "../types/memory.types";
-import { debug } from "../utils";
+import { ObjectiveState } from "../types/browser/index.js";
+import { DEFAULT_STATE_ACTION_PAIRS } from "./examples.js";
+import { Memory } from "../types/memory.types.js";
+import { debug } from "../utils/index.js";
 
 export const HDRConfig = z.object({
   apiKey: z.string().optional(),

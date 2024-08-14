@@ -1,17 +1,17 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 
-import { Logger, generateUUID } from "../../utils";
+import { Logger, generateUUID } from "../../utils/index.js";
 
-import { AgentSchema } from "../schemas/agentSchemas";
-import { ErrorSchema } from "../schema";
-import { Browser } from "../../browser";
-import { Agent, completionApiBuilder } from "../../agent";
-import { BrowserMode } from "../../types";
-import { BROWSER_LAUNCH_ARGS } from "../../browser/browserDefaults";
-import { Inventory } from "../../inventory";
-import { InventoryValue } from "../../inventory/inventory";
-import { nolitarc } from "../../utils/config";
+import { AgentSchema } from "../schemas/agentSchemas.js";
+import { ErrorSchema } from "../schema.js";
+import { Browser } from "../../browser/index.js";
+import { Agent, completionApiBuilder } from "../../agent/index.js";
+import { BrowserMode } from "../../types/index.js";
+import { BROWSER_LAUNCH_ARGS } from "../../browser/browserDefaults.js";
+import { Inventory } from "../../inventory/index.js";
+import { InventoryValue } from "../../inventory/inventory.js";
+import { nolitarc } from "../../utils/config.js";
 
 const BrowerSessionSchema = z.object({
   headless: z.boolean().default(true).openapi({ example: true }),

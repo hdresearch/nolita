@@ -19,20 +19,20 @@ import {
   StateType,
   ObjectiveComplete,
   extendModelResponse,
-} from "../types/browser";
-import { Logger, debug, generateUUID } from "../utils";
+} from "../types/browser/index.js";
+import { Logger, debug, generateUUID } from "../utils/index.js";
 import {
   BrowserAction,
   BrowserActionArray,
-} from "../types/browser/actions.types";
-import { Inventory } from "../inventory";
-import { Agent } from "../agent";
+} from "../types/browser/actions.types.js";
+import { Inventory } from "../inventory/index.js";
+import { Agent } from "../agent/index.js";
 
-import { memorize } from "../collectiveMemory";
-import { fetchMemorySequence, remember } from "../collectiveMemory/remember";
-import { ModelResponseType } from "../types";
-import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
-import { Memory } from "../types/memory.types";
+import { memorize } from "../collectiveMemory/index.js";
+import { fetchMemorySequence, remember } from "../collectiveMemory/remember.js";
+import { ModelResponseType } from "../types/index.js";
+import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples.js";
+import { Memory } from "../types/memory.types.js";
 
 /**
  * Represents a web page and provides methods to interact with it.

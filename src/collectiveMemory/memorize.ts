@@ -1,8 +1,8 @@
 import { URL } from "url";
 
-import { ObjectiveState, ModelResponseType } from "../types/browser";
-import { CollectiveMemoryConfig } from "../types/collectiveMemory/index";
-import { debug } from "../utils";
+import { ObjectiveState, ModelResponseType } from "../types/browser/index.js";
+import { CollectiveMemoryConfig } from "../types/collectiveMemory/index.js";
+import { debug } from "../utils/index.js";
 
 export async function memorize(
   state: ObjectiveState,

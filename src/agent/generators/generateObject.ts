@@ -2,9 +2,9 @@ import { z } from "zod";
 // import { LlamaModel } from "node-llama-cpp";
 // import { generateObjectLocal } from "./generateObjectLocal";
 
-import { generateObjectProvider } from "./generateObjectProvider";
-import { ObjectGeneratorOptions } from "./types";
-import { ChatRequestMessage } from "../messages";
+import { generateObjectProvider } from "./generateObjectProvider.js";
+import { ObjectGeneratorOptions } from "./types.js";
+import { ChatRequestMessage } from "../messages.js";
 
 /**
  * Wrapper function to generate an object using either the local model or a provider.

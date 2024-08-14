@@ -1,4 +1,6 @@
-import { debug as mDebug } from "debug";
+
+import pkg from "debug";
+const { debug: mDebug } = pkg;
 import { EventEmitter } from "events";
 
 const error = mDebug("hdr-browser:error");

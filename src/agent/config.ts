@@ -1,6 +1,6 @@
 import { createLLMClient } from "llm-polyglot";
 
-import { ObjectGeneratorOptions, DefaultObjectGeneratorOptions } from "./generators";
+import { ObjectGeneratorOptions, DefaultObjectGeneratorOptions } from "./generators/index.js";
 
 export const CompletionDefaultRetries = 3;
 export const CompletionDefaultTimeout = 300_000;

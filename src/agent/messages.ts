@@ -1,6 +1,6 @@
-import { Inventory } from "../inventory";
-import { ObjectiveState, StateType } from "../types/browser";
-import { Memory } from "../types/memory.types";
+import { Inventory } from "../inventory/index.js";
+import { ObjectiveState, StateType } from "../types/browser/index.js";
+import { Memory } from "../types/memory.types.js";
 
 /**
  * Stringify an array of objects

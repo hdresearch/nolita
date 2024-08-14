@@ -1,4 +1,4 @@
-import { ObjectiveState } from "../types/browser";
+import { ObjectiveState } from "../types/browser/index.js";
 
 export function parseAriaTree(array: any[]): any[] {
   function findLeafArrays(arr: any[]): any[] {

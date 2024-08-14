@@ -8,8 +8,8 @@ import {
 } from "node-llama-cpp";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
-import { ObjectGeneratorOptions } from "./types";
-import { ChatRequestMessage } from "../messages";
+import { ObjectGeneratorOptions } from "./types.js";
+import { ChatRequestMessage } from "../messages.js";
 
 /**
  * Generate an object using the local model.

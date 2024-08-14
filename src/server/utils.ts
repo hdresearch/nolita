@@ -1,9 +1,9 @@
 import { jsonSchemaToZod } from "json-schema-to-zod";
 
-import { ErrorSchema } from "./schema";
+import { ErrorSchema } from "./schema.js";
 
-import { BROWSERS } from "./browser/launch";
-import { Browser } from "../browser";
+import { BROWSERS } from "./browser/launch.js";
+import { Browser } from "../browser/index.js";
 
 export async function jsonToZod(jsonObject: any): Promise<any> {
   const _module = jsonSchemaToZod(jsonObject, { module: "cjs" });

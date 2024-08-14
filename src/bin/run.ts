@@ -3,12 +3,12 @@ import * as os from "os";
 import * as fs from "fs";
 import { input } from "@inquirer/prompts";
 import ora from "ora";
-import { Browser } from "../browser";
-import { Agent } from "../agent/agent";
-import { Logger } from "../utils";
-import { ModelResponseSchema, ObjectiveComplete } from "../types";
-import { Inventory } from "../inventory";
-import { completionApiBuilder } from "../agent/config";
+import { Browser } from "../browser/index.js";
+import { Agent } from "../agent/agent.js";
+import { Logger } from "../utils/index.js";
+import { ModelResponseSchema, ObjectiveComplete } from "../types/index.js";
+import { Inventory } from "../inventory/index.js";
+import { completionApiBuilder } from "../agent/config.js";
 import "dotenv/config";
 
 const loadConfigFile = (filePath: string): any => {

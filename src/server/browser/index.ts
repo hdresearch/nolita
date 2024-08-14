@@ -1,7 +1,7 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 
-import { launchRouter } from "./launch";
-import { closeRouter } from "./close";
+import { launchRouter } from "./launch.js";
+import { closeRouter } from "./close.js";
 
 export const browserRouter = new OpenAPIHono();
 

@@ -1,12 +1,12 @@
 import { Browser as PuppeteerBrowser, Device } from "puppeteer";
 
-import { Page } from "./page";
-import { BrowserMode } from "../types/browser";
-import { browserContext } from "./browserUtils";
-import { Agent } from "../agent";
-import { Logger } from "../utils";
-import { Inventory } from "../inventory";
-import { nolitarc } from "../utils/config";
+import { Page } from "./page.js";
+import { BrowserMode } from "../types/browser/index.js";
+import { browserContext } from "./browserUtils.js";
+import { Agent } from "../agent/index.js";
+import { Logger } from "../utils/index.js";
+import { Inventory } from "../inventory/index.js";
+import { nolitarc } from "../utils/config.js";
 
 /**
  * Represents a browser session using Puppeteer.

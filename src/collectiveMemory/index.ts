@@ -1,8 +1,8 @@
-import { memorize } from "./memorize";
+import { memorize } from "./memorize.js";
 import {
   remember,
   fetchMemorySequence,
   fetchStateActionPairs,
-} from "./remember";
+} from "./remember.js";
 
 export { memorize, remember, fetchMemorySequence, fetchStateActionPairs };

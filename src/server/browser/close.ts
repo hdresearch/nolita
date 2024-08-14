@@ -1,7 +1,7 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 
-import { BROWSERS } from "./launch";
+import { BROWSERS } from "./launch.js";
 
 const route = createRoute({
   method: "get",

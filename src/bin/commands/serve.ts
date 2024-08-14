@@ -1,4 +1,4 @@
-import { setupServer } from '../../server';
+import { setupServer } from '../../server/index.js';
 import { serve } from '@hono/node-server';
 
 export const command = 'serve';
@@ -13,10 +13,10 @@ export const desc = 'Start the server';
 // };
 
 export const handler = async (argv: any) => {
-  const { port } = argv;
+  const { port = 3000 } = argv;
   console.log('Starting the server...');
   const app = setupServer();
-  serve({
+  const server = serve({
     fetch: app.fetch,
     port: port,
   });
@@ -27,7 +27,7 @@ export const handler = async (argv: any) => {
   return new Promise<void>((resolve) => {
     const shutdown = () => {
       console.error(' Shutting down server...');
-      // Perform any necessary cleanup here
+      server.close();
       resolve();
     };
 

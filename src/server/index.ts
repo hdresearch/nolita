@@ -4,10 +4,10 @@ import { serve } from "@hono/node-server";
 import { OpenAPIHono } from "@hono/zod-openapi";
 
 import { swaggerUI } from "@hono/swagger-ui";
-import { pageRouter } from "./pages";
-import { browserRouter } from "./browser";
+import { pageRouter } from "./pages/index.js";
+import { browserRouter } from "./browser/index.js";
 
-import { browseRouter } from "./browse";
+import { browseRouter } from "./browse.js";
 
 export const setupServer = () => {
   const app = new OpenAPIHono();
@@ -28,7 +28,7 @@ export const setupServer = () => {
   return app;
 };
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`)  {
   const port = 3000;
   const app = setupServer();
   serve({

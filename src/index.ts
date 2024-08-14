@@ -1,11 +1,11 @@
-import { Agent } from "./agent/agent";
-import { Browser, Page } from "./browser";
-import { AgentBrowser } from "./agentBrowser";
-import { Logger } from "./utils";
-import { Inventory } from "./inventory";
-import { completionApiBuilder, makeAgent } from "./agent";
-import { setupServer } from "./server";
-import { Nolita } from "./nolita";
+import { Agent } from "./agent/agent.js";
+import { Browser, Page } from "./browser/index.js";
+import { AgentBrowser } from "./agentBrowser.js";
+import { Logger } from "./utils/index.js";
+import { Inventory } from "./inventory/index.js";
+import { completionApiBuilder, makeAgent } from "./agent/index.js";
+import { setupServer } from "./server/index.js";
+import { Nolita } from "./nolita.js";
 
 import {
   ModelResponseSchema,
@@ -16,7 +16,7 @@ import {
   BrowserArgs,
   BrowserMode,
   BrowserActionSchemaArray,
-} from "./types";
+} from "./types/index.js";
 
 export {
   Nolita,

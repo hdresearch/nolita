@@ -1,3 +1,3 @@
-import { Inventory, InventoryValue } from "./inventory";
+import { Inventory, InventoryValue } from "./inventory.js";
 
 export { Inventory, InventoryValue };

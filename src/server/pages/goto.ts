@@ -1,8 +1,8 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 
-import { BROWSERS } from "../browser/launch";
-import { PageParamsSchema } from "../schemas";
+import { BROWSERS } from "../browser/launch.js";
+import { PageParamsSchema } from "../schemas/index.js";
 
 const goToRequestSchema = z.object({
   url: z.string().url().openapi({ example: "https://example.com" }),

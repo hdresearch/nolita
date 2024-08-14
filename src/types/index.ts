@@ -6,9 +6,9 @@ import {
   BrowserArgs,
   BrowserMode,
   BrowserActionSchemaArray,
-} from "./browser/index";
+} from "./browser/index.js";
 
-import { CollectiveMemoryConfig } from "./collectiveMemory/index";
+import { CollectiveMemoryConfig } from "./collectiveMemory/index.js";
 
 export {
   ModelResponseSchema,

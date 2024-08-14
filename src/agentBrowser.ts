@@ -1,29 +1,29 @@
 import { z } from "zod";
-import { Browser, Page } from "./browser";
-import { Logger, generateUUID } from "./utils";
+import { Browser, Page } from "./browser/index.js";
+import { Logger, generateUUID } from "./utils/index.js";
 
-import { Agent } from "./agent/agent";
+import { Agent } from "./agent/agent.js";
 import {
   fetchMemorySequence,
   findRoute,
   remember,
-} from "./collectiveMemory/remember";
+} from "./collectiveMemory/remember.js";
 
-import { debug } from "./utils";
-import { Inventory } from "./inventory";
-import { memorize } from "./collectiveMemory/memorize";
+import { debug } from "./utils/index.js";
+import { Inventory } from "./inventory/index.js";
+import { memorize } from "./collectiveMemory/memorize.js";
 
-import { BrowserBehaviorConfig } from "./types/agentBrowser.types";
-import { CollectiveMemoryConfig } from "./types";
+import { BrowserBehaviorConfig } from "./types/agentBrowser.types.js";
+import { CollectiveMemoryConfig } from "./types/index.js";
 import { Memory } from "./types/memory.types";
 import {
   ModelResponseSchema,
   ModelResponseType,
   ObjectiveComplete,
   ObjectiveCompleteResponse,
-} from "./types/browser/actionStep.types";
-import { BrowserAction } from "./types/browser/actions.types";
-import { BrowserObjective, ObjectiveState } from "./types/browser";
+} from "./types/browser/actionStep.types.js";
+import { BrowserAction } from "./types/browser/actions.types.js";
+import { BrowserObjective, ObjectiveState } from "./types/browser/index.js";
 
 export class AgentBrowser {
   agent: Agent;

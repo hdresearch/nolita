@@ -1,10 +1,10 @@
 import { z } from "zod";
 
-import { Agent } from "./agent";
-import { makeAgent } from "./agent";
-import { Browser } from "./browser";
-import { Logger } from "./utils";
-import { Inventory } from "./inventory";
+import { Agent } from "./agent/index.js";
+import { makeAgent } from "./agent/index.js";
+import { Browser } from "./browser/index.js";
+import { Logger } from "./utils/index.js";
+import { Inventory } from "./inventory/index.js";
 
 /**
  * High level wrapper for the Nolita API.

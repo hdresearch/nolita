@@ -2,11 +2,11 @@ import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 import { JsonSchema } from "json-schema-to-zod";
 
-import { BROWSERS } from "../browser/launch";
-import { PageParamsSchema } from "../schemas";
-import { jsonToZod } from "../utils";
-import { Inventory, InventoryValue } from "../../inventory";
-import { ObjectiveState } from "../../types/browser";
+import { BROWSERS } from "../browser/launch.js";
+import { PageParamsSchema } from "../schemas/index.js";
+import { jsonToZod } from "../utils.js";
+import { Inventory, InventoryValue } from "../../inventory/index.js";
+import { ObjectiveState } from "../../types/browser/index.js";
 
 const route = createRoute({
   method: "post",

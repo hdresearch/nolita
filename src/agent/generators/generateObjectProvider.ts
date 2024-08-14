@@ -1,8 +1,8 @@
 import { z } from "zod";
 import Instructor from "@instructor-ai/instructor";
 
-import { ChatRequestMessage } from "../messages";
-import { ObjectGeneratorOptions } from "./types";
+import { ChatRequestMessage } from "../messages.js";
+import { ObjectGeneratorOptions } from "./types.js";
 
 /**
  *

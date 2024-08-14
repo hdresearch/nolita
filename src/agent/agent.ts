@@ -3,17 +3,17 @@ import {
   ModelResponseSchema,
   BrowserActionSchemaArray,
   ObjectiveCompleteResponse,
-} from "../types/browser/actionStep.types";
-import { Memory } from "../types/memory.types";
-import { ObjectiveState } from "../types/browser/objectiveState.types";
-import { Inventory } from "../inventory";
-import { generateSchema, SchemaElement } from "./schemaGenerators";
-import { debug } from "../utils";
-import { completionApiBuilder } from "./config";
-import { nolitarc } from "../utils/config";
-import { handleConfigMessages, ChatRequestMessage } from "./messages";
-import { ModelConfig, AgentConfig } from "./config";
-import { generateObject } from "./generators";
+} from "../types/browser/actionStep.types.js";
+import { Memory } from "../types/memory.types.js";
+import { ObjectiveState } from "../types/browser/objectiveState.types.js";
+import { Inventory } from "../inventory/index.js";
+import { generateSchema, SchemaElement } from "./schemaGenerators.js";
+import { debug } from "../utils/index.js";
+import { completionApiBuilder } from "./config.js";
+import { nolitarc } from "../utils/config.js";
+import { handleConfigMessages, ChatRequestMessage } from "./messages.js";
+import { ModelConfig, AgentConfig } from "./config.js";
+import { generateObject } from "./generators/index.js";
 
 export function stringifyObjects<T>(obj: T[]): string {
   const strings = obj.map((o) => JSON.stringify(o));

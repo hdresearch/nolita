@@ -2,17 +2,17 @@ import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 import { JsonSchema } from "json-schema-to-zod";
 
-import { AgentBrowser } from "../agentBrowser";
-import { Logger } from "../utils";
-import { Browser } from "../browser";
-import { Agent } from "../agent/agent";
-import { Inventory } from "../inventory";
-import { ModelResponseSchema, ObjectiveComplete } from "../types";
+import { AgentBrowser } from "../agentBrowser.js";
+import { Logger } from "../utils/index.js";
+import { Browser } from "../browser/index.js";
+import { Agent } from "../agent/agent.js";
+import { Inventory } from "../inventory/index.js";
+import { ModelResponseSchema, ObjectiveComplete } from "../types/index.js";
 
-import { jsonToZod } from "./utils";
-import { ErrorSchema, apiSchema } from "./schema";
-import { nolitarc } from "../utils/config";
-import { completionApiBuilder } from "../agent";
+import { jsonToZod } from "./utils.js";
+import { ErrorSchema, apiSchema } from "./schema.js";
+import { nolitarc } from "../utils/config.js";
+import { completionApiBuilder } from "../agent/index.js";
 
 export const browseRouter = new OpenAPIHono();
 

@@ -4,7 +4,7 @@ import puppeteer from "puppeteer-extra";
 import fs from "fs";
 
 import { Browser as PuppeteerBrowser } from "puppeteer";
-import { BROWSER_LAUNCH_ARGS } from "./browserDefaults";
+import { BROWSER_LAUNCH_ARGS } from "./browserDefaults.js";
 
 puppeteer.use(StealthPlugin());
 

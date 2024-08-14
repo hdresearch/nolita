@@ -1,3 +1,3 @@
-import { CollectiveMemoryConfig } from "./config.types";
+import { CollectiveMemoryConfig } from "./config.types.js";
 
 export { CollectiveMemoryConfig };

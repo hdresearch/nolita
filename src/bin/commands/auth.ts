@@ -2,8 +2,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { input, confirm, select } from '@inquirer/prompts';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { open } = require('out-url');
+import { open } from "out-url";
 
 const loadConfigFile = (filePath: string): any => {
   try {

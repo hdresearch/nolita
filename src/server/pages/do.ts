@@ -1,12 +1,12 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 
-import { BROWSERS } from "../browser/launch";
-import { PageParamsSchema } from "../schemas";
-import { ObjectiveState } from "../../types/browser";
-import { objectiveStateExample1 } from "../../collectiveMemory/examples";
-import { Inventory } from "../../inventory";
-import { InventoryValue } from "../../inventory/inventory";
+import { BROWSERS } from "../browser/launch.js";
+import { PageParamsSchema } from "../schemas/index.js";
+import { ObjectiveState } from "../../types/browser/index.js";
+import { objectiveStateExample1 } from "../../collectiveMemory/examples.js";
+import { Inventory } from "../../inventory/index.js";
+import { InventoryValue } from "../../inventory/inventory.js";
 
 const doRequestSchema = z.object({
   command: z.string().openapi({ example: "Click on the login button" }),

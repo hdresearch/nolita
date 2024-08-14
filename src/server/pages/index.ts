@@ -1,16 +1,16 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 
-import { doRouter } from "./do";
-import { getRouter } from "./get";
-import { newPageRouter } from "./newPage";
-import { ListRouter } from "./list";
-import { closeRouter } from "./close";
-import { infoRouter } from "./info";
-import { screenshotRouter } from "./screenshot";
-import { contentRouter } from "./content";
-import { stepRouter } from "./step";
-import { browseRouter } from "./browse";
-import { gotoRouter } from "./goto";
+import { doRouter } from "./do.js";
+import { getRouter } from "./get.js";
+import { newPageRouter } from "./newPage.js";
+import { ListRouter } from "./list.js";
+import { closeRouter } from "./close.js";
+import { infoRouter } from "./info.js";
+import { screenshotRouter } from "./screenshot.js";
+import { contentRouter } from "./content.js";
+import { stepRouter } from "./step.js";
+import { browseRouter } from "./browse.js";
+import { gotoRouter } from "./goto.js";
 
 export const pageRouter = new OpenAPIHono();
 

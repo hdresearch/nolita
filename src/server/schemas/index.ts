@@ -1,6 +1,6 @@
-import { AgentSchema } from "./agentSchemas";
-import { ErrorSchema } from "../schema";
-import { PageParamsSchema } from "./pageSchemas";
-import { InventorySchema } from "../schema";
+import { AgentSchema } from "./agentSchemas.js";
+import { ErrorSchema } from "../schema.js";
+import { PageParamsSchema } from "./pageSchemas.js";
+import { InventorySchema } from "../schema.js";
 
 export { AgentSchema, ErrorSchema, PageParamsSchema, InventorySchema };

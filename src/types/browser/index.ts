@@ -5,16 +5,16 @@ import {
   ObjectiveComplete,
   ObjectiveFailed,
   extendModelResponse,
-} from "./actionStep.types";
+} from "./actionStep.types.js";
 
-import { BrowserAction } from "./actions.types";
+import { BrowserAction } from "./actions.types.js";
 import {
   AccessibilityTree,
   BrowserArgs,
   BrowserMode,
   BrowserObjective,
-} from "./browser.types";
-import { ObjectiveState, StateType } from "./objectiveState.types";
+} from "./browser.types.js";
+import { ObjectiveState, StateType } from "./objectiveState.types.js";
 
 export {
   AccessibilityTree,

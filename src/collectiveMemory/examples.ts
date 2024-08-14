@@ -1,7 +1,7 @@
 import {
   ObjectiveState,
   ModelResponseType as ModelResponse,
-} from "../types/browser";
+} from "../types/browser/index.js";
 
 export const objectiveStateExample1: ObjectiveState = {
   kind: "ObjectiveState",

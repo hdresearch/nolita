@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-import { ModelResponseSchema } from "./browser/actionStep.types";
-import { ObjectiveState } from "./browser";
-import { BrowserActionArray } from "./browser/actions.types";
+import { ModelResponseSchema } from "./browser/actionStep.types.js";
+import { ObjectiveState } from "./browser/index.js";
+import { BrowserActionArray } from "./browser/actions.types.js";
 
 export const Memory = z.object({
   actionStep: ModelResponseSchema(undefined, BrowserActionArray),
