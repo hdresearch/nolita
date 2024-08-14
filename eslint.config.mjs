@@ -5,7 +5,7 @@ import pluginImport from "eslint-plugin-import";
 
 export default [
   {
-    files: ["**/*.{js,mjs,cjs,ts}"],
+    files: ["src/**/*.{js,mjs,cjs,ts}"],
     plugins: {
       import: pluginImport,
     },
@@ -22,6 +22,7 @@ export default [
       ],
     },
   },
+  {files: ["**/*.{js,mjs,cjs,ts}"]},
   { languageOptions: { globals: globals.browser, parserOptions: { sourceType: "module" } } },
   { ignores: ["node_modules/**", "dist/**", "docs/**"] },
   pluginJs.configs.recommended,
