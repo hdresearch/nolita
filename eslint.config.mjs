@@ -1,20 +1,35 @@
 import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
-
+import pluginImport from "eslint-plugin-import";
 
 export default [
-  {files: ["**/*.{js,mjs,cjs,ts}"],},
-  {languageOptions: { globals: globals.browser }},
-  {ignores: ["node_modules/**", "dist/**", "docs/**", ]},
+  {
+    files: ["**/*.{js,mjs,cjs,ts}"],
+    plugins: {
+      import: pluginImport,
+    },
+    rules: {
+      "import/extensions": [
+        "error",
+        "ignorePackages",
+        {
+          js: "always",
+          mjs: "always",
+          cjs: "always",
+          ts: "never",
+        }
+      ],
+    },
+  },
+  { languageOptions: { globals: globals.browser, parserOptions: { sourceType: "module" } } },
+  { ignores: ["node_modules/**", "dist/**", "docs/**"] },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
-
-    // Adding rule configuration to disable no-explicit-any
-    {
-      files: ["**/*.ts"], // Targeting TypeScript files specifically
-      rules: {
-        "@typescript-eslint/no-explicit-any": "off"
-      }
-    }
+  {
+    files: ["**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
 ];
