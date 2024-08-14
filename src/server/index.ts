@@ -1,24 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Hono } from "hono"; // this must be left in for setupServer to work
 import { serve } from "@hono/node-server";
-import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { z } from "zod";
-import { JsonSchema } from "json-schema-to-zod";
+import { OpenAPIHono } from "@hono/zod-openapi";
+
 import { swaggerUI } from "@hono/swagger-ui";
-
-import { AgentBrowser } from "../agentBrowser";
-import { Logger } from "../utils";
-import { Browser } from "../browser";
-import { Agent } from "../agent/agent";
-import { Inventory } from "../inventory";
-import { ModelResponseSchema, ObjectiveComplete } from "../types";
-
-import { jsonToZod } from "./utils";
-import { ErrorSchema, apiSchema } from "./schema";
-import { completionApiBuilder } from "../agent";
 import { pageRouter } from "./pages";
 import { browserRouter } from "./browser";
-import { nolitarc } from "../utils/config";
+
 import { browseRouter } from "./browse";
 
 export const setupServer = () => {
