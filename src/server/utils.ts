@@ -5,9 +5,9 @@ import { ErrorSchema } from "./schema.js";
 import { BROWSERS } from "./browser/launch.js";
 import { Browser } from "../browser/index.js";
 
-export async function jsonToZod(jsonObject: any): Promise<any> {
-  const _module = jsonSchemaToZod(jsonObject, { module: "cjs" });
 
+export async function jsonToZod(jsonObject: any): Promise<any> {
+  const _module = jsonSchemaToZod(jsonObject, { module: "esm" });
   // this is very dangerous and we need to be careful
   const a = eval(_module);
 
