@@ -29,5 +29,5 @@ export type ObjectGeneratorOptions = {
 };
 
 export type DefaultObjectGeneratorOptions = {
-  objectMode: 'TOOLS';
+  objectMode: "TOOLS";
 };

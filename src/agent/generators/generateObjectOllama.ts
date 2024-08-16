@@ -3,30 +3,21 @@ import { generateObject } from "ai";
 
 import { ObjectGeneratorOptions } from "./types";
 import { ChatRequestMessage } from "../messages";
+import { ollama } from "ollama-ai-provider";
 
 export async function generateObjectOllama<T extends z.ZodSchema<any>>(
-  model: any,
+  model: string,
   messages: ChatRequestMessage[],
   options: ObjectGeneratorOptions & {
     schema: T;
     name: string;
   }
 ) {
-  const reformattedMessages = messages.map((m: ChatRequestMessage) => {
-    if (typeof m.content === "string" && m.role !== "tool") {
-      return { role: m.role, content: m.content };
-    }
-  });
-
-  if (!reformattedMessages.length) {
-    throw new Error("No messages found");
-  }
-
   try {
     return await generateObject({
       mode: "json",
-      model,
-      messages: reformattedMessages as any,
+      model: ollama(model),
+      messages: messages,
       schema: options.schema,
     });
   } catch (e: any) {

@@ -11,6 +11,16 @@ export const CompletionDefaultTimeout = 300_000;
 export const MinimumResponseTokens = 200;
 export const MaximumResponseTokens = 8_000;
 
+export type ThridPartyProviders = "openai" | "anthropic";
+export type LocalProviders = "ollama";
+export type Providers = ThridPartyProviders | LocalProviders;
+
+export type ProviderConfig = {
+  provider: Providers;
+  apiKey: string;
+  model: string;
+};
+
 export type AgentConfig = {
   client: any;
   provider: string;
@@ -55,6 +65,7 @@ export function completionApiBuilder(
     if (!modelConfig.model) {
       throw new Error("Model is required for Ollama provider");
     }
+    client = ollama(modelConfig.model);
   } else {
     throw new Error(`Unknown provider: ${provider}`);
   }

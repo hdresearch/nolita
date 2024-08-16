@@ -1,10 +1,13 @@
 import { z } from "zod";
-// import { LlamaModel } from "node-llama-cpp";
-// import { generateObjectLocal } from "./generateObjectLocal";
+
+import { createAnthropic } from "@ai-sdk/anthropic";
 
 import { generateObjectProvider } from "./generateObjectProvider";
+import { generateObjectOllama } from "./generateObjectOllama";
 import { ObjectGeneratorOptions } from "./types";
 import { ChatRequestMessage } from "../messages";
+import { ProviderConfig } from "../config";
+import { generateObjectOpenAI } from "./generateObjectOpenAi";
 
 /**
  * Wrapper function to generate an object using either the local model or a provider.
@@ -22,18 +25,23 @@ import { ChatRequestMessage } from "../messages";
  * @returns The generated object
  */
 export async function generateObject<T extends z.ZodSchema<any>>(
-  client: any,
+  config: ProviderConfig,
   messages: ChatRequestMessage[],
   options: ObjectGeneratorOptions & {
     schema: T;
     name: string;
   }
 ) {
-  switch (client) {
-    // case client instanceof LlamaModel:
-    //   return generateObjectLocal(client, messages, options);
-    //   throw new Error("Local modle generation not implemented");
+  switch (config.provider) {
+    case "ollama": // Ollama has its own function to generate objects because of error handling reasons
+      return generateObjectOllama(config.model, messages, options);
+    case "openai":
+      return await generateObjectOpenAI(config, messages, options);
+    case "anthropic": {
+      const provider = createAnthropic({ apiKey: config.apiKey });
+      return generateObjectProvider(config, provider, messages, options);
+    }
     default:
-      return generateObjectProvider(client, messages, options);
+      throw new Error(`Unknown provider: ${config.provider}`);
   }
 }

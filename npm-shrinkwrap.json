@@ -9,6 +9,8 @@
       "version": "2.1.2",
       "license": "MIT",
       "dependencies": {
+        "@ai-sdk/anthropic": "^0.0.43",
+        "@ai-sdk/openai": "^0.0.48",
         "@hono/node-server": ">=1.10.1",
         "@hono/swagger-ui": "^0.2.1",
         "@hono/zod-openapi": "^0.9.8",
@@ -29,7 +31,7 @@
         "lodash": "^4.17.21",
         "node-llama-cpp": "^2.8.12",
         "ollama-ai-provider": "^0.12.0",
-        "openai": "^4.51.0",
+        "openai": "^4.56.0",
         "out-url": "^1.2.2",
         "puppeteer": "^22.0.0",
         "puppeteer-extra": "^3.3.6",
@@ -64,6 +66,36 @@
         "typedoc-plugin-zod": "^1.1.2",
         "typescript-eslint": "^7.16.0",
         "yargs": "^17.7.2"
+      }
+    },
+    "node_modules/@ai-sdk/anthropic": {
+      "version": "0.0.43",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/anthropic/-/anthropic-0.0.43.tgz",
+      "integrity": "sha512-X9GBINVeaynnpSETD6rBgkmkR5VynceyVe8FxDCM+5jQF9fNNPCpaXX/syE9G8HH941HGFdEcFuGuLR6MvNdeA==",
+      "dependencies": {
+        "@ai-sdk/provider": "0.0.20",
+        "@ai-sdk/provider-utils": "1.0.13"
+      },
+      "engines": {
+        "node": ">=18"
+      },
+      "peerDependencies": {
+        "zod": "^3.0.0"
+      }
+    },
+    "node_modules/@ai-sdk/openai": {
+      "version": "0.0.48",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/openai/-/openai-0.0.48.tgz",
+      "integrity": "sha512-buw9cT/55VGjvtcNvQGDljHQMan8C3/D1UvkcpY8XPfnimffrjAQa66fXldahhFQM20didNJawh0vlTM1MvRDw==",
+      "dependencies": {
+        "@ai-sdk/provider": "0.0.20",
+        "@ai-sdk/provider-utils": "1.0.13"
+      },
+      "engines": {
+        "node": ">=18"
+      },
+      "peerDependencies": {
+        "zod": "^3.0.0"
       }
     },
     "node_modules/@ai-sdk/provider": {
@@ -7944,9 +7976,9 @@
       }
     },
     "node_modules/openai": {
-      "version": "4.53.0",
-      "resolved": "https://registry.npmjs.org/openai/-/openai-4.53.0.tgz",
-      "integrity": "sha512-XoMaJsSLuedW5eoMEMmZbdNoXgML3ujcU5KfwRnC6rnbmZkHE2Q4J/SArwhqCxQRqJwHnQUj1LpiROmKPExZJA==",
+      "version": "4.56.0",
+      "resolved": "https://registry.npmjs.org/openai/-/openai-4.56.0.tgz",
+      "integrity": "sha512-zcag97+3bG890MNNa0DQD9dGmmTWL8unJdNkulZzWRXrl+QeD+YkBI4H58rJcwErxqGK6a0jVPZ4ReJjhDGcmw==",
       "dependencies": {
         "@types/node": "^18.11.18",
         "@types/node-fetch": "^2.6.4",
@@ -7954,11 +7986,18 @@
         "agentkeepalive": "^4.2.1",
         "form-data-encoder": "1.7.2",
         "formdata-node": "^4.3.2",
-        "node-fetch": "^2.6.7",
-        "web-streams-polyfill": "^3.2.1"
+        "node-fetch": "^2.6.7"
       },
       "bin": {
         "openai": "bin/cli"
+      },
+      "peerDependencies": {
+        "zod": "^3.23.8"
+      },
+      "peerDependenciesMeta": {
+        "zod": {
+          "optional": true
+        }
       }
     },
     "node_modules/openai/node_modules/@types/node": {
@@ -10186,6 +10225,7 @@
       "version": "3.3.3",
       "resolved": "https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-3.3.3.tgz",
       "integrity": "sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==",
+      "peer": true,
       "engines": {
         "node": ">= 8"
       }

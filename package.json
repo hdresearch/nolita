@@ -24,6 +24,8 @@
   "author": "HDR",
   "license": "MIT",
   "dependencies": {
+    "@ai-sdk/anthropic": "^0.0.43",
+    "@ai-sdk/openai": "^0.0.48",
     "@hono/node-server": ">=1.10.1",
     "@hono/swagger-ui": "^0.2.1",
     "@hono/zod-openapi": "^0.9.8",
@@ -44,7 +46,7 @@
     "lodash": "^4.17.21",
     "node-llama-cpp": "^2.8.12",
     "ollama-ai-provider": "^0.12.0",
-    "openai": "^4.51.0",
+    "openai": "^4.56.0",
     "out-url": "^1.2.2",
     "puppeteer": "^22.0.0",
     "puppeteer-extra": "^3.3.6",
