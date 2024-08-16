@@ -1,6 +1,10 @@
 import { createLLMClient } from "llm-polyglot";
+import { ollama } from "ollama-ai-provider";
 
-import { ObjectGeneratorOptions, DefaultObjectGeneratorOptions } from "./generators";
+import {
+  ObjectGeneratorOptions,
+  DefaultObjectGeneratorOptions,
+} from "./generators";
 
 export const CompletionDefaultRetries = 3;
 export const CompletionDefaultTimeout = 300_000;
@@ -13,7 +17,10 @@ export type AgentConfig = {
   apiKey: string;
 };
 
-export type ModelConfig = DefaultObjectGeneratorOptions & Omit<ObjectGeneratorOptions, keyof DefaultObjectGeneratorOptions> & { systemPrompt?: string };
+export type ModelConfig = DefaultObjectGeneratorOptions &
+  Omit<ObjectGeneratorOptions, keyof DefaultObjectGeneratorOptions> & {
+    systemPrompt?: string;
+  };
 
 export function completionApiBuilder(
   prodiverOpts: { provider: string; apiKey: string },
@@ -22,7 +29,7 @@ export function completionApiBuilder(
 ): AgentConfig & ModelConfig {
   const defaultConfig: ModelConfig = {
     objectMode: "TOOLS",
-    model: "gpt-4"
+    model: "gpt-4",
   };
   const finalConfig: ModelConfig = { ...defaultConfig, ...modelConfig };
   const provider = prodiverOpts.provider.toLowerCase();
@@ -31,9 +38,6 @@ export function completionApiBuilder(
   const maxTokens = finalConfig.maxTokens;
   const temperature = finalConfig.temperature || 0;
   const maxRetries = finalConfig.maxRetries || CompletionDefaultRetries;
-  if (customProvider) {
-    throw new Error("Custom provider not implemented");
-  }
 
   let client: any;
 
@@ -47,6 +51,10 @@ export function completionApiBuilder(
       provider,
       apiKey: prodiverOpts.apiKey,
     });
+  } else if (provider === "ollama") {
+    if (!modelConfig.model) {
+      throw new Error("Model is required for Ollama provider");
+    }
   } else {
     throw new Error(`Unknown provider: ${provider}`);
   }
