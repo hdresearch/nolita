@@ -22,10 +22,21 @@ export async function generateObjectOllama<T extends z.ZodSchema<any>>(
     throw new Error("No messages found");
   }
 
-  return await generateObject({
-    mode: "json",
-    model,
-    messages: reformattedMessages as any,
-    schema: options.schema,
-  });
+  try {
+    return await generateObject({
+      mode: "json",
+      model,
+      messages: reformattedMessages as any,
+      schema: options.schema,
+    });
+  } catch (e: any) {
+    console.log(e.message.trim());
+    if (e.message.trim() === "fetch failed") {
+      console.log("caught error");
+      throw new Error(
+        "Fetch failed while generating object. Is your ollama server running?"
+      );
+    }
+    throw new Error("Error generating object");
+  }
 }
