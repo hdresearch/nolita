@@ -1,13 +1,13 @@
 import { z } from "zod";
 
-import { createAnthropic } from "@ai-sdk/anthropic";
-
-import { generateObjectProvider } from "./generateObjectProvider";
-import { generateObjectOllama } from "./generateObjectOllama";
 import { ObjectGeneratorOptions } from "./types";
 import { ChatRequestMessage } from "../messages";
 import { ProviderConfig } from "../config";
-import { generateObjectOpenAI } from "./generateObjectOpenAi";
+
+import { generateObjectOllama } from "./generateObjectOllama";
+import { generateObjectInstructor } from "./generateObjectInstructor";
+
+// import { generateObjectOpenAI } from "./generateObjectOpenAi";
 
 /**
  * Wrapper function to generate an object using either the local model or a provider.
@@ -24,7 +24,7 @@ import { generateObjectOpenAI } from "./generateObjectOpenAi";
  * @param options.topP The topP for the model (default: 1)
  * @returns The generated object
  */
-export async function generateObject<T extends z.ZodSchema<any>>(
+export async function generateObject<T extends z.ZodObject<any>>(
   config: ProviderConfig,
   messages: ChatRequestMessage[],
   options: ObjectGeneratorOptions & {
@@ -36,10 +36,9 @@ export async function generateObject<T extends z.ZodSchema<any>>(
     case "ollama": // Ollama has its own function to generate objects because of error handling reasons
       return generateObjectOllama(config.model, messages, options);
     case "openai":
-      return await generateObjectOpenAI(config, messages, options);
+      return await generateObjectInstructor(config, messages, options);
     case "anthropic": {
-      const provider = createAnthropic({ apiKey: config.apiKey });
-      return generateObjectProvider(config, provider, messages, options);
+      return generateObjectInstructor(config, messages, options);
     }
     default:
       throw new Error(`Unknown provider: ${config.provider}`);

@@ -23,11 +23,10 @@ describe("generateObjectProvider", () => {
         objectMode: "TOOLS",
       }
     );
-    console.log(res);
     expect(res!.command[0].kind).toBe("Type");
   }, 30000);
 
-  it.skip("Should generate an object with claude", async () => {
+  it("Should generate an object with claude", async () => {
     const client = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
     const messages = commandPrompt(objectiveStateExample1);
 

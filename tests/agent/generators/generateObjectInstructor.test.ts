@@ -1,13 +1,19 @@
 import { describe, expect, it } from "@jest/globals";
-import { generateObjectOllama } from "../../../src/agent/generators/generateObjectOllama";
 import { objectiveStateExample1 } from "../../../src/collectiveMemory/examples";
 import { ModelResponseSchema } from "../../../src/types/browser/actionStep.types";
 import { commandPrompt } from "../../../src/agent";
+import { generateObjectInstructor } from "../../../src/agent/generators/generateObjectInstructor";
+import { ProviderConfig } from "../../../src/agent/config";
 
 describe("generateObjectLocal", () => {
   it.skip("Should generate an object with ollama", async () => {
     const messages = commandPrompt(objectiveStateExample1);
-    const res = await generateObjectOllama("openhermes:v2.5", messages, {
+    const providerConfig: ProviderConfig = {
+      provider: "openai",
+      model: "gpt-4-turbo",
+      apiKey: process.env.OPENAI_API_KEY!,
+    };
+    const res = await generateObjectInstructor(providerConfig, messages, {
       schema: ModelResponseSchema(),
       name: "ModelResponseSchema",
       model: "openhermes:v2.5",
