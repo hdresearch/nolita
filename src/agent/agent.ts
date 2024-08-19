@@ -296,9 +296,7 @@ export class Agent {
 
 export function makeAgent(
   prodiverOpts?: { provider: string; apiKey: string },
-  modelConfig?: Partial<ModelConfig>,
-  customProvider?: { path: string },
-  opts?: { systemPrompt?: string }
+  modelConfig?: Partial<ModelConfig>
 ) {
   if (!prodiverOpts) {
     const { agentApiKey, agentProvider, agentModel } = nolitarc();
@@ -319,10 +317,7 @@ export function makeAgent(
     apiKey: prodiverOpts.apiKey,
     model: modelConfig.model,
   };
-  return new Agent({
-    providerConfig,
-    systemPrompt: opts?.systemPrompt,
-  });
+  return providerConfig;
 }
 
 export function defaultAgent() {
