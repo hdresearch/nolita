@@ -3,7 +3,7 @@ import { Browser, Page } from "./browser";
 import { AgentBrowser } from "./agentBrowser";
 import { Logger } from "./utils";
 import { Inventory } from "./inventory";
-import { completionApiBuilder, makeAgent } from "./agent";
+import { makeAgent } from "./agent";
 import { setupServer } from "./server";
 import { Nolita } from "./nolita";
 
@@ -26,7 +26,6 @@ export {
   AgentBrowser,
   Logger,
   Inventory,
-  completionApiBuilder,
   setupServer,
   makeAgent,
   ModelResponseSchema,
