@@ -6,6 +6,11 @@ import { ObjectGeneratorOptions } from "./types";
 import { ChatRequestMessage } from "../messages";
 import { ChatCompletionMessageParam } from "openai/resources";
 
+/**
+ * Convert CoreMessages to OpenAI messages
+ * @param message
+ * @returns
+ */
 export function convertCoreMessageToOpenAI(message: ChatRequestMessage):
   | {
       role: string;
@@ -18,6 +23,16 @@ export function convertCoreMessageToOpenAI(message: ChatRequestMessage):
   }
 }
 
+/**
+ * Generate an object from openAi using structured outputs
+ * @param config the provider configuration
+ * @param messages the messages to use
+ * @param options   the options for the object generator
+ * @param options.schema The schema for the object
+ * @param options.name The name of the object (used in the tool call)
+ * @param options.description The description of the object
+ * @returns The generated object
+ */
 export async function generateObjectOpenAI<T extends z.ZodSchema<any>>(
   config: ProviderConfig,
   messages: ChatRequestMessage[],

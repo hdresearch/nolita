@@ -8,7 +8,7 @@ import { ObjectGeneratorOptions } from "./types";
 
 /**
  *
- * @param client The LLM client
+ * @param config The provider configuration
  * @param messages The message array to send to the model
  * @param options The options for the object generator
  * @param options.schema The return schema for the object

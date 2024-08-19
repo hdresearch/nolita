@@ -11,7 +11,7 @@ import { generateObjectInstructor } from "./generateObjectInstructor";
 
 /**
  * Wrapper function to generate an object using either the local model or a provider.
- * @param client The client to use
+ * @param config The provider configuration
  * @param messages The messages to use
  * @param options The options for the object generator
  * @param options.schema The schema for the object
