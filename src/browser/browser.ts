@@ -3,7 +3,7 @@ import { Browser as PuppeteerBrowser, Device } from "puppeteer";
 import { Page } from "./page";
 import { BrowserMode } from "../types/browser";
 import { browserContext } from "./browserUtils";
-import { Agent } from "../agent";
+import { ProviderConfig } from "../agent";
 import { Logger } from "../utils";
 import { Inventory } from "../inventory";
 import { nolitarc } from "../utils/config";
@@ -28,7 +28,7 @@ export class Browser {
 
   browser: PuppeteerBrowser;
   mode: BrowserMode;
-  agent: Agent;
+  agent: ProviderConfig;
   logger?: Logger;
   private userDataDir = "/tmp"; // TODO: make this configurable
 
@@ -47,7 +47,7 @@ export class Browser {
    */
   constructor(
     browser: PuppeteerBrowser,
-    agent: Agent,
+    agent: ProviderConfig,
     logger?: Logger,
     opts?: {
       mode?: BrowserMode;
@@ -88,7 +88,7 @@ export class Browser {
    */
   static async launch(
     headless: boolean,
-    agent: Agent,
+    agent: ProviderConfig,
     logger?: Logger,
     opts?: {
       browserWSEndpoint?: string;
@@ -123,7 +123,7 @@ export class Browser {
    */
   async newPage(opts?: {
     pageId?: string;
-    agent?: Agent;
+    agent?: ProviderConfig;
     device?: Device;
     inventory?: Inventory;
     disableMemory?: boolean;
