@@ -6,7 +6,7 @@ import { Logger, generateUUID } from "../../utils";
 import { AgentSchema } from "../schemas/agentSchemas";
 import { ErrorSchema } from "../schema";
 import { Browser } from "../../browser";
-import { Agent, completionApiBuilder } from "../../agent";
+import { Agent } from "../../agent";
 import { BrowserMode } from "../../types";
 import { BROWSER_LAUNCH_ARGS } from "../../browser/browserDefaults";
 import { Inventory } from "../../inventory";
@@ -115,13 +115,11 @@ launchRouter.openapi(route, async (c) => {
     );
   }
 
-  const chatApi = completionApiBuilder(
-    {
-      provider,
-      apiKey: agentArgs?.apiKey ?? agentApiKey,
-    },
-    { model: agentArgs?.model ?? agentModel, objectMode: "TOOLS" }
-  );
+  const providerConfig = {
+    provider,
+    apiKey,
+    model,
+  };
 
   const inventory = inventoryArgs
     ? new Inventory(
@@ -132,7 +130,7 @@ launchRouter.openapi(route, async (c) => {
     : undefined;
   const logger = new Logger(["info"]);
 
-  const modelAgent = new Agent({ modelApi: chatApi });
+  const modelAgent = new Agent({ providerConfig });
   const browser = await Browser.launch(headless, modelAgent, logger, {
     inventory,
     mode,

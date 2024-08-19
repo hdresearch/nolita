@@ -20,7 +20,7 @@ import { ObjectGeneratorOptions } from "./types";
  * @param options.temperature The temperature for the model (default: 0)
  * @returns
  */
-export async function generateObjectInstructor<T extends z.ZodObject<any>>(
+export async function generateObjectInstructor<T extends z.ZodSchema<any>>(
   config: ProviderConfig,
   messages: ChatRequestMessage[],
   options: ObjectGeneratorOptions & {
@@ -36,24 +36,23 @@ export async function generateObjectInstructor<T extends z.ZodObject<any>>(
   const instructor = Instructor<typeof client>({
     client,
     mode: options.objectMode,
-    // log to void
-    logger: undefined,
+    logger: options.logger,
   });
 
   const maxRetries = options.maxRetries || 3;
   const maxTokens = options.maxTokens || 1000;
   const temperature = options.temperature || 0;
 
-  // Convert ZodSchema<any> to AnyZodObject to pass to the instructor
-  //   const anyZodObject: z.AnyZodObject = z.object({
-  //     value: options.schema,
-  //   });
+  // Instructor expects a zod object, not just a schema
+  const zodObject = z.object({
+    value: options.schema,
+  });
 
   const res = await instructor.chat.completions.create({
     messages,
     model: options.model,
     response_model: {
-      schema: options.schema,
+      schema: zodObject,
       name: options.name,
     },
     max_tokens: maxTokens,
@@ -61,5 +60,5 @@ export async function generateObjectInstructor<T extends z.ZodObject<any>>(
     max_retries: maxRetries,
   });
 
-  return options.schema.parse(res).value;
+  return options.schema.parse(res.value);
 }

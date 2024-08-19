@@ -1,23 +1,14 @@
 import { describe, it, expect, beforeAll } from "@jest/globals";
 import { Browser } from "../../../src/browser/browser";
 import { KnownDevices } from "puppeteer";
-import { Agent, completionApiBuilder } from "../../../src/agent";
+import { Agent } from "../../../src/agent";
+import { DEFAULT_PROVIDER_CONFIG } from "../../fixtures";
 
 describe("Browser", () => {
   let agent: Agent;
 
   beforeAll(async () => {
-    const providerOptions = {
-      apiKey: process.env.OPENAI_API_KEY!,
-      provider: "openai",
-    };
-
-    const chatApi = completionApiBuilder(providerOptions, {
-      model: "gpt-4-turbo",
-      objectMode: "TOOLS",
-    });
-
-    agent = new Agent({ modelApi: chatApi! });
+    agent = new Agent({ providerConfig: DEFAULT_PROVIDER_CONFIG });
   });
 
   it("should create a browser", async () => {

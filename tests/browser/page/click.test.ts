@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 import { Browser } from "../../../src/browser";
-import { Agent, completionApiBuilder } from "../../../src/agent";
-
+import { Agent } from "../../../src/agent";
+import { DEFAULT_PROVIDER_CONFIG } from "../../fixtures";
 jest.retryTimes(3);
 
 describe("Page interaction -- TYPE", () => {
@@ -34,17 +34,7 @@ describe("Page interaction -- TYPE", () => {
   let agent: Agent;
 
   beforeEach(async () => {
-    const providerOptions = {
-      apiKey: process.env.OPENAI_API_KEY!,
-      provider: "openai",
-    };
-
-    const chatApi = completionApiBuilder(providerOptions, {
-      model: "gpt-4-turbo",
-      objectMode: "TOOLS",
-    });
-
-    agent = new Agent({ modelApi: chatApi! });
+    agent = new Agent({ providerConfig: DEFAULT_PROVIDER_CONFIG });
   }, 20000);
 
   it("should click a button", async () => {

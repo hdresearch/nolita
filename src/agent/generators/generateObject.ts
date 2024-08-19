@@ -24,23 +24,27 @@ import { generateObjectInstructor } from "./generateObjectInstructor";
  * @param options.topP The topP for the model (default: 1)
  * @returns The generated object
  */
-export async function generateObject<T extends z.ZodObject<any>>(
+export async function generateObject<T extends z.ZodSchema<any>>(
   config: ProviderConfig,
   messages: ChatRequestMessage[],
   options: ObjectGeneratorOptions & {
     schema: T;
     name: string;
+    description?: string;
   }
 ) {
+  let response: any;
   switch (config.provider) {
     case "ollama": // Ollama has its own function to generate objects because of error handling reasons
-      return generateObjectOllama(config.model, messages, options);
+      response = await generateObjectOllama(config.model, messages, options);
+      break;
     case "openai":
-      return await generateObjectInstructor(config, messages, options);
-    case "anthropic": {
-      return generateObjectInstructor(config, messages, options);
-    }
+    case "anthropic":
+      response = await generateObjectInstructor(config, messages, options);
+      break;
     default:
       throw new Error(`Unknown provider: ${config.provider}`);
   }
+
+  return options.schema.parse(response);
 }
