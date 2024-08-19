@@ -1,5 +1,4 @@
 import { describe, expect, it } from "@jest/globals";
-import "openai/shims/web";
 import { generateObjectOllama } from "../../../src/agent/generators/generateObjectOllama";
 import { objectiveStateExample1 } from "../../../src/collectiveMemory/examples";
 import { ModelResponseSchema } from "../../../src/types/browser/actionStep.types";
