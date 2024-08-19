@@ -1,21 +1,14 @@
-import { describe, expect, it, beforeAll } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 
 import { Browser } from "../../../src/browser";
 import { ObjectiveState } from "../../../src/types/browser";
-import { Agent } from "../../../src/agent";
 import { DEFAULT_PROVIDER_CONFIG } from "../../fixtures";
 
 // jest.retryTimes(1);
 
 describe("Page", () => {
-  let agent: Agent;
-
-  beforeAll(async () => {
-    agent = new Agent({ providerConfig: DEFAULT_PROVIDER_CONFIG });
-  }, 5000);
-
   it("should return the state of the page", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     const page = await browser.newPage();
     await page.goto("http://example.com");
     const state = await page.state("Describe the page content", []);
@@ -26,7 +19,7 @@ describe("Page", () => {
   });
 
   it("should make a prompt", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");
@@ -38,7 +31,7 @@ describe("Page", () => {
   }, 10000);
 
   it("should take a screenshot", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     const page = await browser.newPage();
     const htmlContent = `
       <!DOCTYPE html>
@@ -60,7 +53,7 @@ describe("Page", () => {
   });
 
   it("should return html content", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");
@@ -72,7 +65,7 @@ describe("Page", () => {
   });
 
   it("should return markdown content", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");
@@ -84,7 +77,7 @@ describe("Page", () => {
   });
 
   it("should inject bounding boxes correctly", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     const page = await browser.newPage();
 
     await page.goto("http://example.com");

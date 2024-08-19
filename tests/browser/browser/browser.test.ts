@@ -1,25 +1,18 @@
-import { describe, it, expect, beforeAll } from "@jest/globals";
+import { describe, it, expect } from "@jest/globals";
 import { Browser } from "../../../src/browser/browser";
 import { KnownDevices } from "puppeteer";
-import { Agent } from "../../../src/agent";
 import { DEFAULT_PROVIDER_CONFIG } from "../../fixtures";
 
 describe("Browser", () => {
-  let agent: Agent;
-
-  beforeAll(async () => {
-    agent = new Agent({ providerConfig: DEFAULT_PROVIDER_CONFIG });
-  });
-
   it("should create a browser", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     expect(browser).toBeDefined();
 
     await browser.close();
   });
 
   it("should create a new page", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     const page = await browser.newPage();
     expect(page).toBeDefined();
 
@@ -27,7 +20,7 @@ describe("Browser", () => {
   });
 
   it("should create a new page with device", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     const device = KnownDevices["iPhone 6"];
     const page = await browser.newPage({ device });
     expect(page).toBeDefined();
@@ -37,7 +30,7 @@ describe("Browser", () => {
   });
 
   it("should list pages", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     const page = await browser.newPage();
     const pages = [...(await browser.pages.values())];
     expect(pages).toContain(page);

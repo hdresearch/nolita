@@ -2,7 +2,6 @@ import { z } from "zod";
 import { Browser, Page } from "./browser";
 import { Logger, generateUUID } from "./utils";
 
-import { Agent } from "./agent/agent";
 import {
   fetchMemorySequence,
   findRoute,
@@ -24,9 +23,10 @@ import {
 } from "./types/browser/actionStep.types";
 import { BrowserAction } from "./types/browser/actions.types";
 import { BrowserObjective, ObjectiveState } from "./types/browser";
+import { ProviderConfig } from "./agent";
 
 export class AgentBrowser {
-  agent: Agent;
+  agent: ProviderConfig;
   browser: Browser;
   logger: Logger;
   config: BrowserBehaviorConfig;
@@ -40,7 +40,7 @@ export class AgentBrowser {
   private memorySequenceId: string = generateUUID();
 
   constructor(agentBrowserArgs: {
-    agent: Agent;
+    agent: ProviderConfig;
     browser: Browser;
     logger?: Logger;
     inventory?: Inventory;

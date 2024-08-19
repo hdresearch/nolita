@@ -1,7 +1,6 @@
-import { describe, it, expect, beforeAll, jest } from "@jest/globals";
+import { describe, it, expect, jest } from "@jest/globals";
 
 import { Browser } from "../../../src/browser/index";
-import { Agent } from "../../../src/agent";
 import { DEFAULT_PROVIDER_CONFIG } from "../../fixtures";
 
 jest.retryTimes(3);
@@ -17,14 +16,8 @@ describe("Page interaction -- Type", () => {
     `;
   const dataUrl = `data:text/html,${encodeURIComponent(htmlContent)}`;
 
-  let agent: Agent;
-
-  beforeAll(async () => {
-    agent = new Agent({ providerConfig: DEFAULT_PROVIDER_CONFIG });
-  }, 20000);
-
   it("should enter text", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     const page = await browser.newPage();
 
     await page.goto(dataUrl);
@@ -49,7 +42,7 @@ describe("Page interaction -- Type", () => {
   }, 30000);
 
   it("it should enter text as array", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     const page = await browser.newPage();
     await page.goto(dataUrl);
 
@@ -75,7 +68,7 @@ describe("Page interaction -- Type", () => {
   }, 30000);
 
   it("should enter text via do", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     const page = await browser.newPage();
 
     await page.goto(dataUrl);
@@ -83,7 +76,7 @@ describe("Page interaction -- Type", () => {
     await page.do(
       "type `High Dimensional Research` into the text box. Please make sure to capitalize the type in the command array",
       {
-        agent,
+        agent: DEFAULT_PROVIDER_CONFIG,
       }
     );
     const value = await page.page.evaluate(() =>

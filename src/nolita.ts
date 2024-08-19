@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { Agent } from "./agent";
+import { ProviderConfig } from "./agent";
 import { makeAgent } from "./agent";
 import { Browser } from "./browser";
 import { Logger } from "./utils";
@@ -18,7 +18,7 @@ export class Nolita {
   hdrApiKey: string;
   hdrEndpoint: string = "https://api.hdr.is";
 
-  agent: Agent;
+  agent: ProviderConfig;
 
   /**
    * Initializes a new instance of the Nolita class.
@@ -49,9 +49,7 @@ export class Nolita {
         provider: opts?.provider ?? "openai",
         apiKey: providerApiKey ?? process.env.OPENAI_API_KEY,
       },
-      { model: opts?.model ?? "gpt-4", ...opts },
-      undefined,
-      { systemPrompt: opts?.systemPrompt }
+      { model: opts?.model ?? "gpt-4", ...opts }
     );
   }
 

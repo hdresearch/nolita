@@ -6,7 +6,6 @@ import { Logger, generateUUID } from "../../utils";
 import { AgentSchema } from "../schemas/agentSchemas";
 import { ErrorSchema } from "../schema";
 import { Browser } from "../../browser";
-import { Agent } from "../../agent";
 import { BrowserMode } from "../../types";
 import { BROWSER_LAUNCH_ARGS } from "../../browser/browserDefaults";
 import { Inventory } from "../../inventory";
@@ -130,8 +129,7 @@ launchRouter.openapi(route, async (c) => {
     : undefined;
   const logger = new Logger(["info"]);
 
-  const modelAgent = new Agent({ providerConfig });
-  const browser = await Browser.launch(headless, modelAgent, logger, {
+  const browser = await Browser.launch(headless, providerConfig, logger, {
     inventory,
     mode,
     browserWSEndpoint: wsEndpoint,

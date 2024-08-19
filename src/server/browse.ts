@@ -5,7 +5,6 @@ import { JsonSchema } from "json-schema-to-zod";
 import { AgentBrowser } from "../agentBrowser";
 import { Logger } from "../utils";
 import { Browser } from "../browser";
-import { Agent } from "../agent/agent";
 import { Inventory } from "../inventory";
 import { ModelResponseSchema, ObjectiveComplete } from "../types";
 
@@ -67,8 +66,7 @@ browseRouter.openapi(route, async (c) => {
     model: agentModel,
   };
 
-  const agent = new Agent({ providerConfig: providerConfig });
-  const browser = await Browser.launch(headless, agent);
+  const browser = await Browser.launch(headless, providerConfig);
 
   // set inventory if it exists
   let agentInventory: Inventory | undefined;
@@ -97,7 +95,7 @@ browseRouter.openapi(route, async (c) => {
   }
 
   const args = {
-    agent: agent,
+    agent: providerConfig,
     browser: browser,
     logger: logger,
     inventory: agentInventory,
