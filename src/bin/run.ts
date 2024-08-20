@@ -2,7 +2,6 @@ import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
 import { Browser } from "../browser";
-import { Agent } from "../agent/agent";
 import { Logger } from "../utils";
 import { ModelResponseSchema, ObjectiveComplete } from "../types";
 import { Inventory } from "../inventory";
@@ -257,18 +256,19 @@ export const run = async (toolbox: GluegunToolbox) => {
     model: resolvedConfig.agentModel,
   };
 
-  const agent = new Agent({
-    providerConfig: providerOptions,
-  });
-
-  const browser = await Browser.launch(resolvedConfig.headless, agent, logger, {
-    disableMemory: resolvedConfig.hdrDisable,
-    inventory:
-      resolvedConfig.inventory.length > 0
-        ? new Inventory(resolvedConfig.inventory)
-        : undefined,
-    apiKey: resolvedConfig.hdrApiKey || undefined,
-  });
+  const browser = await Browser.launch(
+    resolvedConfig.headless,
+    providerOptions,
+    logger,
+    {
+      disableMemory: resolvedConfig.hdrDisable,
+      inventory:
+        resolvedConfig.inventory.length > 0
+          ? new Inventory(resolvedConfig.inventory)
+          : undefined,
+      apiKey: resolvedConfig.hdrApiKey || undefined,
+    }
+  );
   const page = await browser.newPage();
 
   spinner.start("Session starting...");
@@ -279,7 +279,7 @@ export const run = async (toolbox: GluegunToolbox) => {
   } else {
     await page.goto(resolvedConfig.startUrl);
     await page.browse(resolvedConfig.objective, {
-      agent,
+      agent: providerOptions,
       schema: ModelResponseSchema(ObjectiveComplete),
       maxTurns: resolvedConfig.maxIterations,
     });

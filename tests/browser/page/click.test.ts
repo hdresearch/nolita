@@ -1,6 +1,5 @@
-import { describe, it, expect, beforeEach, jest } from "@jest/globals";
+import { describe, it, expect, jest } from "@jest/globals";
 import { Browser } from "../../../src/browser";
-import { Agent } from "../../../src/agent";
 import { DEFAULT_PROVIDER_CONFIG } from "../../fixtures";
 jest.retryTimes(3);
 
@@ -31,14 +30,8 @@ describe("Page interaction -- TYPE", () => {
     `;
   const dataUrl = `data:text/html,${encodeURIComponent(htmlContent)}`;
 
-  let agent: Agent;
-
-  beforeEach(async () => {
-    agent = new Agent({ providerConfig: DEFAULT_PROVIDER_CONFIG });
-  }, 20000);
-
   it("should click a button", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     const page = await browser.newPage();
 
     await page.goto(dataUrl);
@@ -63,7 +56,7 @@ describe("Page interaction -- TYPE", () => {
   }, 20000);
 
   it("should click a button as an array", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     const page = await browser.newPage();
 
     await page.goto(dataUrl);
@@ -90,7 +83,7 @@ describe("Page interaction -- TYPE", () => {
   }, 20000);
 
   it("should click a button via do", async () => {
-    const browser = await Browser.launch(true, agent);
+    const browser = await Browser.launch(true, DEFAULT_PROVIDER_CONFIG);
     const page = await browser.newPage();
 
     await page.goto(dataUrl);
@@ -99,7 +92,7 @@ describe("Page interaction -- TYPE", () => {
     );
     expect(resultText).toEqual("");
 
-    await page.do("click on the button", { agent });
+    await page.do("click on the button", { agent: DEFAULT_PROVIDER_CONFIG });
 
     // Verify the updated state of the result paragraph after the command
 

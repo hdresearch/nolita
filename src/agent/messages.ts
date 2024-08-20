@@ -109,7 +109,6 @@ export function commandPrompt(
             ${JSON.stringify(memory)}
         
             remember to return a result only in the form of an ActionStep.
-
             `,
       });
     }

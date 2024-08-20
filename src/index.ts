@@ -1,4 +1,3 @@
-import { Agent } from "./agent/agent";
 import { Browser, Page } from "./browser";
 import { AgentBrowser } from "./agentBrowser";
 import { Logger } from "./utils";
@@ -20,7 +19,6 @@ import {
 
 export {
   Nolita,
-  Agent,
   Browser,
   Page,
   AgentBrowser,

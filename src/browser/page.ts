@@ -26,7 +26,7 @@ import {
   BrowserActionArray,
 } from "../types/browser/actions.types";
 import { Inventory } from "../inventory";
-import { Agent } from "../agent";
+import { generateObject, ProviderConfig, commandPrompt } from "../agent";
 
 import { memorize } from "../collectiveMemory";
 import { fetchMemorySequence, remember } from "../collectiveMemory/remember";
@@ -47,7 +47,7 @@ export class Page {
   private disableMemory: boolean = false;
 
   pageId: string;
-  agent: Agent;
+  agent: ProviderConfig;
   logger?: Logger;
   progress: string[] = [];
 
@@ -66,7 +66,7 @@ export class Page {
    */
   constructor(
     page: PuppeteerPage,
-    agent: Agent,
+    agent: ProviderConfig,
     opts?: {
       pageId?: string;
       logger?: Logger;
@@ -283,6 +283,7 @@ export class Page {
     }
     const index = this.idMapping.size;
     const e: AccessibilityTree = [index, node.role, node.name!];
+
     this.idMapping.set(index, e);
     let children = [] as AccessibilityTree[];
     if (node.children) {
@@ -434,13 +435,16 @@ export class Page {
    */
   async makePrompt(
     request: string,
-    opts?: { progress?: string[]; agent?: Agent; inventory?: Inventory }
+    opts?: {
+      progress?: string[];
+      agent?: ProviderConfig;
+      inventory?: Inventory;
+    }
   ) {
     const state = (await this.state(
       request,
       opts?.progress ?? this.progress
     )) as ObjectiveState;
-    const agent = opts?.agent ?? this.agent;
     const memories = this.disableMemory
       ? DEFAULT_STATE_ACTION_PAIRS
       : await remember(state, this.pageId, {
@@ -448,7 +452,8 @@ export class Page {
           endpoint: this.endpoint,
         });
 
-    const prompt = agent.prompt(state, memories, {
+    const prompt = commandPrompt(state, {
+      memories,
       inventory: opts?.inventory,
     });
 
@@ -468,7 +473,7 @@ export class Page {
     request: string,
     opts: {
       progress?: string[];
-      agent?: Agent;
+      agent?: ProviderConfig;
       schema: T;
       inventory?: Inventory;
     }
@@ -476,7 +481,12 @@ export class Page {
     const agent = opts?.agent ?? this.agent;
     const { prompt, state } = await this.makePrompt(request, opts);
 
-    const command = await agent.actionCall(prompt, opts.schema);
+    const command = await generateObject(agent, prompt, {
+      schema: opts.schema,
+      name: "BrowserAction",
+      model: agent.model,
+      objectMode: "TOOLS",
+    });
 
     if (!command) {
       throw new Error("No command generated");
@@ -504,7 +514,7 @@ export class Page {
   async do(
     request: string,
     opts?: {
-      agent?: Agent;
+      agent?: ProviderConfig;
       inventory?: Inventory;
       progress?: string[];
       delay?: number;
@@ -539,12 +549,17 @@ export class Page {
   async get<T extends z.ZodSchema<any>>(
     request: string,
     outputSchema: z.ZodSchema<any> = ObjectiveComplete,
-    opts?: { agent?: Agent; progress?: string[]; mode?: StateType }
+    opts?: { agent?: ProviderConfig; progress?: string[]; mode?: StateType }
   ): Promise<z.infer<T>> {
     const agent = opts?.agent ?? this.agent;
     const { prompt } = await this.makePrompt(request, opts);
 
-    const result = await agent.returnCall(prompt, outputSchema);
+    const result = generateObject(agent, prompt, {
+      schema: outputSchema,
+      name: "BrowserAction",
+      model: agent.model,
+      objectMode: "TOOLS",
+    });
 
     this.log(JSON.stringify(result));
 
@@ -564,19 +579,20 @@ export class Page {
 
   /**
    * Take the next step towards the objective.
-   * @param {string} request The request or objective.
+   * @param {string} objective The request or objective.
+   * @param {z.ZodSchema} outputSchema The Zod schema for the return type.
    * @param {Object} opts Additional options.
-   * @param {z.ZodSchema} opts.outputSchema The Zod schema for the return type.
    * @param {Agent} opts.agent The agent to use (optional).
    * @param {string[]} opts.progress The progress towards the objective (optional).
    * @param {Inventory} opts.inventory The inventory object (optional).
+   * @param {number} opts.delay The delay in milliseconds after performing the action (default: 100).
    * @returns {z.ZodSchema | undefined} A promise that resolves to the retrieved data.
    */
   async step(
     objective: string,
     outputSchema?: z.ZodObject<any>,
     opts?: {
-      agent?: Agent;
+      agent?: ProviderConfig;
       progress?: string[];
       inventory?: Inventory;
       delay?: number;
@@ -628,7 +644,7 @@ export class Page {
     objective: string,
     opts: {
       schema?: z.ZodObject<any>;
-      agent?: Agent;
+      agent?: ProviderConfig;
       progress?: string[];
       inventory?: Inventory;
       maxTurns: number;
@@ -670,7 +686,7 @@ export class Page {
       delay?: number;
       inventory?: Inventory;
       schema?: z.ZodObject<any>;
-      agent?: Agent;
+      agent?: ProviderConfig;
       memoryDelay?: number;
     }
   ) {
@@ -702,7 +718,6 @@ export class Page {
    */
   async followRoute(
     memoryId: string,
-
     opts?: {
       delay?: number;
       maxTurns?: number;
