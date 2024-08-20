@@ -33,7 +33,6 @@ import { fetchMemorySequence, remember } from "../collectiveMemory/remember";
 import { ModelResponseType } from "../types";
 import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 import { Memory } from "../types/memory.types";
-import { isEmail } from "../utils/airaUtils";
 
 /**
  * Represents a web page and provides methods to interact with it.
@@ -285,11 +284,6 @@ export class Page {
     const index = this.idMapping.size;
     const e: AccessibilityTree = [index, node.role, node.name!];
 
-    if (e[1] === "link") {
-      if (isEmail(e[2])) {
-        e[1] = "StaticText(email)";
-      }
-    }
     this.idMapping.set(index, e);
     let children = [] as AccessibilityTree[];
     if (node.children) {
@@ -585,12 +579,13 @@ export class Page {
 
   /**
    * Take the next step towards the objective.
-   * @param {string} request The request or objective.
+   * @param {string} objective The request or objective.
+   * @param {z.ZodSchema} outputSchema The Zod schema for the return type.
    * @param {Object} opts Additional options.
-   * @param {z.ZodSchema} opts.outputSchema The Zod schema for the return type.
    * @param {Agent} opts.agent The agent to use (optional).
    * @param {string[]} opts.progress The progress towards the objective (optional).
    * @param {Inventory} opts.inventory The inventory object (optional).
+   * @param {number} opts.delay The delay in milliseconds after performing the action (default: 100).
    * @returns {z.ZodSchema | undefined} A promise that resolves to the retrieved data.
    */
   async step(
@@ -723,7 +718,6 @@ export class Page {
    */
   async followRoute(
     memoryId: string,
-
     opts?: {
       delay?: number;
       maxTurns?: number;
