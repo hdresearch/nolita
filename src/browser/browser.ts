@@ -129,6 +129,16 @@ export class Browser {
     disableMemory?: boolean;
   }): Promise<Page> {
     const basePage = await this.browser.newPage();
+
+    await basePage.setRequestInterception(true);
+    basePage.on("request", (request) => {
+      if (request.url().startsWith("mailto:")) {
+        request.abort();
+      } else {
+        request.continue();
+      }
+    });
+
     if (opts?.device) {
       await basePage.emulate(opts.device);
     }
