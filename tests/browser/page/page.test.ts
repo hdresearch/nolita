@@ -2,7 +2,8 @@ import { describe, expect, it, beforeAll } from "@jest/globals";
 
 import { Browser } from "../../../src/browser";
 import { ObjectiveState } from "../../../src/types/browser";
-import { Agent, completionApiBuilder } from "../../../src/agent";
+import { Agent } from "../../../src/agent";
+import { DEFAULT_PROVIDER_CONFIG } from "../../fixtures";
 
 // jest.retryTimes(1);
 
@@ -10,17 +11,7 @@ describe("Page", () => {
   let agent: Agent;
 
   beforeAll(async () => {
-    const providerOptions = {
-      apiKey: process.env.OPENAI_API_KEY!,
-      provider: "openai",
-    };
-
-    const chatApi = completionApiBuilder(providerOptions, {
-      model: "gpt-4-turbo",
-      objectMode: "TOOLS",
-    });
-
-    agent = new Agent({ modelApi: chatApi! });
+    agent = new Agent({ providerConfig: DEFAULT_PROVIDER_CONFIG });
   }, 5000);
 
   it("should return the state of the page", async () => {

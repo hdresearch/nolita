@@ -12,7 +12,6 @@ import { ModelResponseSchema, ObjectiveComplete } from "../types";
 import { jsonToZod } from "./utils";
 import { ErrorSchema, apiSchema } from "./schema";
 import { nolitarc } from "../utils/config";
-import { completionApiBuilder } from "../agent";
 
 export const browseRouter = new OpenAPIHono();
 
@@ -62,18 +61,13 @@ browseRouter.openapi(route, async (c) => {
         "No agent provider found. Please use `npx nolita auth` to set a config.",
     });
   }
-  const chatApi = completionApiBuilder(
-    {
-      provider: agentProvider,
-      apiKey: agentApiKey,
-    },
-    {
-      model: agentModel,
-      objectMode: "TOOLS",
-    }
-  );
+  const providerConfig = {
+    provider: agentProvider,
+    apiKey: agentApiKey,
+    model: agentModel,
+  };
 
-  const agent = new Agent({ modelApi: chatApi });
+  const agent = new Agent({ providerConfig: providerConfig });
   const browser = await Browser.launch(headless, agent);
 
   // set inventory if it exists

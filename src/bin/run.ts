@@ -6,7 +6,6 @@ import { Agent } from "../agent/agent";
 import { Logger } from "../utils";
 import { ModelResponseSchema, ObjectiveComplete } from "../types";
 import { Inventory } from "../inventory";
-import { completionApiBuilder } from "../agent/config";
 import { GluegunToolbox } from "gluegun";
 import "dotenv/config";
 
@@ -255,19 +254,11 @@ export const run = async (toolbox: GluegunToolbox) => {
   const providerOptions = {
     apiKey: resolvedConfig.agentApiKey!,
     provider: resolvedConfig.agentProvider,
-  };
-  const chatApi = completionApiBuilder(providerOptions, {
     model: resolvedConfig.agentModel,
-  });
-
-  if (!chatApi) {
-    throw new Error(
-      `Failed to create chat api for ${providerOptions.provider}`
-    );
-  }
+  };
 
   const agent = new Agent({
-    modelApi: chatApi,
+    providerConfig: providerOptions,
   });
 
   const browser = await Browser.launch(resolvedConfig.headless, agent, logger, {

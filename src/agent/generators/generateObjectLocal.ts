@@ -55,7 +55,7 @@ export async function generateObjectLocal<T extends z.ZodSchema<any>>(
         content.forEach((c) => {
           if (c.type === "text") {
             // Since it's a text message, append its data
-            concatString += c.data;
+            concatString += c.text;
           }
         });
         return concatString;

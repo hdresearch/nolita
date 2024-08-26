@@ -3,24 +3,15 @@ import { z } from "zod";
 
 import { Browser } from "../../../src/browser";
 
-import { Agent, completionApiBuilder } from "../../../src/agent";
+import { Agent } from "../../../src/agent";
 import { Logger } from "../../../src/utils";
+import { DEFAULT_PROVIDER_CONFIG } from "../../fixtures";
 
 describe("Page", () => {
   let agent: Agent;
 
   beforeAll(async () => {
-    const providerOptions = {
-      apiKey: process.env.OPENAI_API_KEY!,
-      provider: "openai",
-    };
-
-    const chatApi = completionApiBuilder(providerOptions, {
-      objectMode: "TOOLS",
-      model: "gpt-4-turbo",
-    });
-
-    agent = new Agent({ modelApi: chatApi! });
+    agent = new Agent({ providerConfig: DEFAULT_PROVIDER_CONFIG });
   }, 5000);
 
   it("should retreive information via step", async () => {

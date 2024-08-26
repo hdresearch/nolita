@@ -1,14 +1,17 @@
 import { z } from "zod";
-// import { LlamaModel } from "node-llama-cpp";
-// import { generateObjectLocal } from "./generateObjectLocal";
 
-import { generateObjectProvider } from "./generateObjectProvider";
 import { ObjectGeneratorOptions } from "./types";
 import { ChatRequestMessage } from "../messages";
+import { ProviderConfig } from "../config";
+
+import { generateObjectOllama } from "./generateObjectOllama";
+import { generateObjectInstructor } from "./generateObjectInstructor";
+
+// import { generateObjectOpenAI } from "./generateObjectOpenAi";
 
 /**
  * Wrapper function to generate an object using either the local model or a provider.
- * @param client The client to use
+ * @param config The provider configuration
  * @param messages The messages to use
  * @param options The options for the object generator
  * @param options.schema The schema for the object
@@ -22,18 +25,26 @@ import { ChatRequestMessage } from "../messages";
  * @returns The generated object
  */
 export async function generateObject<T extends z.ZodSchema<any>>(
-  client: any,
+  config: ProviderConfig,
   messages: ChatRequestMessage[],
   options: ObjectGeneratorOptions & {
     schema: T;
     name: string;
+    description?: string;
   }
 ) {
-  switch (client) {
-    // case client instanceof LlamaModel:
-    //   return generateObjectLocal(client, messages, options);
-    //   throw new Error("Local modle generation not implemented");
+  let response: any;
+  switch (config.provider) {
+    case "ollama": // Ollama has its own function to generate objects because of error handling reasons
+      response = await generateObjectOllama(config.model, messages, options);
+      break;
+    case "openai":
+    case "anthropic":
+      response = await generateObjectInstructor(config, messages, options);
+      break;
     default:
-      return generateObjectProvider(client, messages, options);
+      throw new Error(`Unknown provider: ${config.provider}`);
   }
+
+  return options.schema.parse(response);
 }
