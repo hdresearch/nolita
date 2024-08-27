@@ -43,7 +43,7 @@
     "lodash": "^4.17.21",
     "node-llama-cpp": "^2.8.12",
     "openai": "^4.51.0",
-    "ora": "^8.1.0",
+    "ora": "^5.4.1",
     "out-url": "^1.2.2",
     "puppeteer": "^22.0.0",
     "puppeteer-extra": "^3.3.6",
