@@ -318,6 +318,7 @@ export function makeAgent(
     provider: prodiverOpts.provider as Providers,
     apiKey: prodiverOpts.apiKey,
     model: modelConfig.model,
+    path: customProvider?.path,
   };
   return new Agent({
     providerConfig,
