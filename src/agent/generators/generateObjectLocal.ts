@@ -1,11 +1,4 @@
 import { z } from "zod";
-// import {
-//   LlamaModel,
-//   LlamaJsonSchemaGrammar,
-//   LlamaContext,
-//   LlamaChatSession,
-//   GbnfJsonSchema,
-// } from "node-llama-cpp";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
 import { ObjectGeneratorOptions } from "./types";
