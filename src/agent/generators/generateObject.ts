@@ -6,6 +6,7 @@ import { ProviderConfig } from "../config";
 
 import { generateObjectOllama } from "./generateObjectOllama";
 import { generateObjectInstructor } from "./generateObjectInstructor";
+import { generateObjectLocal } from "./generateObjectLocal";
 
 // import { generateObjectOpenAI } from "./generateObjectOpenAi";
 
@@ -37,6 +38,12 @@ export async function generateObject<T extends z.ZodSchema<any>>(
   switch (config.provider) {
     case "ollama": // Ollama has its own function to generate objects because of error handling reasons
       response = await generateObjectOllama(config.model, messages, options);
+      break;
+    case "local":
+      if (!config.path) {
+        throw new Error("Local provider requires a path to the model");
+      }
+      response = await generateObjectLocal(config.path, messages, options);
       break;
     case "openai":
     case "anthropic":

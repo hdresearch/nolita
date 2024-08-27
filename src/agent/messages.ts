@@ -2,7 +2,6 @@ import { Inventory } from "../inventory";
 import { ObjectiveState, StateType } from "../types/browser";
 import { Memory } from "../types/memory.types";
 import { CoreMessage } from "ai";
-
 /**
  * Stringify an array of objects
  * @param obj - The array of objects to stringify

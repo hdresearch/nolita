@@ -1,6 +1,3 @@
-import { createLLMClient } from "llm-polyglot";
-import { ollama } from "ollama-ai-provider";
-
 import {
   ObjectGeneratorOptions,
   DefaultObjectGeneratorOptions,
@@ -12,13 +9,14 @@ export const MinimumResponseTokens = 200;
 export const MaximumResponseTokens = 8_000;
 
 export type ThirdPartyProviders = "openai" | "anthropic";
-export type LocalProviders = "ollama";
+export type LocalProviders = "ollama" | "local";
 export type Providers = ThirdPartyProviders | LocalProviders;
 
 export type ProviderConfig = {
   provider: Providers;
   apiKey: string;
   model: string;
+  path?: string;
 };
 
 export type AgentConfig = {

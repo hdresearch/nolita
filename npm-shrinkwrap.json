@@ -19,7 +19,7 @@
         "@types/inquirer": "^9.0.7",
         "@types/lodash": "^4.14.202",
         "@types/turndown": "^5.0.4",
-        "ai": "^3.3.7",
+        "ai": "^3.3.19",
         "chrome-paths": "^1.0.1",
         "debug": "^4.3.4",
         "dotenv": "^16.4.4",
@@ -29,9 +29,9 @@
         "json-schema-to-zod": "^2.0.14",
         "llm-polyglot": "^2.0.0",
         "lodash": "^4.17.21",
-        "node-llama-cpp": "^2.8.15",
+        "node-llama-cpp": "^2.8.12",
         "ollama-ai-provider": "^0.12.0",
-        "openai": "^4.56.0",
+        "openai": "^4.56.1",
         "out-url": "^1.2.2",
         "puppeteer": "^22.0.0",
         "puppeteer-extra": "^3.3.6",
@@ -132,12 +132,12 @@
       }
     },
     "node_modules/@ai-sdk/react": {
-      "version": "0.0.45",
-      "resolved": "https://registry.npmjs.org/@ai-sdk/react/-/react-0.0.45.tgz",
-      "integrity": "sha512-rPsjHtJ+qsWoRV88xzEpvPXhqRBF2wljGjWrsFcao4p48hKwZkuhW/zzpxZj3A4ZPy6jpDHRTYtqMuPHVpc9Eg==",
+      "version": "0.0.52",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/react/-/react-0.0.52.tgz",
+      "integrity": "sha512-4Gm+AoINDXQ4lzIZFKOWOcKgjgiAFdyhmBxnyuaqzTJCoRWNUSea62xhjqRE0u8wagfPgxWUAyS8BAsY0EqOyg==",
       "dependencies": {
-        "@ai-sdk/provider-utils": "1.0.13",
-        "@ai-sdk/ui-utils": "0.0.33",
+        "@ai-sdk/provider-utils": "1.0.17",
+        "@ai-sdk/ui-utils": "0.0.39",
         "swr": "2.2.5"
       },
       "engines": {
@@ -156,13 +156,46 @@
         }
       }
     },
-    "node_modules/@ai-sdk/solid": {
-      "version": "0.0.36",
-      "resolved": "https://registry.npmjs.org/@ai-sdk/solid/-/solid-0.0.36.tgz",
-      "integrity": "sha512-pm57goMQczSpPTNrUrwbab5BybZYofBRZ10UkTi2KgJP5i+S/sGHSh/xtgZz+xNpUt42pk8aYvOiNDN1ppjkDA==",
+    "node_modules/@ai-sdk/react/node_modules/@ai-sdk/provider": {
+      "version": "0.0.22",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/provider/-/provider-0.0.22.tgz",
+      "integrity": "sha512-smZ1/2jL/JSKnbhC6ama/PxI2D/psj+YAe0c0qpd5ComQCNFltg72VFf0rpUSFMmFuj1pCCNoBOCrvyl8HTZHQ==",
       "dependencies": {
-        "@ai-sdk/provider-utils": "1.0.13",
-        "@ai-sdk/ui-utils": "0.0.33"
+        "json-schema": "0.4.0"
+      },
+      "engines": {
+        "node": ">=18"
+      }
+    },
+    "node_modules/@ai-sdk/react/node_modules/@ai-sdk/provider-utils": {
+      "version": "1.0.17",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/provider-utils/-/provider-utils-1.0.17.tgz",
+      "integrity": "sha512-2VyeTH5DQ6AxqvwdyytKIeiZyYTyJffpufWjE67zM2sXMIHgYl7fivo8m5wVl6Cbf1dFPSGKq//C9s+lz+NHrQ==",
+      "dependencies": {
+        "@ai-sdk/provider": "0.0.22",
+        "eventsource-parser": "1.1.2",
+        "nanoid": "3.3.6",
+        "secure-json-parse": "2.7.0"
+      },
+      "engines": {
+        "node": ">=18"
+      },
+      "peerDependencies": {
+        "zod": "^3.0.0"
+      },
+      "peerDependenciesMeta": {
+        "zod": {
+          "optional": true
+        }
+      }
+    },
+    "node_modules/@ai-sdk/solid": {
+      "version": "0.0.42",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/solid/-/solid-0.0.42.tgz",
+      "integrity": "sha512-tr1rXRg0bLls7ZEQCWfd0Tv7irFlKQRjBSKSCstwrGtTeDA7zwUP4tIiUaCyzM3lwyE6Qgl17SrAoxSD+xP+zQ==",
+      "dependencies": {
+        "@ai-sdk/provider-utils": "1.0.17",
+        "@ai-sdk/ui-utils": "0.0.39"
       },
       "engines": {
         "node": ">=18"
@@ -176,13 +209,46 @@
         }
       }
     },
-    "node_modules/@ai-sdk/svelte": {
-      "version": "0.0.38",
-      "resolved": "https://registry.npmjs.org/@ai-sdk/svelte/-/svelte-0.0.38.tgz",
-      "integrity": "sha512-sTNkxzhS1B0TDdVWZR6yXG+3qQGYAxMwcEKzMVjm1VdpGlZits1PxF39aVvPldaWM8QB4MrVE+H5b5dTA43D0Q==",
+    "node_modules/@ai-sdk/solid/node_modules/@ai-sdk/provider": {
+      "version": "0.0.22",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/provider/-/provider-0.0.22.tgz",
+      "integrity": "sha512-smZ1/2jL/JSKnbhC6ama/PxI2D/psj+YAe0c0qpd5ComQCNFltg72VFf0rpUSFMmFuj1pCCNoBOCrvyl8HTZHQ==",
       "dependencies": {
-        "@ai-sdk/provider-utils": "1.0.13",
-        "@ai-sdk/ui-utils": "0.0.33",
+        "json-schema": "0.4.0"
+      },
+      "engines": {
+        "node": ">=18"
+      }
+    },
+    "node_modules/@ai-sdk/solid/node_modules/@ai-sdk/provider-utils": {
+      "version": "1.0.17",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/provider-utils/-/provider-utils-1.0.17.tgz",
+      "integrity": "sha512-2VyeTH5DQ6AxqvwdyytKIeiZyYTyJffpufWjE67zM2sXMIHgYl7fivo8m5wVl6Cbf1dFPSGKq//C9s+lz+NHrQ==",
+      "dependencies": {
+        "@ai-sdk/provider": "0.0.22",
+        "eventsource-parser": "1.1.2",
+        "nanoid": "3.3.6",
+        "secure-json-parse": "2.7.0"
+      },
+      "engines": {
+        "node": ">=18"
+      },
+      "peerDependencies": {
+        "zod": "^3.0.0"
+      },
+      "peerDependenciesMeta": {
+        "zod": {
+          "optional": true
+        }
+      }
+    },
+    "node_modules/@ai-sdk/svelte": {
+      "version": "0.0.44",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/svelte/-/svelte-0.0.44.tgz",
+      "integrity": "sha512-soSiEX1BUiwRSdoc+7mAoCeuM3Vs/ebdb1gNL7ta9Zma7GTHq802Wi7KfWfypoAqpgi0QUapzCRMvgrl4oW4AQ==",
+      "dependencies": {
+        "@ai-sdk/provider-utils": "1.0.17",
+        "@ai-sdk/ui-utils": "0.0.39",
         "sswr": "2.1.0"
       },
       "engines": {
@@ -197,16 +263,26 @@
         }
       }
     },
-    "node_modules/@ai-sdk/ui-utils": {
-      "version": "0.0.33",
-      "resolved": "https://registry.npmjs.org/@ai-sdk/ui-utils/-/ui-utils-0.0.33.tgz",
-      "integrity": "sha512-2oZjZzZG3AGQihO1d3mWqgFuywTtjBtkUEeE7d8nicw3QQv9m1MwrbQqRhhKbbBetBke6V9o5FQ5wngmb/+3iw==",
+    "node_modules/@ai-sdk/svelte/node_modules/@ai-sdk/provider": {
+      "version": "0.0.22",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/provider/-/provider-0.0.22.tgz",
+      "integrity": "sha512-smZ1/2jL/JSKnbhC6ama/PxI2D/psj+YAe0c0qpd5ComQCNFltg72VFf0rpUSFMmFuj1pCCNoBOCrvyl8HTZHQ==",
       "dependencies": {
-        "@ai-sdk/provider": "0.0.20",
-        "@ai-sdk/provider-utils": "1.0.13",
-        "json-schema": "0.4.0",
-        "secure-json-parse": "2.7.0",
-        "zod-to-json-schema": "3.22.5"
+        "json-schema": "0.4.0"
+      },
+      "engines": {
+        "node": ">=18"
+      }
+    },
+    "node_modules/@ai-sdk/svelte/node_modules/@ai-sdk/provider-utils": {
+      "version": "1.0.17",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/provider-utils/-/provider-utils-1.0.17.tgz",
+      "integrity": "sha512-2VyeTH5DQ6AxqvwdyytKIeiZyYTyJffpufWjE67zM2sXMIHgYl7fivo8m5wVl6Cbf1dFPSGKq//C9s+lz+NHrQ==",
+      "dependencies": {
+        "@ai-sdk/provider": "0.0.22",
+        "eventsource-parser": "1.1.2",
+        "nanoid": "3.3.6",
+        "secure-json-parse": "2.7.0"
       },
       "engines": {
         "node": ">=18"
@@ -220,21 +296,69 @@
         }
       }
     },
-    "node_modules/@ai-sdk/ui-utils/node_modules/zod-to-json-schema": {
-      "version": "3.22.5",
-      "resolved": "https://registry.npmjs.org/zod-to-json-schema/-/zod-to-json-schema-3.22.5.tgz",
-      "integrity": "sha512-+akaPo6a0zpVCCseDed504KBJUQpEW5QZw7RMneNmKw+fGaML1Z9tUNLnHHAC8x6dzVRO1eB2oEMyZRnuBZg7Q==",
+    "node_modules/@ai-sdk/ui-utils": {
+      "version": "0.0.39",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/ui-utils/-/ui-utils-0.0.39.tgz",
+      "integrity": "sha512-yxlJBFEiWR7rf/oS7MFX9O5Hr7VYV0ipMBrvds66N3+m52/nCbBB5C/eBefzeR+hoGc/r5xGo7Yd1cncGYHHTw==",
+      "dependencies": {
+        "@ai-sdk/provider": "0.0.22",
+        "@ai-sdk/provider-utils": "1.0.17",
+        "json-schema": "0.4.0",
+        "secure-json-parse": "2.7.0",
+        "zod-to-json-schema": "3.23.2"
+      },
+      "engines": {
+        "node": ">=18"
+      },
       "peerDependencies": {
-        "zod": "^3.22.4"
+        "zod": "^3.0.0"
+      },
+      "peerDependenciesMeta": {
+        "zod": {
+          "optional": true
+        }
+      }
+    },
+    "node_modules/@ai-sdk/ui-utils/node_modules/@ai-sdk/provider": {
+      "version": "0.0.22",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/provider/-/provider-0.0.22.tgz",
+      "integrity": "sha512-smZ1/2jL/JSKnbhC6ama/PxI2D/psj+YAe0c0qpd5ComQCNFltg72VFf0rpUSFMmFuj1pCCNoBOCrvyl8HTZHQ==",
+      "dependencies": {
+        "json-schema": "0.4.0"
+      },
+      "engines": {
+        "node": ">=18"
+      }
+    },
+    "node_modules/@ai-sdk/ui-utils/node_modules/@ai-sdk/provider-utils": {
+      "version": "1.0.17",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/provider-utils/-/provider-utils-1.0.17.tgz",
+      "integrity": "sha512-2VyeTH5DQ6AxqvwdyytKIeiZyYTyJffpufWjE67zM2sXMIHgYl7fivo8m5wVl6Cbf1dFPSGKq//C9s+lz+NHrQ==",
+      "dependencies": {
+        "@ai-sdk/provider": "0.0.22",
+        "eventsource-parser": "1.1.2",
+        "nanoid": "3.3.6",
+        "secure-json-parse": "2.7.0"
+      },
+      "engines": {
+        "node": ">=18"
+      },
+      "peerDependencies": {
+        "zod": "^3.0.0"
+      },
+      "peerDependenciesMeta": {
+        "zod": {
+          "optional": true
+        }
       }
     },
     "node_modules/@ai-sdk/vue": {
-      "version": "0.0.37",
-      "resolved": "https://registry.npmjs.org/@ai-sdk/vue/-/vue-0.0.37.tgz",
-      "integrity": "sha512-m7dMi6qRoWPuru9TyWUm5jXAPGSDb1SHZp/Q+uYjhNY1dZwgsZxJvSeakogzR37uhiRCg3Kg8fCypQJe+dikPA==",
+      "version": "0.0.44",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/vue/-/vue-0.0.44.tgz",
+      "integrity": "sha512-IsDCoy7u4V081dKT1i6b/Cxh2G0aftetbif+qNQGh5QeU9TtGs9KDW+onPkXeqlDQcpMN0Q5zaNGaZ7YBK50Gw==",
       "dependencies": {
-        "@ai-sdk/provider-utils": "1.0.13",
-        "@ai-sdk/ui-utils": "0.0.33",
+        "@ai-sdk/provider-utils": "1.0.17",
+        "@ai-sdk/ui-utils": "0.0.39",
         "swrv": "1.0.4"
       },
       "engines": {
@@ -245,6 +369,39 @@
       },
       "peerDependenciesMeta": {
         "vue": {
+          "optional": true
+        }
+      }
+    },
+    "node_modules/@ai-sdk/vue/node_modules/@ai-sdk/provider": {
+      "version": "0.0.22",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/provider/-/provider-0.0.22.tgz",
+      "integrity": "sha512-smZ1/2jL/JSKnbhC6ama/PxI2D/psj+YAe0c0qpd5ComQCNFltg72VFf0rpUSFMmFuj1pCCNoBOCrvyl8HTZHQ==",
+      "dependencies": {
+        "json-schema": "0.4.0"
+      },
+      "engines": {
+        "node": ">=18"
+      }
+    },
+    "node_modules/@ai-sdk/vue/node_modules/@ai-sdk/provider-utils": {
+      "version": "1.0.17",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/provider-utils/-/provider-utils-1.0.17.tgz",
+      "integrity": "sha512-2VyeTH5DQ6AxqvwdyytKIeiZyYTyJffpufWjE67zM2sXMIHgYl7fivo8m5wVl6Cbf1dFPSGKq//C9s+lz+NHrQ==",
+      "dependencies": {
+        "@ai-sdk/provider": "0.0.22",
+        "eventsource-parser": "1.1.2",
+        "nanoid": "3.3.6",
+        "secure-json-parse": "2.7.0"
+      },
+      "engines": {
+        "node": ">=18"
+      },
+      "peerDependencies": {
+        "zod": "^3.0.0"
+      },
+      "peerDependenciesMeta": {
+        "zod": {
           "optional": true
         }
       }
@@ -3120,24 +3277,24 @@
       }
     },
     "node_modules/ai": {
-      "version": "3.3.9",
-      "resolved": "https://registry.npmjs.org/ai/-/ai-3.3.9.tgz",
-      "integrity": "sha512-PS6xHzYIH+iVLG3xd/jwsqZW7+X8GrSrsJwVB4ACMbxhZN8KRs4yUcnGEDPcvRkEL3PqHHJFUo9iVysdZwOUwg==",
+      "version": "3.3.19",
+      "resolved": "https://registry.npmjs.org/ai/-/ai-3.3.19.tgz",
+      "integrity": "sha512-Q3K3cubOYqLVK/5P6oWu5kjjPgAo4Lr+zzLZCCG0HX9b8QemgQCPmZGRNgLNf3a2y6m4NwpjJjAPYHPlb3ytwQ==",
       "dependencies": {
-        "@ai-sdk/provider": "0.0.20",
-        "@ai-sdk/provider-utils": "1.0.13",
-        "@ai-sdk/react": "0.0.45",
-        "@ai-sdk/solid": "0.0.36",
-        "@ai-sdk/svelte": "0.0.38",
-        "@ai-sdk/ui-utils": "0.0.33",
-        "@ai-sdk/vue": "0.0.37",
+        "@ai-sdk/provider": "0.0.22",
+        "@ai-sdk/provider-utils": "1.0.17",
+        "@ai-sdk/react": "0.0.52",
+        "@ai-sdk/solid": "0.0.42",
+        "@ai-sdk/svelte": "0.0.44",
+        "@ai-sdk/ui-utils": "0.0.39",
+        "@ai-sdk/vue": "0.0.44",
         "@opentelemetry/api": "1.9.0",
         "eventsource-parser": "1.1.2",
         "json-schema": "0.4.0",
         "jsondiffpatch": "0.6.0",
         "nanoid": "3.3.6",
         "secure-json-parse": "2.7.0",
-        "zod-to-json-schema": "3.22.5"
+        "zod-to-json-schema": "3.23.2"
       },
       "engines": {
         "node": ">=18"
@@ -3167,12 +3324,37 @@
         }
       }
     },
-    "node_modules/ai/node_modules/zod-to-json-schema": {
-      "version": "3.22.5",
-      "resolved": "https://registry.npmjs.org/zod-to-json-schema/-/zod-to-json-schema-3.22.5.tgz",
-      "integrity": "sha512-+akaPo6a0zpVCCseDed504KBJUQpEW5QZw7RMneNmKw+fGaML1Z9tUNLnHHAC8x6dzVRO1eB2oEMyZRnuBZg7Q==",
+    "node_modules/ai/node_modules/@ai-sdk/provider": {
+      "version": "0.0.22",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/provider/-/provider-0.0.22.tgz",
+      "integrity": "sha512-smZ1/2jL/JSKnbhC6ama/PxI2D/psj+YAe0c0qpd5ComQCNFltg72VFf0rpUSFMmFuj1pCCNoBOCrvyl8HTZHQ==",
+      "dependencies": {
+        "json-schema": "0.4.0"
+      },
+      "engines": {
+        "node": ">=18"
+      }
+    },
+    "node_modules/ai/node_modules/@ai-sdk/provider-utils": {
+      "version": "1.0.17",
+      "resolved": "https://registry.npmjs.org/@ai-sdk/provider-utils/-/provider-utils-1.0.17.tgz",
+      "integrity": "sha512-2VyeTH5DQ6AxqvwdyytKIeiZyYTyJffpufWjE67zM2sXMIHgYl7fivo8m5wVl6Cbf1dFPSGKq//C9s+lz+NHrQ==",
+      "dependencies": {
+        "@ai-sdk/provider": "0.0.22",
+        "eventsource-parser": "1.1.2",
+        "nanoid": "3.3.6",
+        "secure-json-parse": "2.7.0"
+      },
+      "engines": {
+        "node": ">=18"
+      },
       "peerDependencies": {
-        "zod": "^3.22.4"
+        "zod": "^3.0.0"
+      },
+      "peerDependenciesMeta": {
+        "zod": {
+          "optional": true
+        }
       }
     },
     "node_modules/ajv": {
@@ -7976,9 +8158,9 @@
       }
     },
     "node_modules/openai": {
-      "version": "4.56.0",
-      "resolved": "https://registry.npmjs.org/openai/-/openai-4.56.0.tgz",
-      "integrity": "sha512-zcag97+3bG890MNNa0DQD9dGmmTWL8unJdNkulZzWRXrl+QeD+YkBI4H58rJcwErxqGK6a0jVPZ4ReJjhDGcmw==",
+      "version": "4.56.1",
+      "resolved": "https://registry.npmjs.org/openai/-/openai-4.56.1.tgz",
+      "integrity": "sha512-XMsxdjrWBYgbP6EsDIwbhkQEgeyL2C41te/QrJm8kdfho22exhTUJ/cFJSmCTToam/RSOC1BlOylHvD6i/bmsA==",
       "dependencies": {
         "@types/node": "^18.11.18",
         "@types/node-fetch": "^2.6.4",
@@ -9539,9 +9721,9 @@
       }
     },
     "node_modules/svelte": {
-      "version": "4.2.18",
-      "resolved": "https://registry.npmjs.org/svelte/-/svelte-4.2.18.tgz",
-      "integrity": "sha512-d0FdzYIiAePqRJEb90WlJDkjUEx42xhivxN8muUBmfZnP+tzUgz12DJ2hRJi8sIHCME7jeK1PTMgKPSfTd8JrA==",
+      "version": "4.2.19",
+      "resolved": "https://registry.npmjs.org/svelte/-/svelte-4.2.19.tgz",
+      "integrity": "sha512-IY1rnGr6izd10B0A8LqsBfmlT5OILVuZ7XsI0vdGPEvuonFV7NYEUK4dAkm9Zg2q0Um92kYjTpS1CAP3Nh/KWw==",
       "peer": true,
       "dependencies": {
         "@ampproject/remapping": "^2.2.1",
@@ -10439,9 +10621,9 @@
       }
     },
     "node_modules/zod-to-json-schema": {
-      "version": "3.23.1",
-      "resolved": "https://registry.npmjs.org/zod-to-json-schema/-/zod-to-json-schema-3.23.1.tgz",
-      "integrity": "sha512-oT9INvydob1XV0v1d2IadrR74rLtDInLvDFfAa1CG0Pmg/vxATk7I2gSelfj271mbzeM4Da0uuDQE/Nkj3DWNw==",
+      "version": "3.23.2",
+      "resolved": "https://registry.npmjs.org/zod-to-json-schema/-/zod-to-json-schema-3.23.2.tgz",
+      "integrity": "sha512-uSt90Gzc/tUfyNqxnjlfBs8W6WSGpNBv0rVsNxP/BVSMHMKGdthPYff4xtCHYloJGM0CFxFsb3NbC0eqPhfImw==",
       "peerDependencies": {
         "zod": "^3.23.3"
       }
