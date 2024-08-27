@@ -1,11 +1,11 @@
 import { z } from "zod";
-import {
-  LlamaModel,
-  LlamaJsonSchemaGrammar,
-  LlamaContext,
-  LlamaChatSession,
-  GbnfJsonSchema,
-} from "node-llama-cpp";
+// import {
+//   LlamaModel,
+//   LlamaJsonSchemaGrammar,
+//   LlamaContext,
+//   LlamaChatSession,
+//   GbnfJsonSchema,
+// } from "node-llama-cpp";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
 import { ObjectGeneratorOptions } from "./types";
@@ -25,16 +25,21 @@ import { ChatRequestMessage } from "../messages";
  * @returns The generated schema
  */
 export async function generateObjectLocal<T extends z.ZodSchema<any>>(
-  model: LlamaModel,
+  path: string,
   messages: ChatRequestMessage[],
   options: ObjectGeneratorOptions & {
     schema: T;
     name: string;
   }
 ) {
+  const { LlamaModel, LlamaContext, LlamaChatSession, LlamaJsonSchemaGrammar } =
+    await Function('return import("node-llama-cpp")')();
+
+  const model = new LlamaModel({ modelPath: path });
+
   const maxTokens = options.maxTokens || 1000;
   const temperature = options.temperature || 0;
-  const schema = zodToJsonSchema(options.schema) as GbnfJsonSchema;
+  const schema = zodToJsonSchema(options.schema);
   const grammar = new LlamaJsonSchemaGrammar(schema) as any;
 
   const context = new LlamaContext({ model });
@@ -64,6 +69,5 @@ export async function generateObjectLocal<T extends z.ZodSchema<any>>(
     maxTokens: maxTokens,
     topP: options.topP,
   });
-
   return grammar.parse(res);
 }

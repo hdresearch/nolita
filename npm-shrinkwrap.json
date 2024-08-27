@@ -29,7 +29,7 @@
         "json-schema-to-zod": "^2.0.14",
         "llm-polyglot": "^2.0.0",
         "lodash": "^4.17.21",
-        "node-llama-cpp": "^2.8.12",
+        "node-llama-cpp": "^2.8.15",
         "ollama-ai-provider": "^0.12.0",
         "openai": "^4.56.0",
         "out-url": "^1.2.2",
@@ -7632,9 +7632,9 @@
       "dev": true
     },
     "node_modules/node-llama-cpp": {
-      "version": "2.8.12",
-      "resolved": "https://registry.npmjs.org/node-llama-cpp/-/node-llama-cpp-2.8.12.tgz",
-      "integrity": "sha512-7+2kFifN6G9G9XpewRTJeb0AMrefh0EQqQ97GqxEH7c86NuSoWwk0w2qujZjHFTV1TA8nG90DnvfHfdX7iUBHA==",
+      "version": "2.8.15",
+      "resolved": "https://registry.npmjs.org/node-llama-cpp/-/node-llama-cpp-2.8.15.tgz",
+      "integrity": "sha512-T6jrxIxLe+W6l7ft96SiZifJXjEvtSqWhtS4k5coA8lvkAceTx3K7o32vHVEF9P/IEKyPiqVq0polFWC4Oew+g==",
       "hasInstallScript": true,
       "dependencies": {
         "chalk": "^5.3.0",

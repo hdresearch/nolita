@@ -107,9 +107,6 @@ export function commandPrompt(
         role: "user",
         content: `Here are examples of a previous request: 
             ${JSON.stringify(memory)}
-        
-            remember to return a result only in the form of an ActionStep.
-
             `,
       });
     }
