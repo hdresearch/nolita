@@ -1,16 +1,17 @@
+import { Argv } from 'yargs';
 import { setupServer } from '../../server';
 import { serve } from '@hono/node-server';
 
 export const command = 'serve';
 export const desc = 'Start the server';
 
-// export const builder = {
-//   port: {
-//     describe: 'Port to run the server on',
-//     type: 'number',
-//     default: 3000,
-//   },
-// };
+export const builder = (yargs: Argv) => {
+  return yargs.option('port', {
+    describe: 'Port to run the server on',
+    type: 'number',
+    default: 3000,
+  })
+};
 
 export const handler = async (argv: any) => {
   const { port } = argv;
@@ -21,7 +22,7 @@ export const handler = async (argv: any) => {
     port: port,
   });
   console.log(`Server started on port ${port}`);
-  console.log(`Documentation available at http://localhost:${port}/doc`);
+  console.log(`Documentation available at http://localhost:${port}/`);
   console.log('Press Ctrl+C to stop the server.');
 
   return new Promise<void>((resolve) => {
