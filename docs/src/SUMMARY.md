@@ -6,6 +6,9 @@
 - [Using Nolita as a server](./serve.md)
 - [Creating a new project](./create.md)
 
+# Using Nolita
+- [Use Nolita as a scraper](./use/scrape.md)
+
 # Nolita projects
 
 - [The folder structure](./create/folder.md)
