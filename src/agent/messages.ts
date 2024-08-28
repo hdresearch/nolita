@@ -1,7 +1,7 @@
 import { Inventory } from "../inventory";
 import { ObjectiveState, StateType } from "../types/browser";
 import { Memory } from "../types/memory.types";
-
+import { CoreMessage } from "ai";
 /**
  * Stringify an array of objects
  * @param obj - The array of objects to stringify
@@ -48,10 +48,7 @@ export type ChatRequestRole = "system" | "user" | "assistant" | "tool";
 /**
  * Chat request message
  */
-export interface ChatRequestMessage {
-  role: ChatRequestRole;
-  content: string | ChatMessageContent[];
-}
+export type ChatRequestMessage = CoreMessage;
 
 /**
  * Configuration options for the prompt
@@ -109,9 +106,6 @@ export function commandPrompt(
         role: "user",
         content: `Here are examples of a previous request: 
             ${JSON.stringify(memory)}
-        
-            remember to return a result only in the form of an ActionStep.
-
             `,
       });
     }

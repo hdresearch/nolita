@@ -9,11 +9,15 @@ import { ObjectiveState } from "../types/browser/objectiveState.types";
 import { Inventory } from "../inventory";
 import { generateSchema, SchemaElement } from "./schemaGenerators";
 import { debug } from "../utils";
-import { completionApiBuilder } from "./config";
+import { ProviderConfig, Providers } from "./config";
 import { nolitarc } from "../utils/config";
 import { handleConfigMessages, ChatRequestMessage } from "./messages";
-import { ModelConfig, AgentConfig } from "./config";
+import { ModelConfig } from "./config";
 import { generateObject } from "./generators";
+import {
+  ObjectGeneratorMode,
+  ObjectGeneratorOptions,
+} from "./generators/types";
 
 export function stringifyObjects<T>(obj: T[]): string {
   const strings = obj.map((o) => JSON.stringify(o));
@@ -21,36 +25,31 @@ export function stringifyObjects<T>(obj: T[]): string {
 }
 
 export class Agent {
-  private client: any;
-  private objectGeneratorOptions: ModelConfig;
+  private providerConfig: ProviderConfig;
+  private objectGeneratorOptions: ObjectGeneratorOptions;
 
   systemPrompt?: string;
 
   constructor(agentArgs: {
-    modelApi?: ModelConfig & AgentConfig;
+    providerConfig: ProviderConfig;
     systemPrompt?: string;
+    objectgeneratorOptions?: ModelConfig;
   }) {
-    if (agentArgs.modelApi) {
-      this.client = agentArgs.modelApi.client;
-      this.objectGeneratorOptions = agentArgs.modelApi;
-      this.systemPrompt = agentArgs.systemPrompt;
-    } else {
-      try {
-        const { agentApiKey, agentProvider, agentModel } = nolitarc();
-        const savedAgentArgs = completionApiBuilder(
-          { provider: agentProvider, apiKey: agentApiKey },
-          { model: agentModel, objectMode: "TOOLS" }
-        );
-        this.client = savedAgentArgs.client;
-        this.objectGeneratorOptions = {
-          model: agentModel,
-          objectMode: "TOOLS",
-        };
-      } catch (error) {
-        throw new Error("Failed to create chat api");
-      }
-    }
+    this.providerConfig = agentArgs.providerConfig;
     this.systemPrompt = agentArgs.systemPrompt;
+    this.objectGeneratorOptions =
+      agentArgs.objectgeneratorOptions ||
+      this.defaultObjectGeneratorOptions(this.providerConfig.model);
+  }
+
+  defaultObjectGeneratorOptions(model: string): ObjectGeneratorOptions {
+    return {
+      model: model,
+      objectMode: "TOOLS" as ObjectGeneratorMode,
+      maxRetries: 3,
+      maxTokens: 1000,
+      temperature: 0,
+    };
   }
 
   /**
@@ -68,7 +67,11 @@ export class Agent {
     config?: { inventory?: Inventory; systemPrompt?: string }
   ): ChatRequestMessage[] {
     const userPrompt = `
-    ${config?.inventory ? `Use the following information to achieve your objective as needed: ${config?.inventory.toString()}` : ""}
+    ${
+      config?.inventory
+        ? `Use the following information to achieve your objective as needed: ${config?.inventory.toString()}`
+        : ""
+    }
     Here are examples of a request: 
     ${stringifyObjects(memories)}
 
@@ -106,7 +109,7 @@ export class Agent {
       },
     ];
 
-    const response = await generateObject(this.client, messages, {
+    const response = await generateObject(this.providerConfig, messages, {
       schema: responseSchema,
       ...this.objectGeneratorOptions,
       name: "ObjectiveComplete",
@@ -147,7 +150,7 @@ export class Agent {
 
     // Retry until the response is valid or the max number of attempts is reached
     if (safeParseResultSuccess == false) {
-      let response = await generateObject(this.client, messages, {
+      let response = await generateObject(this.providerConfig, messages, {
         schema: z.object({
           progressAssessment: z.string(),
           command: BrowserActionSchemaArray,
@@ -176,7 +179,7 @@ export class Agent {
     return undefined;
   }
 
-  async askCommand<T extends z.ZodSchema<any>>(
+  async askCommand<T extends z.ZodObject<any>>(
     prompt: ChatRequestMessage[],
     schema: T,
     opts = {
@@ -186,7 +189,7 @@ export class Agent {
       maxDelay: 10000, // Maximum delay
     }
   ) {
-    const response = await generateObject(this.client, prompt, {
+    const response = await generateObject(this.providerConfig, prompt, {
       schema: schema,
       ...this.objectGeneratorOptions,
       name: "GenerateActionStep",
@@ -201,7 +204,7 @@ export class Agent {
     responseSchema: T,
     opts?: { autoSlice?: boolean }
   ): Promise<T> {
-    const response = await generateObject(this.client, prompt, {
+    const response = await generateObject(this.providerConfig, prompt, {
       schema: responseSchema,
       ...this.objectGeneratorOptions,
       name: "GenerateActionStep",
@@ -234,7 +237,7 @@ export class Agent {
       maxDelay: 10000, // Maximum delay
     }
   ) {
-    const chatResponse = await generateObject(this.client, prompt, {
+    const chatResponse = await generateObject(this.providerConfig, prompt, {
       ...this.objectGeneratorOptions,
       schema: commandSchema,
       name: "GenerateActionStep",
@@ -281,7 +284,7 @@ export class Agent {
       role: "user",
       content: prompt,
     });
-    const response = await generateObject(this.client, messages, {
+    const response = await generateObject(this.providerConfig, messages, {
       ...this.objectGeneratorOptions,
       schema: z.object({ content: z.string() }).describe("ChatResponse"),
       name: "Chat",
@@ -302,24 +305,23 @@ export function makeAgent(
     prodiverOpts = { provider: agentProvider, apiKey: agentApiKey };
     modelConfig = { model: agentModel, objectMode: "TOOLS" };
   }
-  if (!prodiverOpts.provider) {
-    throw new Error("Provider is required");
-  }
+
   if (!modelConfig?.model) {
-    throw new Error("Model is required");
-  }
-  const chatApi = completionApiBuilder(
-    prodiverOpts,
-    modelConfig,
-    customProvider
-  );
-
-  if (!chatApi) {
-    throw new Error(`Failed to create chat api for ${prodiverOpts.provider}`);
+    throw new Error("You must provide a model to create an agent.");
   }
 
+  if (!prodiverOpts.provider) {
+    throw new Error("You must provide a provider to create an agent.");
+  }
+
+  const providerConfig: ProviderConfig = {
+    provider: prodiverOpts.provider as Providers,
+    apiKey: prodiverOpts.apiKey,
+    model: modelConfig.model,
+    path: customProvider?.path,
+  };
   return new Agent({
-    modelApi: chatApi,
+    providerConfig,
     systemPrompt: opts?.systemPrompt,
   });
 }

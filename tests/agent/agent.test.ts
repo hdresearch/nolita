@@ -12,22 +12,12 @@ import {
 
 import { z } from "zod";
 import { ObjectiveState } from "../../src/types/browser";
-import { completionApiBuilder } from "../../src/agent/config";
+import { DEFAULT_PROVIDER_CONFIG } from "../fixtures";
 
 describe("Agent -- configs", () => {
   let agent: Agent;
   beforeAll(() => {
-    const providerOptions = {
-      apiKey: process.env.OPENAI_API_KEY!,
-      provider: "openai",
-    };
-
-    const chatApi = completionApiBuilder(providerOptions, {
-      model: "gpt-4-turbo",
-      objectMode: "TOOLS",
-    });
-
-    agent = new Agent({ modelApi: chatApi! });
+    agent = new Agent({ providerConfig: DEFAULT_PROVIDER_CONFIG });
   });
 
   test("that empty configs are handled", async () => {
@@ -45,18 +35,7 @@ describe("Agent", () => {
   let agent: Agent;
 
   beforeAll(() => {
-    const providerOptions = {
-      apiKey: process.env.OPENAI_API_KEY!,
-      provider: "openai",
-    };
-
-    const chatApi = completionApiBuilder(providerOptions, {
-      model: "gpt-4-turbo",
-      objectMode: "TOOLS",
-      maxRetries: 5,
-    });
-
-    agent = new Agent({ modelApi: chatApi! });
+    agent = new Agent({ providerConfig: DEFAULT_PROVIDER_CONFIG });
   });
 
   test("Agent can prompt", async () => {
@@ -120,23 +99,14 @@ describe("Agent", () => {
       prompt,
       ModelResponseSchema(ObjectiveComplete)
     );
+
+    console.log("Response:", response);
     expect(response!.command).toStrictEqual([
       { index: 5, kind: "Type", text: "gadget 11 pro price" },
     ]);
   });
 
   it("should follow a system prompt", async () => {
-    const providerOptions = {
-      apiKey: process.env.OPENAI_API_KEY!,
-      provider: "openai",
-    };
-
-    const chatApi = completionApiBuilder(providerOptions, {
-      model: "gpt-4-turbo",
-      objectMode: "TOOLS",
-    });
-
-    agent = new Agent({ modelApi: chatApi! });
     const response = await agent.chat("respond with `hello` and nothing more.");
     expect(response).toBe("hello");
   });

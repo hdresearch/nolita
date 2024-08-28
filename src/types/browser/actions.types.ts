@@ -66,5 +66,5 @@ export const BrowserAction = z.union([
 
 export type BrowserAction = z.infer<typeof BrowserAction>;
 
-export const BrowserActionArray = z.array(BrowserAction).min(1);
+export const BrowserActionArray = z.array(BrowserAction);
 export type BrowserActionArray = z.infer<typeof BrowserActionArray>;

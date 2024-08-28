@@ -1,15 +1,18 @@
 import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
+
+import "dotenv/config";
 import { input } from "@inquirer/prompts";
 import ora from "ora";
+
 import { Browser } from "../browser";
 import { Agent } from "../agent/agent";
 import { Logger } from "../utils";
 import { ModelResponseSchema, ObjectiveComplete } from "../types";
 import { Inventory } from "../inventory";
-import { completionApiBuilder } from "../agent/config";
-import "dotenv/config";
+
+
 
 const loadConfigFile = (filePath: string): any => {
   try {
@@ -207,19 +210,11 @@ export const run = async (argv: any) => {
   const providerOptions = {
     apiKey: resolvedConfig.agentApiKey!,
     provider: resolvedConfig.agentProvider,
-  };
-  const chatApi = completionApiBuilder(providerOptions, {
     model: resolvedConfig.agentModel,
-  });
-
-  if (!chatApi) {
-    throw new Error(
-      `Failed to create chat api for ${providerOptions.provider}`
-    );
-  }
+  };
 
   const agent = new Agent({
-    modelApi: chatApi,
+    providerConfig: providerOptions,
   });
 
   const browser = await Browser.launch(resolvedConfig.headless, agent, logger, {

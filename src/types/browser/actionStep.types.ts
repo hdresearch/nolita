@@ -26,7 +26,7 @@ export const Wait = z.object({
 export const BrowserActionSchema = z.union([Type, Click, Wait, Back]);
 export type BrowserActionSchema = z.infer<typeof BrowserActionSchema>;
 
-export const BrowserActionSchemaArray = z.array(BrowserActionSchema).min(1);
+export const BrowserActionSchemaArray = z.array(BrowserActionSchema);
 export type BrowserActionSchemaArray = z.infer<typeof BrowserActionSchemaArray>;
 
 export const ObjectiveComplete = z.object({

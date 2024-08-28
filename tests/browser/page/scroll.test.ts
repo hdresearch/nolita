@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeAll, jest } from "@jest/globals";
 
 import { Browser } from "../../../src/browser/index";
-import { Agent, completionApiBuilder } from "../../../src/agent";
+import { Agent } from "../../../src/agent";
+import { DEFAULT_PROVIDER_CONFIG } from "../../fixtures";
 
 jest.retryTimes(3);
 
@@ -46,17 +47,7 @@ describe("Page interaction -- SCROLL", () => {
   let agent: Agent;
 
   beforeAll(async () => {
-    const providerOptions = {
-      apiKey: process.env.OPENAI_API_KEY!,
-      provider: "openai",
-    };
-
-    const chatApi = completionApiBuilder(providerOptions, {
-      objectMode: "TOOLS",
-      model: "gpt-4-turbo",
-    });
-
-    agent = new Agent({ modelApi: chatApi! });
+    agent = new Agent({ providerConfig: DEFAULT_PROVIDER_CONFIG });
   }, 20000);
 
   it("should scroll to the bottom", async () => {
