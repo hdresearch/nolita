@@ -16,7 +16,6 @@ export type ProviderConfig = {
   provider: Providers;
   apiKey: string;
   model: string;
-  path?: string;
 };
 
 export type AgentConfig = {
