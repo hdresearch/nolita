@@ -52,7 +52,7 @@ const isValidUrl = (value: string): void => {
 };
 
 const isValidProvider = (value: string): void => {
-  if (value !== "openai" && value !== "anthropic") {
+  if (value !== "openai" && value !== "anthropic" && value !== "ollama" && value !== "local") {
     throw new Error("Invalid provider.");
   }
 };
