@@ -14,21 +14,21 @@ export const builder = (yargs: Argv) => {
 };
 
 export const handler = async (argv: any) => {
-  const { port } = argv;
+  const { port = 3000 } = argv;
   console.log('Starting the server...');
   const app = setupServer();
-  serve({
+  const server = serve({
     fetch: app.fetch,
     port: port,
   });
   console.log(`Server started on port ${port}`);
-  console.log(`Documentation available at http://localhost:${port}/`);
+  console.log(`Documentation available at http://localhost:${port}/doc`);
   console.log('Press Ctrl+C to stop the server.');
 
   return new Promise<void>((resolve) => {
     const shutdown = () => {
       console.error(' Shutting down server...');
-      // Perform any necessary cleanup here
+      server.close();
       resolve();
     };
 
