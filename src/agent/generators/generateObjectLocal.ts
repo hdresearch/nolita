@@ -35,7 +35,7 @@ export async function generateObjectLocal<T extends z.ZodSchema<any>>(
   const schema = zodToJsonSchema(options.schema);
   const grammar = new LlamaJsonSchemaGrammar(schema) as any;
 
-  const context = new LlamaContext({ model });
+  const context = new LlamaContext({ model, contextSize: 32168, batchSize: 32168 });
   const session = new LlamaChatSession({ context });
 
   const messagesString = messages
