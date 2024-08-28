@@ -7,6 +7,7 @@
 - [Creating a new project](./create.md)
 
 # Using Nolita
+- [Using local models (experimental)](./use/local.md)
 - [Use Nolita as a scraper](./use/scrape.md)
 
 # Nolita projects
