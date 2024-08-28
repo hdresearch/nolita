@@ -6,6 +6,8 @@ Nolita can take both `local` and `ollama` providers for autonomous tasks. Howeve
 
 Ollama is supported as a provider and will connect to the default Ollama port when used. When you set `ollama` as a provider, the `model` name you provide to one that Ollama recognizes. For more information on available models for Ollama, see [its documentation](https://ollama.com/library).
 
+This means that we expect Ollama to be running when using Nolita with `ollama` as provider. You'll want to run Ollama's GUI or just `ollama serve` in a terminal window.
+
 ## Using local model files
 
 We use `node-llama-cpp` under the hood to run a model file. For information on `node-llama-cpp` and getting a model file for use, see [its documentation](https://withcatai.github.io/node-llama-cpp/guide/#getting-a-model-file).
