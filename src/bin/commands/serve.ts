@@ -1,32 +1,38 @@
-import { GluegunToolbox } from "gluegun";
-import { setupServer } from "../../server";
-import { serve } from "@hono/node-server";
+import { Argv } from 'yargs';
+import { setupServer } from '../../server';
+import { serve } from '@hono/node-server';
 
-module.exports = {
-  name: "serve",
-  run: async (toolbox: GluegunToolbox) => {
-    const { print } = toolbox;
-    const { port } = toolbox.parameters.options;
-    print.info("Starting the server...");
-    const app = setupServer();
-    serve({
-      fetch: app.fetch,
-      port: port || 3000,
-    });
-    print.success(`Server started on port ${port || 3000}`);
-    print.info(
-      `Documentation available at http://localhost:${port || 3000}/doc`
-    );
-    print.info("Press Ctrl+C to stop the server.");
-    return new Promise<void>((resolve) => {
-      const shutdown = () => {
-        print.error(" Shutting down server...");
-        // Perform any necessary cleanup here
-        resolve();
-      };
+export const command = 'serve';
+export const desc = 'Start the server';
 
-      process.on("SIGINT", shutdown);
-      process.on("SIGTERM", shutdown);
-    });
-  },
+export const builder = (yargs: Argv) => {
+  return yargs.option('port', {
+    describe: 'Port to run the server on',
+    type: 'number',
+    default: 3000,
+  })
+};
+
+export const handler = async (argv: any) => {
+  const { port } = argv;
+  console.log('Starting the server...');
+  const app = setupServer();
+  serve({
+    fetch: app.fetch,
+    port: port,
+  });
+  console.log(`Server started on port ${port}`);
+  console.log(`Documentation available at http://localhost:${port}/`);
+  console.log('Press Ctrl+C to stop the server.');
+
+  return new Promise<void>((resolve) => {
+    const shutdown = () => {
+      console.error(' Shutting down server...');
+      // Perform any necessary cleanup here
+      resolve();
+    };
+
+    process.on('SIGINT', shutdown);
+    process.on('SIGTERM', shutdown);
+  });
 };

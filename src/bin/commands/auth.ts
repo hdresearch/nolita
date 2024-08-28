@@ -1,23 +1,23 @@
-import { GluegunToolbox } from "gluegun";
-import * as fs from "fs";
-import * as os from "os";
-import * as path from "path";
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import { input, confirm, select } from '@inquirer/prompts';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { open } = require("out-url");
+const { open } = require('out-url');
 
 const loadConfigFile = (filePath: string): any => {
   try {
-    return JSON.parse(fs.readFileSync(filePath, "utf8"));
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
   } catch (error) {
     return {};
   }
 };
 
 const writeToNolitarc = (key: string, value: string): void => {
-  const nolitarcPath = path.resolve(os.homedir(), ".nolitarc");
+  const nolitarcPath = path.resolve(os.homedir(), '.nolitarc');
   let nolitarc = {};
   try {
-    const nolitarcContent = fs.readFileSync(nolitarcPath, "utf8");
+    const nolitarcContent = fs.readFileSync(nolitarcPath, 'utf8');
     nolitarc = JSON.parse(nolitarcContent);
   } catch (error) {
     // File does not exist or is not valid JSON
@@ -26,100 +26,86 @@ const writeToNolitarc = (key: string, value: string): void => {
   fs.writeFileSync(nolitarcPath, JSON.stringify(nolitarc));
 };
 
-export const run = async (toolbox: GluegunToolbox) => {
-  const homeConfig = loadConfigFile(path.resolve(os.homedir(), ".nolitarc"));
-  const { hdrApiKey, agentProvider } = homeConfig;
-  const { print, prompt } = toolbox;
+const handleModelConfig = async (homeConfig: any) => {
+  const { agentProvider } = homeConfig;
 
   if (!agentProvider) {
-    print.error("No model config found in ~/.nolitarc.");
-    await prompt
-      .ask({
-        type: "confirm",
-        name: "model",
-        message: "Would you like to set a model config?",
-      })
-      .then(async ({ model }) => {
-        if (model) {
-          const { provider, apiKey, model } = await prompt.ask([
-            {
-              type: "select",
-              name: "provider",
-              message: "Please select an agent provider.",
-              choices: ["openai", "anthropic"],
-            },
-            {
-              type: "input",
-              name: "apiKey",
-              message: "Please enter your provider API key.",
-            },
-            {
-              type: "input",
-              name: "model",
-              message: "Please enter your model name.",
-              initial: "gpt-4",
-            },
-          ]);
-          writeToNolitarc("agentProvider", provider);
-          writeToNolitarc("agentApiKey", apiKey);
-          writeToNolitarc("agentModel", model);
-        }
-      });
-  }
+    console.error('No model config found in ~/.nolitarc.');
+    const model = await confirm({
+      message: 'Would you like to set a model config?',
+    });
 
-  if (agentProvider) {
-    print.success("Model config found in ~/.nolitarc.");
-    await prompt
-      .ask({
-        type: "confirm",
-        name: "delete",
-        message: "Delete model config?",
-      })
-      .then(({ delete: del }) => {
-        if (del) {
-          writeToNolitarc("agentProvider", "");
-          writeToNolitarc("agentApiKey", "");
-          writeToNolitarc("agentModel", "");
-          print.success("Model config deleted.");
-        }
+    if (model) {
+      const provider = await select({
+        message: 'Please select an agent provider.',
+        choices: [{
+          name: 'OpenAI',
+          value: 'openai',
+        }, {
+          name: 'Anthropic',
+          value: 'anthropic',
+        }],
       });
+      const apiKey = await input({
+        message: 'Please enter your provider API key.',
+      });
+      const model = await input({
+        message: 'Please enter your model name.',
+        default: 'gpt-4',
+      });
+      writeToNolitarc('agentProvider', provider);
+      writeToNolitarc('agentApiKey', apiKey);
+      writeToNolitarc('agentModel', model);
+    }
+  } else {
+    console.log('Model config found in ~/.nolitarc.');
+    const deleteConfig = await confirm({
+      message: 'Delete model config?',
+    });
+
+    if (deleteConfig) {
+      writeToNolitarc('agentProvider', '');
+      writeToNolitarc('agentApiKey', '');
+      writeToNolitarc('agentModel', '');
+      console.log('Model config deleted.');
+    }
   }
+};
+
+const handleHDRApiKey = async (homeConfig: any) => {
+  const { hdrApiKey } = homeConfig;
 
   if (!hdrApiKey) {
-    print.error("No HDR API key found in ~/.nolitarc.");
-    await prompt
-      .ask({
-        type: "confirm",
-        name: "create",
-        message: "Would you like to sign up at dashboard.hdr.is?",
-      })
-      .then(async ({ create }) => {
-        if (create) {
-          open("https://dashboard.hdr.is");
-        }
-      });
-    const { apiKey } = await prompt.ask({
-      type: "input",
-      name: "apiKey",
-      message:
-        "Please access https://dashboard.hdr.is/keys and enter your generated HDR API key.",
+    console.error('No HDR API key found in ~/.nolitarc.');
+    const create = await confirm({
+      message: 'Would you like to sign up at dashboard.hdr.is?',
     });
-    writeToNolitarc("hdrApiKey", apiKey);
-  }
 
-  if (hdrApiKey) {
-    print.success("HDR API key found in ~/.nolitarc.");
-    await prompt
-      .ask({
-        type: "confirm",
-        name: "delete",
-        message: "Delete HDR API key?",
-      })
-      .then(({ delete: del }) => {
-        if (del) {
-          writeToNolitarc("hdrApiKey", "");
-          print.success("HDR API key deleted.");
-        }
-      });
+    if (create) {
+      open('https://dashboard.hdr.is');
+    }
+
+    const apiKey = await input({
+      message:
+        'Please access https://dashboard.hdr.is/keys and enter your generated HDR API key.',
+    });
+    writeToNolitarc('hdrApiKey', apiKey);
+  } else {
+    console.log('HDR API key found in ~/.nolitarc.');
+    const deleteKey = await confirm({
+      message: 'Delete HDR API key?',
+    });
+
+    if (deleteKey) {
+      writeToNolitarc('hdrApiKey', '');
+      console.log('HDR API key deleted.');
+    }
   }
+};
+
+export const run = async () => {
+  const homeConfig = loadConfigFile(path.resolve(os.homedir(), '.nolitarc'));
+
+  await handleModelConfig(homeConfig);
+  await handleHDRApiKey(homeConfig);
 };

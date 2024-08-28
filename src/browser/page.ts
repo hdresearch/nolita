@@ -33,6 +33,7 @@ import { fetchMemorySequence, remember } from "../collectiveMemory/remember";
 import { ModelResponseType } from "../types";
 import { DEFAULT_STATE_ACTION_PAIRS } from "../collectiveMemory/examples";
 import { Memory } from "../types/memory.types";
+import { isEmail } from "../utils/ariaUtils";
 
 /**
  * Represents a web page and provides methods to interact with it.
@@ -283,6 +284,12 @@ export class Page {
     }
     const index = this.idMapping.size;
     const e: AccessibilityTree = [index, node.role, node.name!];
+
+    if (e[1] === "link") {
+      if (isEmail(e[2])) {
+        e[1] = "StaticText(email)";
+      }
+    }
     this.idMapping.set(index, e);
     let children = [] as AccessibilityTree[];
     if (node.children) {
