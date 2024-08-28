@@ -12,5 +12,8 @@ yargs(hideBin(process.argv))
   .command('auth', 'Authenticate and configure Nolita', {}, authRun)
   .command(createCommand)
   .command(serveCommand)
-  .help()
+  .help('help', '', false)
+  .fail(() => {
+    process.exit(1);
+  })
   .argv;
