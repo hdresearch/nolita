@@ -22,7 +22,7 @@ export const handler = async (argv: any) => {
     port: port,
   });
   console.log(`Server started on port ${port}`);
-  console.log(`Documentation available at http://localhost:${port}/doc`);
+  console.log(`Documentation available at http://localhost:${port}/`);
   console.log('Press Ctrl+C to stop the server.');
 
   return new Promise<void>((resolve) => {
