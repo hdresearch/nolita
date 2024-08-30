@@ -52,14 +52,8 @@ const isValidUrl = (value: string): void => {
 };
 
 const isValidProvider = (value: string): void => {
-  if (value !== "openai" && value !== "anthropic") {
+  if (value !== "openai" && value !== "anthropic" && value !== "ollama" && value !== "local") {
     throw new Error("Invalid provider.");
-  }
-};
-
-const isValidApiKey = (value: string, key: string): void => {
-  if (value.length === 0) {
-    throw new Error(`${key} not provided.`);
   }
 };
 
@@ -90,7 +84,6 @@ const validate = (config: any): void => {
         return;
       case "agentApiKey":
         isValidString(value, key);
-        isValidApiKey(value as string, key);
         return;
       case "agentProvider":
         isValidString(value, key);
@@ -119,7 +112,7 @@ const getConfig = (
   agentModel:
     argv.agentModel || mergedConfig.agentModel || process.env.HDR_AGENT_MODEL,
   agentApiKey:
-    argv.agentApiKey || mergedConfig.agentApiKey || process.env.HDR_AGENT_API_KEY,
+    (argv.agentApiKey || mergedConfig.agentApiKey) ?? process.env.HDR_AGENT_API_KEY,
   hdrApiKey: argv.hdrApiKey || mergedConfig.hdrApiKey || process.env.HDR_API_KEY,
   headless: argv.headless ?? mergedConfig.headless ?? process.env.HDR_HEADLESS,
   hdrDisable: argv.hdrDisable ?? mergedConfig.hdrDisable ?? process.env.HDR_DISABLE,
@@ -131,7 +124,6 @@ const getConfig = (
 export const run = async (argv: any) => {
   const mergedConfig = loadConfigs(argv.config);
   const resolvedConfig = getConfig(mergedConfig, argv);
-
   // default true
   resolvedConfig.headless =
     resolvedConfig.headless !== undefined

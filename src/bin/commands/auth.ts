@@ -44,8 +44,26 @@ const handleModelConfig = async (homeConfig: any) => {
         }, {
           name: 'Anthropic',
           value: 'anthropic',
+        },
+        {
+          name: 'Ollama',
+          value: 'ollama',
+        }, {
+          name: 'local',
+          value: 'local',
         }],
       });
+      if (provider === 'local' || provider === 'ollama') {
+        console.log('Using local models is experimental. Please see https://docs.nolita.ai/use/local.html for more information.');
+        const model = await input({
+          message: provider === 'ollama' ? 'Please enter your preferredmodel for Ollama.' : 'Please enter a full path to your model file.',
+          default: provider === 'ollama' ? 'llama3.1' : '/Users/yourname/model.gguf',
+        });
+        writeToNolitarc('agentProvider', provider);
+        writeToNolitarc('agentApiKey', '');
+        writeToNolitarc('agentModel', model);
+        return;
+      }
       const apiKey = await input({
         message: 'Please enter your provider API key.',
       });
@@ -78,7 +96,7 @@ const handleHDRApiKey = async (homeConfig: any) => {
   if (!hdrApiKey) {
     console.error('No HDR API key found in ~/.nolitarc.');
     const create = await confirm({
-      message: 'Would you like to sign up at dashboard.hdr.is?',
+      message: 'Would you like to open dashboard.hdr.is?',
     });
 
     if (create) {
@@ -87,7 +105,7 @@ const handleHDRApiKey = async (homeConfig: any) => {
 
     const apiKey = await input({
       message:
-        'Please access https://dashboard.hdr.is/keys and enter your generated HDR API key.',
+        'Please access https://dashboard.hdr.is/keys and enter your generated HDR API key, or press enter to skip.',
     });
     writeToNolitarc('hdrApiKey', apiKey);
   } else {

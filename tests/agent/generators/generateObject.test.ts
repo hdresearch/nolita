@@ -31,9 +31,8 @@ describe("generateObjectLocal", () => {
     const messages = getPrompt(ariaTreeExample);
     const providerConfig: ProviderConfig = {
       provider: "local",
-      model: "null",
+      model: "/Users/tynandaly/basin/hdr/browser/capybarahermes-2.5-mistral-7b.Q2_K.gguf",
       apiKey: "null",
-      path: "/Users/tynandaly/basin/hdr/browser/capybarahermes-2.5-mistral-7b.Q2_K.gguf",
     };
 
     const res = await generateObject(providerConfig, messages, {

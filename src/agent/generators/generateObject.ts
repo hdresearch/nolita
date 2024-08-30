@@ -40,10 +40,7 @@ export async function generateObject<T extends z.ZodSchema<any>>(
       response = await generateObjectOllama(config.model, messages, options);
       break;
     case "local":
-      if (!config.path) {
-        throw new Error("Local provider requires a path to the model");
-      }
-      response = await generateObjectLocal(config.path, messages, options);
+      response = await generateObjectLocal(config.model, messages, options);
       break;
     case "openai":
     case "anthropic":
