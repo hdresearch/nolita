@@ -26,7 +26,7 @@ async function main() {
     provider: agentProvider || "anthropic",
   };
 
-  // We can create a chat api using the completionApiBuilder.
+  // We can create a chat api using makeAgent.
   // These can be swapped out for other providers like OpenAI
   const agent = makeAgent(providerOptions, {
     model: agentModel || "claude-3-5-sonnet-20240620",

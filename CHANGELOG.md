@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.2.0
+
+- Fixes some OpenAPI schemas in the server.
+- Ollama and local models are integrated as providers and marked as experimental. For more information, see the usage guide on https://docs.nolita.ai.
+- Our object generation logic and all our CLI utilities have been rewritten.
+- We no longer render emails and `mailto:` links as clickable in the aria tree. This is to prevent mail clients popping open emails when using Nolita to collect addresses.
+- **Breaking**: `apiCompletionBuilder`, largely an internal class, is no longer available. We advise using `makeAgent`, instead, also available as an export.
+
 ## 2.1.3
 
 - Fixes an issue with dependency resolution leading to crashes on 2.1.2 and 2.1.1, which were unpublished.
